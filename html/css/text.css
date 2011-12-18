@@ -1,0 +1,32 @@
+/* CSS Document */
+body {
+	margin: 0;
+	padding: 0;
+	font-size: 11px;
+	color: #8a3942;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	background-color: #f9ebe8;
+}
+
+.ygtvlabel {
+	padding-top: 3px;
+	background-color: #f9ebe8;
+	text-decoration: none;
+	color: #126d40;
+	font-weight: bold;
+	font-size: 10px;
+}
+
+.ygtvlabel:hover {
+	color: #a5444d;
+}
+
+.labelcell {
+	padding-top: 4px;
+}
+
+div#rule_horiz {
+	border-top: 2px solid #ebd3d3; 
+	margin: 10px 0 10px 0;
+}
+
