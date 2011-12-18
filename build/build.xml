@@ -1,0 +1,46 @@
+<project name="Parsley Manual"> 
+	
+	<property name="version" value="3.0"/>
+	
+	<property name="project.dir" value="${basedir}/.."/>
+	<property name="manual.src.dir" value="${project.dir}/src"/>
+	<property name="manual.target.dir" value="${project.dir}/html"/>
+	<property name="website.parsley.docs.dir" value="${project.dir}/../../SpicefactoryProduction/Website/parsley/docs/${version}"/>
+
+	
+	<target name="generate_html" description="Parsley Manual - HTML Version">
+		<java 
+			jar="garlic-1.1.1.jar"
+			fork="true"
+			failonerror="false"
+			dir="${manual.src.dir}"
+			>
+			<arg line=".htm template_html.txt toctemplate_html.txt"/>
+		</java>
+		<move todir="${manual.target.dir}">
+			<fileset dir="${manual.src.dir}" includes="*.htm"/>
+		</move>
+		<copy todir="${manual.target.dir}">
+			<fileset dir="${manual.src.dir}" includes="*.jpg"/>
+		</copy>
+	</target>
+	
+	<target name="generate_php" description="Parsley Manual - PHP">
+		<java 
+			jar="garlic-1.1.1.jar"
+			fork="true"
+			failonerror="false"
+			dir="${manual.src.dir}"
+			>
+			<arg line=".php template_php.txt toctemplate_php.txt"/>
+		</java>
+		<move todir="${website.parsley.docs.dir}/manual">
+			<fileset dir="${manual.src.dir}" includes="*.php,toc.htm"/>
+		</move>
+		<copy todir="${website.parsley.docs.dir}/manual">
+			<fileset dir="${manual.src.dir}" includes="*.jpg"/>
+		</copy>
+	</target>
+	
+	
+</project>
