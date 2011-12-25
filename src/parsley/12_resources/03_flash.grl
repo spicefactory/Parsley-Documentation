@@ -4,6 +4,8 @@
 the framework that already existed in early AS2 versions of the framework. But it's still a good solution
 if you are not using Flex. This section describes how you configure and use this module. #par
 
+#par This functionality is not part of Parsley Core. The extension is available on the Parsley download page.
+Simply add the SWCs from the download to your classpath. #par
 
 
 #sc3 resources_flash_config Configuration #sc3
