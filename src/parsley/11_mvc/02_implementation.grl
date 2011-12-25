@@ -11,7 +11,7 @@ import mx.rpc.AsyncToken;
 import mx.rpc.Fault;
 import mx.rpc.remoting.RemoteObject;
 
-import com.bookstore.events.CartEvent;
+import com.bookstore.messages.AddToCartMessage;
 import com.bookstore.services.CartService;
 import com.bookstore.model.LineItem;
 
@@ -22,15 +22,15 @@ public class AddToCartCommand {
     public var cartService:RemoteObject;
 
     
-    public function execute (event:CartEvent) : AsyncToken {
-        return cartService.addItem(event.item);
+    public function execute (message: AddToCartMessage): AsyncToken {
+        return cartService.addItem(message.item);
     }
     
-    public function result (item:LineItem) : void {
+    public function result (item: LineItem): void {
         /* modify or cache the result */
     }
     
-    public function error (fault:Fault) : void {
+    public function error (fault: Fault): void {
         /* handle fault */
     }
     
@@ -39,33 +39,22 @@ public class AddToCartCommand {
 } 
 #cdb
 
-#par And this is how you can configure such a command in a Parsley configuration class (in this case MXML): #par
+#par And this is how you can map such a command to a message in a Parsley configuration class (in this case MXML): #par
 
 #cdb
-<parsley:MapCommand 
-    type="{AddToCartCommand}" 
-    selector="addItem"
-/>
+<parsley:MapCommand type="{AddToCartCommand}" />
 #cdb
 
 #par We'll now examine the various parts of this class in detail. First there is the method
 that executes the command: #par
 
 #cdb
-public function execute (event:CartEvent) : AsyncToken {
+public function execute (event: AddToCartMessage) : AsyncToken {
 #cdb
 
-#par In this example we are using regular Flash Events as application messages, but you are not forced to do so
-as described in #ref messaging_dispatching #ref. #par
-
 #par The method parameter tells the framework that we are interested
-in #cdi CartEvents #cdi. MessageHandler selection happens based on message type, so in a large and complex application
+in #cdi AddToCartMessage #cdi. MessageHandler selection happens based on message type, so in a large and complex application
 you won't run into problems having to maintain event type constants which are unique across the whole system. #par
-
-#par But since we are not interested in all CartEvents that get dispatched we specify a #cdi selector #cdi attribute
-in the MXML configuration
-which in case of Events points to the type property of the Event. In this case we are intereseted in CartEvents with
-the type #cdi addItem #cdi which was dispatched by the View or the presentation model as a result of an UI event. #par
 
 #par In the body of that method we are using the injected #cdi CartService #cdi: #par
 

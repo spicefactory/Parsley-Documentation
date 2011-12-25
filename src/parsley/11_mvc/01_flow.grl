@@ -49,6 +49,4 @@ and the registration for particular messages in the #cdi MessageRouter #cdi. #pa
 
 #par If you think this diagram smells like over-engineering, it merely serves as an example
 for a full blown MVC architecture of a large and complex application. In smaller and simpler
-applications you can of course simplify the design presented above. For example the Mediator
-may be omitted in simpler use cases where the view itself dispatches and receives application
-messages. #par
+applications you can of course simplify the design presented above. #par
