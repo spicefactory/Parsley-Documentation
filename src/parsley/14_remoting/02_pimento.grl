@@ -28,14 +28,14 @@ the Pimento configuration and custom services. #par
 </Objects> 
 #cdb
 
-#par This minimal setup is all that is required to be able to inject Pimentos AS3 EntityManager into any object: #par
+#par This minimal setup is all that is required to be able to inject Pimentos AS3 EntityManager into any object
+(in this case a command mapped to a message): #par
 
 #cdb
 [Inject]
 public var entityManager:EntityManager;
 
-[Command]
-public function deleteCart (message:DeleteCartMessage) : ServiceRequest {
+public function execute (message:DeleteCartMessage) : ServiceRequest {
     return entitiyManager.remove(message.cart);
 } 
 #cdb

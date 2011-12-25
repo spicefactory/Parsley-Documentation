@@ -145,7 +145,7 @@ There is a 1:N relationship between a decorator and a processor. When you implem
 the #cdi ObjectDefinitionDecorator #cdi tag like shown in preceding sections, it will be invoked once for a particular
 definition in your Context. If it is a definition created by an #cdi <Object> #cdi tag or any other tag which represents a
 singleton, then the decorator will also map to only one processor. But for other types of objects, like those declared
-with #cdi <DynamicObject> #cdi or #cdi <DynamicCommand> #cdi multiple instances may be created from a single definition.
+with #cdi <DynamicObject> #cdi or #cdi <Command> #cdi multiple instances may be created from a single definition.
 In this case one decorator maps to multiple processors, as a new processor gets created for each new instance. #par
 
 #par This mechanism has the advantage that you can keep state that only
@@ -253,7 +253,7 @@ demonstrate how to directly connect a processor with a decorator. #par
 
 #par The Parsley support for metadata configuration tags is built on top of the Spicelib Reflection API which
 offers the capability to map attributes of metadata tags to properties of classes, bringing AS3 metadata a bit closer
-to the type-safe nature of Java Annotations for example. See ?ref reflection_metadata_mapping ?ref in the Spicelib Manual
+to the type-safe nature of Java Annotations for example. See #ref reflection_metadata_mapping #ref in the Spicelib Manual
 for details. #par
 
 #par Making the custom tag available for metadata configuration requires three steps: #par

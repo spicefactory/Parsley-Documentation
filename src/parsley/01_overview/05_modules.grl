@@ -12,8 +12,8 @@ combined to add only the feature set required by your application to the classpa
 
 #tbl
 #tbr #cdi spicelib-core #cdi # Core utilities, errors and events. #tbr 
-#tbr #cdi spicelib-reflect #cdi # The Spicelib Reflection API. See ?ref reflection_intro ?ref for details. #tbr 
-#tbr #cdi spicelib-xml #cdi # The XML-to-Object Mapper. See ?ref xmlmapper_intro ?ref for details. #tbr 
-#tbr #cdi spicelib-task #cdi # The Task Framework for asynchronous operations. See ?ref task_intro ?ref for details. #tbr 
-#tbr #cdi spicelib-flash-support #cdi # The Flash Logging Framework. See ?ref spicelib-logging_intro ?ref for details. #tbr 
+#tbr #cdi spicelib-reflect #cdi # The Spicelib Reflection API. See #ref reflection_intro #ref for details. #tbr 
+#tbr #cdi spicelib-xml #cdi # The XML-to-Object Mapper. See #ref xmlmapper_intro #ref for details. #tbr 
+#tbr #cdi spicelib-task #cdi # The Commands Framework for asynchronous operations. See #ref commands_intro #ref for details. #tbr 
+#tbr #cdi spicelib-flash-support #cdi # The Flash Logging Framework. See #ref spicelib-logging_intro #ref for details. #tbr 
 #tbl

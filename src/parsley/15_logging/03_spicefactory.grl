@@ -35,7 +35,7 @@ LogContext.factory = new FlexLogFactory();
 #par For Spicelib Logging the delegate will be set automatically when you use the custom XML configuration tags
 as shown in #ref logging_flash #ref. #par
 
-#par If you are not using XML configuration you can read ?ref spicelib-logging_config_programmatic ?ref.
+#par If you are not using XML configuration you can read #ref spicelib-logging_config_programmatic #ref.
 There is an code example where the last line sets the delegate: #par
 
 #cdb

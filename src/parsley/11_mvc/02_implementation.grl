@@ -42,7 +42,7 @@ public class AddToCartCommand {
 #par And this is how you can configure such a command in a Parsley configuration class (in this case MXML): #par
 
 #cdb
-<DynamicCommand 
+<parsley:MapCommand 
     type="{AddToCartCommand}" 
     selector="addItem"
 />

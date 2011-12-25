@@ -1,7 +1,7 @@
 #sc2 logging_flash Logging Configuration for Flash #sc2
 
 #par For Flash Applications Spicelib offers its own Logging Framework. For details on how to use it see
-?ref spicelib-logging_intro ?ref in the Spicelib Manual. Parsley includes an XML tag extension that
+#ref spicelib-logging_intro #ref in the Spicelib Manual. Parsley includes an XML tag extension that
 you can use to configure loggers for that framework: #par
 
 #cdb

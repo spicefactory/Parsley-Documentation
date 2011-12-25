@@ -61,14 +61,13 @@ In case of multiple channels you'd have to set the id property for the channel a
 />
 #cdb
 
-#par You can then inject services into your actions: #par
+#par You can then inject services into your command (or other object): #par
 
 #cdb
 [Inject]
 public var loginService:LoginService;
 
-[Command]
-public function login (event:LoginEvent) : ServiceRequest {
+public function execute (event:LoginMessage) : ServiceRequest {
     return loginService.login(event.username, event.password);
 } 
 #cdb

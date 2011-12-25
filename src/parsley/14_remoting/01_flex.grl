@@ -38,8 +38,7 @@ injection then: #par
 #hlt [Inject(id="loginService")] #hlt
 public var service:RemoteObject;
 
-[Command]
-public function login (event:LoginEvent) : AsyncToken {
+public function execute (event:LoginEvent) : AsyncToken {
     return service.login(event.username, event.password);
 }
 
@@ -102,8 +101,7 @@ both the RemoteObjects and the delegates in Parsley MXML: #par
 #hlt [Inject] #hlt
 public var loginDelegate:LoginDelegate;
 
-[Command]
-public function login (event:LoginEvent) : AyncToken {
+public function execute (event:LoginEvent) : AyncToken {
     return loginDelegate.login(event.username, event.password);
 }
 #cdb

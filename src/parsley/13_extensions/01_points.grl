@@ -7,7 +7,7 @@
 metadata tags like #cdi [Inject] #cdi or #cdi [MessageHandler] #cdi. #lse
 
 #lse #ref extensions_mxml_xml #ref: Like with metadata this extension point is also used
-by all builtin tags like #cdi <Object> #cdi or #cdi <DynamicCommand> #cdi. #lse
+by all builtin tags like #cdi <Object> #cdi or #cdi <MapCommand> #cdi. #lse
 
 #lse #ref extensions_config_processors #ref: This hook is also used by all builtin mechanisms
 like MXML, XML or ActionScript configuration. #lse

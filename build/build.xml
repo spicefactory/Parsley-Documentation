@@ -27,12 +27,12 @@
 	
 	<target name="generate_php" description="Parsley Manual - PHP">
 		<java 
-			jar="garlic-1.1.1.jar"
+			jar="garlic-1.1.2.jar"
 			fork="true"
 			failonerror="false"
 			dir="${manual.src.dir}"
 			>
-			<arg line=".php template_php.txt toctemplate_php.txt"/>
+			<arg line=".php template_php.txt toctemplate_php.txt /Users/jenshalm/Projects/Spicefactory3/Spicelib-Documentation/src"/>
 		</java>
 		<move todir="${website.parsley.docs.dir}/manual">
 			<fileset dir="${manual.src.dir}" includes="*.php,toc.htm"/>

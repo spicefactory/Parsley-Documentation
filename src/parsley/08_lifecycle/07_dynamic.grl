@@ -92,9 +92,8 @@ and thus validatable. The way the object's lifecycle is controlled in this case 
 where they are fetched from the Context by application code with #cdi createDynamicObject #cdi. In the latter case
 the application will control the lifecycle and may remove the object from the Context at any point in time.
 In case of an injection however it is the framework that controls the lifecycle. The injected object will 
-remain managed as long as the object it was injected into. This functionality was not available in versions
-prior 2.3 but was requested quite often since it allows resource-friendly injections into dynamic obejcts
-like a #cdi DynamicCommand #cdi. #par
+remain managed as long as the object it was injected into. It allows resource-friendly injections into dynamic objects
+like commands. #par
 
 
 #sub Creating a dynamic object based on programmatically created object definitions #sub

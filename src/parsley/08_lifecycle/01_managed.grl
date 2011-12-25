@@ -65,7 +65,7 @@ itself gets destroyed. #par
 
 #par The lifetime of the object
 varies depending on its type. An object declared with the #cdi <Object> #cdi tag in the root Context of the application
-for example is often managed for the entire lifetime of the application. A #cdi <DynamicCommand> #cdi represents the other
+for example is often managed for the entire lifetime of the application. A Command represents the other
 extreme: it is only managed as long as the command executes. An object configured in a Context for a Flex Module in turn
 usually only lives until the Module gets unloaded. You can get notified when an object becomes managed or unmanaged inside
 the object itself through its #ref lifecycle_methods #ref. #par
@@ -74,7 +74,7 @@ the object itself through its #ref lifecycle_methods #ref. #par
 services like #ref injection_constructor #ref. Sometimes though the object is created by the application and then
 added to the Context, which obviously prevents that a service like Constructor Injection can be performed. 
 The most common ways to let the container instantiate the object is using configuration tags like #cdi <Object> #cdi,
-#cdi <DynamicObject> #cdi or #cdi <DynamicCommand> #cdi in an MXML or XML configuration file. #par  
+#cdi <DynamicObject> #cdi or #cdi <MapCommand> #cdi in an MXML or XML configuration file. #par  
 
 #par For the design of your application it is also important to
 consider that no object can get garbage collected as long as it is managed. For that reason a big and modular application

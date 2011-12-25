@@ -1,8 +1,8 @@
 #sc2 extensions_mxml_xml Custom MXML and XML Tags #sc2
 
-#par In many applications you may be able to stick to the builtin tags like #cdi <Object> #cdi or #cdi <DynamicCommand> #cdi
+#par In many applications you may be able to stick to the builtin tags like #cdi <Object> #cdi or #cdi <Command> #cdi
 for your MXML or XML configuration files. But in case you want to add custom options the format is easy to extend.
-Like with the metadata extension point, all the builtin tags like #cdi <Object> #cdi or #cdi <DynamicCommand> #cdi are implemented
+Like with the metadata extension point, all the builtin tags like #cdi <Object> #cdi or #cdi <Command> #cdi are implemented
 as extensions themselves. #par
 
 
@@ -34,7 +34,7 @@ framework interface their #cdi resolve #cdi method will be invoked first to dete
 For details see #ref extensions_mxml_xml_nested #ref. #par
 
 #par Finally there are places where tags implementing #cdi ObjectDefinitionDecorator #cdi can be used. Amongst other places they can
-be used as immediate children of the root tags #cdi <Object> #cdi, #cdi <DynamicObject> #cdi and #cdi <DynamicCommand> #cdi. 
+be used as immediate children of the root tags #cdi <Object> #cdi or #cdi <DynamicObject> #cdi. 
 This is the same interface that custom metadata tags have to implement. Thus a single implementation of that interface can be used
 as metadata, MXML or XML, allowing for a great level of flexibility. #par
 
@@ -204,7 +204,6 @@ If you checkout the Parsley project from SVN you can find the manifest files for
     <component id="View" class="com.foo.ViewTag"/>
     <component id="DynamicObject" class="com.foo.DynamicObjectTag"/>
     <component id="NestedObject" class="com.foo.NestedObjectTag"/>
-    <component id="DynamicCommand" class="com.foo.DynamicCommandTag"/>
 </componentPackage>
 #cdb
 
@@ -225,7 +224,7 @@ have to be the same as the class name. #par
 
 #par In contrast to MXML creating a namespace for custom tags is required for XML. It's the only way to expand
 the basic feature set of the Parsley XML tags. The XML support is built on top of the Spicelib XML-Object-Mapper.
-For full documentation see ?ref xmlmapper_intro ?ref. But often the full feature set is not required. 
+For full documentation see #ref xmlmapper_intro #ref. But often the full feature set is not required. 
 For basic tags that can also be used in MXML they often only utilize attributes for configuration and avoid
 any complex structure. Since mapping to attributes is the default behaviour of the XML-Object-Mapper, nothing
 has to be configured explicitly then. You'd only need to create the namespace and list the classes that should

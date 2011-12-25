@@ -19,7 +19,7 @@ For a #cdi MessageHandler #cdi for example the only difference is that you inclu
 public function intercept (msg:LoginMessage, processor:MessageProcessor) : void {
 #cdb
 
-#par The same can be applied to a #cdi [CommandResult] #cdi or #cdi <DynamicCommand> #cdi or other types
+#par The same can be applied to a #cdi [CommandResult] #cdi or other types
 of message receivers. The first parameter serves for matching the types of messages you are interested
 in like with a normal message handler. #par
 

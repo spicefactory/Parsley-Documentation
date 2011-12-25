@@ -109,7 +109,7 @@ functionality. #par
 #par Parsley allows for local result handlers for a command
 that was executed in global scope. This solves a common problem in modular applications where a single
 tab or window dispatches a message that is supposed to trigger a command in a shared service in the root
-application. The DynamicCommand in the shared service has to listen to the global scope, as it does not
+application. The Command in the shared service has to listen to the global scope, as it does not
 belong to the same Context as the sending object in the module loaded into that tab or window. But for the result handling
 it is very often only this particular tab or window which wants to handle it. For this reason command results and errors
 are always re-routed to the Context where the message that triggered the command originated from. #par

@@ -14,7 +14,7 @@ function addCommandObserver (observer:CommandObserver) : void;
 #cdb
 
 #par There are three categories of message receivers: a #cdi MessageTarget #cdi is a regular receiver, implementing
-classes include #cdi MessageHandler #cdi and #cdi MessageBinding #cdi. A #cdi <DynamicCommand> #cdi is also a regular
+classes include #cdi MessageHandler #cdi and #cdi MessageBinding #cdi. #cdi <MapCommand> #cdi also acts as a regular
 target. #cdi MessageErrorHandler #cdi corresponds to the #cdi [MessageError] #cdi tag and finally 
 a #cdi CommandObserver #cdi listens to the result or
 error outcome of a command. The interface contains three for methods for removing these three receiver types. #par
