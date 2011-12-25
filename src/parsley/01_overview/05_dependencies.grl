@@ -1,0 +1,30 @@
+#sc2 overview_dependencies Dependencies #sc2
+
+#par Parsley and Spicelib get released in a number of separate SWCs. 
+You only have to add the SWCs to your classpath if you need the corresponding
+functionality. Spicelib is a set of libraries that do not depend on Parsley
+and also mostly not on each other. Parsley builds functionality on top of them. #par
+
+#par The diagram below shows the dependencies between these artifacts.
+For Parsley only the SWCs provided by the Parsley Core project are included,
+for the sake of clarity. The dependencies of the various Parsley extension 
+projects are listed in the table below the diagram. #par
+
+
+#sub Dependencies of Parsley Core and Spicelib Artifacts #sub
+
+#img doc_img dependencies.png #img
+
+
+#sub Dependencies of Parsley Extension Projects #sub
+
+#par All extensions depend on #cdi parsley-core #cdi (including all transitive dependencies).
+Additional dependencies are listed below (omitting transitive dependencies which you can see in the diagram above). #par
+
+#tbl
+#tbr #cdi XML Tags for Flex Logging #cdi # parsley-flex, parsley-xml #tbr 
+#tbr #cdi XML Tags for Spicelib Logging #cdi # spicelib-logging, parsley-xml #tbr 
+#tbr #cdi Flash Localization #cdi # parsley-xml #tbr 
+#tbr #cdi Parsley Popup #cdi # parsley-flex, popup (from Cairngorm 3) #tbr 
+#tbr #cdi Pimento Support #cdi # pimento, cinnamon #tbr 
+#tbl
