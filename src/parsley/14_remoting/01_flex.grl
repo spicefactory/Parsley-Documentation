@@ -38,25 +38,31 @@ injection then: #par
 #hlt [Inject(id="loginService")] #hlt
 public var service:RemoteObject;
 
-public function execute (event:LoginEvent) : AsyncToken {
-    return service.login(event.username, event.password);
+public function execute (message: LoginMessage): AsyncToken {
+    return service.login(message.username, message.password);
 }
 
 #cdb
 
 #par For Commands the framework will manage the AsyncToken for you. 
-Other objects (or the same instance) can then listen for the results: #par
+Other objects can then listen for the results: #par
 
 #cdb
 [CommandResult]
-public function loginResult (user:User, trigger:LoginEvent) : void {
+public function loginResult (user: User, trigger:LoginMessage) : void {
     [...]
 }
 [CommandError]
-public function loginFault (fault:FaultEvent, trigger:LoginEvent) : void {
+public function loginFault (fault: Fault, trigger:LoginMessage) : void {
     [...]
 }
 #cdb
+
+#par Note that if you want result handlers inside the command itself,
+you have to omit both the metadata and the trigger parameter as this
+mapping information is not required. The framework knows that it has to invoke
+the result handler on the command for the results produced by that command. #par
+
 
 #sub Using BusinessDelegates #sub
 
@@ -101,7 +107,7 @@ both the RemoteObjects and the delegates in Parsley MXML: #par
 #hlt [Inject] #hlt
 public var loginDelegate:LoginDelegate;
 
-public function execute (event:LoginEvent) : AyncToken {
-    return loginDelegate.login(event.username, event.password);
+public function execute (message: LoginMessage): AyncToken {
+    return loginDelegate.login(message.username, message.password);
 }
 #cdb

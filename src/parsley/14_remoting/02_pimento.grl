@@ -3,8 +3,8 @@
 #par Pimento integrates JPA/Hibernate and Spring with Flex, Flash and AIR clients. It is another Open Source Project
 under the Spicefactory umbrella. See the #url http://www.spicefactory.org/pimento/ Pimento Info Page #url for more details. #par
 
-#par Parsley includes custom configuration tags for Pimento for MXML and XML that allow you to define
-the Pimento configuration and custom services. #par
+#par The Pimento Support extension for Parsley (available on the Parsley download page) includes custom configuration tags for 
+Pimento for MXML and XML that allow you to define the Pimento configuration and custom services. #par
 
 #sub MXML Example #sub
 

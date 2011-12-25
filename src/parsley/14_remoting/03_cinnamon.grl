@@ -4,7 +4,7 @@
 Remoting you can stick with Cinnamon instead. See the #url http://www.spicefactory.org/pimento/ Pimento/Cinnamon Info Page #url 
 for more details. #par
 
-#par Parsley includes custom configuration tags for Cinnamon for MXML and XML that allow you to define
+#par The Pimento Support extension for Parsley (available on the Parsley download page) includes custom configuration tags for Cinnamon for MXML and XML that allow you to define
 the channel and services. #par
 
 
