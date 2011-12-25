@@ -22,13 +22,6 @@ exactly one ApplicationDomain for reflection internally. If you only want to wir
 declare any models or services in the module Context, you can simply add an empty #cdi <ContextBuilder/> #cdi tag
 to the root module component. #lse
 
-#lse #str The module is loaded too early. #str For the automatic detection of the required ApplicationDomain it is important
-that the initialization of the first (root) Parsley Context starts before you load the first module. Otherwise it might happen
-that the framework passes the wrong ApplicationDomain to the module Context. Loading too early might happen if you use
-an #cdi <mx:ModuleLoader> #cdi with a hard-coded url attribute in a component that gets initialized on application startup or
-through other early programmatic loading of modules. This is a limitation of the current version (2.3) and will very likely
-no longer apply for Parsley 2.4. #lse
-
 #lse #str The view is wired to the wrong Context. #str This might happen even when the module does create its own Context
 and that Context has the right ApplicationDomain for reflection. The last possible cause is then that the view did not
 get wired to the module Context, but only to the root application Context. The views connect through bubbling events
@@ -69,8 +62,6 @@ to [Context(FlexConfig{MyModuleConfig})]
 
 #par Here you can examine that the module Context found its parent (the root ApplicationContext) and the
 view MyWindow got wired to the module Context and not to the root Context. #par
-
-#par Note that you have to use Parsley 2.3.2 or newer to see the complete log output as shown above. #par
 
 #par You can also improve the readability of the logs when you set the #cdi description #cdi attribute
 explicitly in the ContextBuilder: #par

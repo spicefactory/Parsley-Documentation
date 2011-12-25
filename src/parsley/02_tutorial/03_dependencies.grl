@@ -1,7 +1,7 @@
 #sc2 tutorial_dependencies Defining Object Dependencies #sc2
 
-#par This is probably the most frequently used feature of Parsley. Defining dependencies is a lot more convenient since 
-Parsley 2 where we introduced configuration with Metadata or MXML in addition to XML files. #par
+#par This is probably the most frequently used feature of Parsley. Dependencies can be configured
+with Metadata, MXML, XML or programmatically. #par
 
 #sub Using the #cdi [Inject] #cdi metadata tag #sub
 

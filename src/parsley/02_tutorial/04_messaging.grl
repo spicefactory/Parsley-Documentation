@@ -12,7 +12,7 @@ can register for all message types it is interested in. #par
 
 #par For more details on this topic see #ref messaging_intro #ref and #ref mvc_intro #ref. #par
 
-#par With Parsley 2 you can configure the sending as well as the receiving side with metadata tags.
+#par With Parsley you can configure the sending as well as the receiving side with metadata tags.
 The sending part may simply contain a #cdi [ManagedEvents] #cdi tag at the class declaration,
 listing which of the events this class dispatches should be managed: #par
 

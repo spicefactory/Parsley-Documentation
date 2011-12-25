@@ -180,7 +180,7 @@ initialized and configured before the first time you use it. #lse
 every time this object gets fetched from the container or injected into another object, the container will create a new
 instance. #lse
 
-#lse Allows to use custom tags. Parsley 2 is easy to extend. You can create custom extensions with a single class that can
+#lse Allows to use custom tags. Parsley is easy to extend. You can create custom extensions with a single class that can
 then be used as custom metadata, MXML or XML. For examples see #ref extensions_intro #ref. #lse
 #lst
 

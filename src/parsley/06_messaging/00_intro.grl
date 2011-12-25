@@ -1,6 +1,6 @@
 #sc1 messaging_intro Messaging #sc1
 
-#par Parsley 2 introduces a new generic Messaging Framework that allows you to exchange messages between objects
+#par Parsley comes with a generic Messaging Framework that allows you to exchange messages between objects
 in a fully decoupled manner. Decoupled not only means that the sender and the receiver do not have to know each other.
 It is equally important that the sending and receiving objects are also fully decoupled from the framework itself.
 This is an advantage ignored by most other Flex Frameworks (including version 1 of Parsley) where you have to use
@@ -11,7 +11,7 @@ programmatically for Unit Tests without the extra burden to initialize an applic
 
 #par The Parsley Messaging Framework is generic in a sense that it does not impose a particular usage style.
 This is also a difference to some of the existing Flex MVC Frameworks which often advocate a certain structure
-and usage pattern or even offer concrete base classes for the controller, model and view parts. With Parsley 2
+and usage pattern or even offer concrete base classes for the controller, model and view parts. With Parsley
 you are completely free to design your application architecture. In case you do use the Messaging Framework to 
 build a classic MVC architecture you may want to read #ref mvc_intro #ref in addition to this chapter. #par
 

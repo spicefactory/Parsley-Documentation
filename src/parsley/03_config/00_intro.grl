@@ -13,6 +13,6 @@ This can be done with the mechanism you had chosen for step 1 (e.g. with MXML or
 or - in most cases - conveniently with AS3 Metadata Tags right within the classes themselves. #lse 
 
 #lse Step 3: Initialize the IOC Container (usually on application startup). 
-In Parsley 2 this is a one-liner in most cases. See the sections below for examples. #lse
+In Parsley this often just requires one line of code or a simple MXML tag. See the sections below for examples. #lse
 
 #lst

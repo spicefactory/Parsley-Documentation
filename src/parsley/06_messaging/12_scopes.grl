@@ -1,25 +1,21 @@
 #sc2 messaging_scopes Using Scopes #sc2
 
-#par In Parsley 2.0 every child Context simply shared the message router with its parent Context. 
-This way messages were always dispatched globally. An approach that may turn out to be too simplistic for large and modular applications
-where a loaded module, a window or a popup may wish to create its own local messaging context 
-while still being able to inject objects from the root Context or dispatching selected messages
-globally. The scope feature introduced with version 2.1 offers that flexibility, 
-allowing to dispatch into a subset of Contexts only. #par
+#par The scope feature adds flexibility for defining custom communication spaces, 
+allowing to dispatch messages inside a particular area of the application
+(e.g. a window, popup or tab) instead of just globally. #par
 
 #sub Global and Local Scopes #sub
 
-#par In the new default scope setup for Parsley 2.1 there is a global scope that is created for each Context that does
+#par In the default scope setup for Parsley there is a global scope that is created for each Context that does
 not have a parent (usually only the one root Context created at application startup) and then shared will all
 children of that Context (including grandchildren of course). Additionally each Context will create its own
 local scope which will not be shared with its children. The following diagram shows this default setup: #par
 
 #img doc_img scopes-default.jpg #img
 
-#par Since the global scope represents exactly the only option that was
-available in Parsley 2.0 it will always be the default scope for all configuration tags where no scope is 
-explicitly specified. This way existing configuration files and metadata tags on classes  that were used with version 2.0
-will still work the same way. #par
+#par The local scope will always be the default scope for all configuration tags where no scope is 
+explicitly specified. (Note that in Parsley 2 the default was global scope, this is important
+to consider when migrating applications from version 2 to 3). #par
 
 #cdb
 [MessageHandler(selector="save")]
