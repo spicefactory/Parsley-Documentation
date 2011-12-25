@@ -1,0 +1,141 @@
+#sc2 managedcommands_lifecycle Command Lifecycle #sc2
+
+#par Like already mentioned multiple times in preceding sections, a managed command is added
+to the Context for the time it executes. This section provides a bit more detail so that you
+can avoid common errors like trying to access Parsley features from your command after it
+already finished executing. #par
+
+#par A command is not kept in the Context longer than necessary as it is intended to be
+short-lived. As long as it is part of the Context, it cannot get garbage-collected for
+example as a Context holds references to all managed objects. Therefore commands are
+removed from the Context as soon as the container sees them as completed. This section
+explains what that exactly means. #par
+
+
+
+#sc3 managedcommands_lifecycle_sync Synchronous Commands #sc3
+
+#par Take the following simple (albeit very contrived) example of a synchronous
+command with one injected collaborator: #par
+
+#cdb
+class MultiplyCommand {
+
+	[Inject]
+	public var multiplier: Multiplier;
+
+    public function execute (msg: MultiplyMessage): int {
+        
+        return multiplier.multiply(msg.valueA, msg.valueB);
+        
+    }
+
+}
+#cdb
+
+#par The command performs a simple multiplication of two integers passed in through the message that
+triggered the command. Unfortunately it is not the smartest command, so it needs a collaborator
+to do the actual calculation. #par
+
+#par Since the container adds the command to the Context before it executes it, any kind of injection
+or other setup has been performed before the execute method is invoked. #par
+
+#par Likewise, since this is a synchronous command, we also know that the command is very short-lived.
+Right after the execute method returns its result, the command will be removed from the Context.
+Since a command supports the full
+set of container services you could also add a second method marked with #cdi [Destroy] #cdi. 
+You would then see that it would be invoked right after the execute method. #par
+
+
+
+#sc3 managedcommands_lifecycle_async Asynchronous Commands #sc3
+
+#par Let's now imagine that the injected multiplier is not the smartest either and it needs
+some time to perform the calculation. This means we have to turn the command into an asynchronous
+command and ask for a callback function to get injected, too: #par
+
+#cdb
+class MultiplyCommand {
+
+	[Inject]
+	public var multiplier: Multiplier;
+	
+	public var callback: Function;
+
+    public function execute (msg: MultiplyMessage): int {
+        
+        return multiplier
+            .multiply(msg.valueA, msg.valueB)
+            .addResultHandler(resultHandler);
+        
+    }
+    
+    private function resultHandler (result: int): void {
+        
+        trace("before invoking callback");
+               
+        callback(result);
+        
+        trace("after invoking callback");
+        
+    }
+    
+    [Destroy]
+    public function destroy (): void {
+    
+        trace("destroy method called");
+        
+    }
+
+}
+#cdb
+
+#par If you execute the command above the traces would be: #par
+
+#cdb
+before invoking callback
+destroy method called
+after invoking callback
+#cdb
+
+#par Passing the result to the callback also marks the completion of the command
+so that it is immediately removed from the Context. If you need to perform any
+kind of task that requires container features (like sending a message) 
+you must do that before passing out the result. #par
+
+
+#sub Asynchronous Command based on AsyncTokens and Result Handlers #sub
+
+#par In the other variant of an asynchronous command as described in
+the mechanism is slightly different: #par
+
+#cdb
+public class GetUserListCommand {
+
+	[Inject("myService")]
+	public var service: RemoteObject;
+
+    public function execute (): AsyncToken {
+    
+    	return service.getUserList();
+        
+    }
+    
+    public function result (users: Array): void {
+        
+        // command still managed here
+    
+    }
+    
+}
+#cdb 
+
+#par Here the framework waits until the AsyncToken produced either a result
+or a fault and then invokes the result handler. Only after invocation of the result
+handler the command will be removed from the Context. #par
+
+
+
+
+
+

@@ -1,0 +1,39 @@
+#sc1 managedcommands_intro Managed Commands #sc1
+
+
+#par The Command support in Parsley 3 is a complete rewrite of the DynamicCommand facility in Parsley 2.
+The way you implement a simple command is still mostly the same and you can still map commands to messages
+like in previous versions. But the implementation has changed completely and also added a lot of new functionality. #par
+
+#par Command Support in Parsley 3 builds on top of the standalone Spicelib Commands library. That library already 
+allows for convenient ways to implement a command, to group them for sequential or parallel execution, or to create
+dynamic flows with decision points based on results of individual commands. It also allows to pass results from one
+command to subsequent commands in a sequence. Therefore it is recommended to start reading the documentation on
+#ref commands_intro #ref first. This chapter will only provide brief summaries of the content covered in the Spicelib
+manual and instead focus on the features that Parsley adds to that library. #par
+
+#par The features that Parsley offers on top of Spicelib Commands are: #par
+
+#lst
+#lse Dynamically add a command to a Context only for the time it executes. This way a command can get injections,
+send and receive messages while it executes and take advantage of any built-in or custom container feature, while
+getting automatically disposed and removed from the Context when it finishes executing.
+See #ref managedcommands_lifecycle #ref for details. #lse
+
+#lse In addition to the fluent API offered by Spicelib to build, chain and execute commands, Parsley offers a declarative
+way to configure Commands (or sequences or flows) in MXML or XML. 
+See #ref managedcommands_groups #ref and #ref managedcommands_flows #ref for details. #lse
+
+#lse Like with DynamicCommands in Parsley 2 it allows you to map a Command (or sequence or flow) to a message, so that
+the container automatically instantiates and executes a new command whenever a matching message is heard. 
+See #ref managedcommands_mapping #ref for details. #lse
+#lst
+
+#par If you do not need any of the features mentioned above, you can as well use Spicelib Commands in their standalone
+mode. Running commands or a sequence of commands in unmanaged mode is a perfectly valid use case if the commands do not
+need injections, messaging or other container features. This is quite a common use case when a set of commands deal
+with a separate, isolated task. Remember that the standalone Commands project already offers a lot of container-like
+convenience features like the ability to transparently pass data from commands to subsequent commands. You should always 
+start with the most lightweight option, if you discover later that you do need Parsley features in your commands you
+can usually easily "upgrade" them through adding a few lines of code while leaving everything else untouched. #par
+

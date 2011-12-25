@@ -1,0 +1,88 @@
+#sc2 managedcommands_programmatic Starting a Command Programmatically #sc2
+
+
+#par When you don't map a Command to a message you can still trigger the Command execution programmatically.
+To do this you basically have two options: #par
+
+#lst
+#lse Configure the Command(s) in MXML or XML and inject a #cdi CommandFactory #cdi into any managed object and then
+use the factory to create command instances and execute them. #lse
+#lse Create the Command programmatically (using the regular Spicelib APIs) and then pass the Command to Parsley
+for managed execution. #lse
+#lst
+
+#par This section gives examples for both variants. #par
+
+
+#sc3 managedcommands_inject_factory Injecting a Command Factory #sc3 
+
+#par First you need to declare a command factory in MXML or XML. The factory
+can produce a single command, a sequence or a flow: #par
+
+#cdb
+<parsley:CommandFactory id="loginCommand">
+    <parsley:CommandSequence>
+        <parsley:Command type="{LoginCommand}"/>
+        <parsley:Command type="{LoadUserProfileCommand}"/>
+    </parsley:CommandSequence>
+</parsley:CommandFactory>
+#cdb
+
+#par You can then inject this factory into any managed object in the same Context or
+a child Context: #par
+
+#cdb
+[Inject("loginCommand")]
+public var loginCommand: ManagedCommandFactory;
+#cdb
+
+#par The type always needs to be #cdi ManagedCommandFactory #cdi. The id is optional if you only
+declare a single factory per Context. #par
+
+#par You can then create any number of new command instances from this factory and execute them: #par
+
+#cdb
+loginCommand.newInstance().execute();
+#cdb
+
+#par This command will get added to the Context for the time it executes like any other command
+variant offered by Parsley. #par
+
+
+
+#sc3 managedcommands_manual Initiating Managed Execution Manually #sc3
+
+#par This option allows you to configure a command with the plain Spicelib API and
+then pass it to Parsley for managed execution: #par
+
+#cdb
+var loginSequence: Command = Commands
+    .asSequence()
+    .add(new LoginCommand())
+    .add(new LoadUserProfileCommand())
+    .complete(completeHandler)
+    .error(errorHandler)
+    .build();
+    
+var context: Context = ...;    
+    
+ManagedCommands
+    .wrap(loginSequence)
+    .execute(context);
+#cdb
+
+#par The setup for the sequence is performed using the Spicelib API, but instead of calling #cdi execute #cdi
+direclty like you would when using just Spicelib Commands, you call #cdi build #cdi and then pass the fully
+configured command to Parsley for managed execution. #par
+
+#par When you only need to specify the command type of a single command without further configuration, you
+can alternatively skip the Spicelib setup step: #par
+
+#cdb
+var context:Context = ...;
+
+ManagedCommands
+    .create(MyCommand)
+    .execute(context);
+#cdb
+

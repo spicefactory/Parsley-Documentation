@@ -1,0 +1,162 @@
+#sc2 managedcommands_results Handling Results and Observing Commands #sc2
+
+#par Parsley offers multiple ways of dealing with results or observing command
+execution in general. They will be described in the following sections. #par
+
+
+
+#sc3 managedcommands_result_handler_internal Result Handlers in Commands #sc3
+  
+#par When you base a command on an AsyncToken returned by the execute method, you can
+have result handlers inside the command itself as described in #ref managedcommands_result_handler #ref.
+These internal result handlers will always get invoked before any decoupled result handlers in other
+objects. They can also potentially alter the result before the external result handlers get invoked. #par
+  
+  
+  
+#sc3 managedcommands_result_handler_internal Decoupled Result Handlers and Command Observers #sc3
+  
+#par Apart from handling results inside the command itself, other objects can get notified, too.
+There is a set of tags for declaring these on any managed object (like most tags available as metadata, MXML and XML tags). #par  
+  
+  
+  
+#sub CommandResult #sub
+
+#par This tag can be used to obtained the result produced by a command in a different object.
+(It is not needed and should not be used to define a result handler inside the command itself). #par
+
+#cdb
+[CommandResult]
+public function handleResult (user:User, message:LoginMessage) : void {
+#cdb
+
+#par In this case the User instance returned by the remote call will be passed to the result handler
+alongside the original message that triggered the action. Like with normal message handlers the parameter
+type for the message is used to determine which handlers to invoke. It is always
+a combination of message type (polymorphically) and an optional selector value which serves as
+a secondary selection key. The type of the result also has to match for this method to get invoked. #par
+
+#par If the command that produced the User instance is part of a sequence that was triggered by the 
+specified message type, then by default the result handler will only get invoked after the entire 
+sequence has been completed. This way you do not need to bother processing the result in case
+a subsequent command causes the sequence to abort with an error for example. #par
+
+#par In case you do need to process the result as early as possible, you can use the immediate attribute: #par
+
+#cdb
+[CommandResult(immediate="true")]
+public function handleResult (user:User, message:LoginMessage) : void {
+#cdb 
+
+#par This attribute does not have any effect if the command is not part of a sequence or flow. #par
+
+
+
+#sub CommandComplete #sub
+
+#par If you are not interested in the actual result, but instead only want to execute some logic
+triggered by the completion of the command, you can use another tag: #par
+
+#cdb
+[CommandComplete]
+public function userSaved (message:SaveUserMessage) : void {
+#cdb
+
+#par This means that this method would get invoked whenever any command triggered by an #cdi SaveUserMessage #cdi has completed. 
+In case of sequences this means the method gets invoked after all commands in that sequence completed successfully. #par
+
+
+
+#sub CommandError #sub
+
+#par This tag can be used for receiving the eventual fault events or other errors. #par
+
+#cdb
+[CommandError]
+public function handleResult (fault:FaultEvent, trigger:SaveUserMessage) : void {
+#cdb
+
+#par The parameters are again both optional and the rules for matching are the same as
+for #cdi [CommandResult] #cdi. #par
+
+
+
+#sub Overriding the Result #sub
+
+#par Like with a result handler inside a command, a decoupled result handler can also overwrite
+the original result. To be able to do this the method needs an additional parameter of type
+#cdi CommandObserverProcessor #cdi, so the exact mechanics are a bit different than for an
+internal result handler: #par
+
+#cdb
+[CommandResult]
+public function handleResult 
+        (result:XML, msg:LoginMessage, processor:CommandObserverProcessor) : void {
+    var parsedResult:Object = parseResultSomehow(result);
+    processor.changeResult(parsedResult);
+}
+#cdb
+
+#par The #cdi CommandObserverProcessor #cdi interface is a sub-interface of the #cdi MessageProcessor #cdi
+interface that provides access to the #cdi Command #cdi that was executed on top of the common #cdi MessageProcessor #cdi
+functionality. #par
+
+
+
+#sub Local Result Handlers #sub
+
+#par Parsley allows for local result handlers for a command
+that was executed in global scope. This solves a common problem in modular applications where a single
+tab or window dispatches a message that is supposed to trigger a command in a shared service in the root
+application. The DynamicCommand in the shared service has to listen to the global scope, as it does not
+belong to the same Context as the sending object in the module loaded into that tab or window. But for the result handling
+it is very often only this particular tab or window which wants to handle it. For this reason command results and errors
+are always re-routed to the Context where the message that triggered the command originated from. #par
+
+#par This allows to use a local handler like this: #par
+
+#cdb
+[CommandResult(scope="local")]
+public function handleResult (result:Object, msg:LoginMessage) : void {
+    [...]
+}
+#cdb
+
+#par This even works when the command executed in a parent Context, as long as the #str trigger message #str originated
+from the same Context as this result handler. #par
+
+#par Apart from that option any part of the application can still handle the result when listening in the global
+scope. #par
+
+
+
+#sc3 managedcommands_result_handler_internal Command Status Flags #sc3
+
+#par Finally you can also observe the status of executing commands: #par
+
+#cdb
+[CommandStatus(type="com.foo.messages.SaveUserMessage")]
+public var isSaving:Boolean;
+#cdb
+
+#par This boolean flag will always be true if one or more asynchronous commands matching the specified
+type and selector are currently executing. It will be false otherwise. This is very convenient
+for tasks like disabling buttons during command execution for example. #par
+
+#par Unfortunately, when using this tag as metadata the trigger message has to be specified as a
+String. For this reason you may sometime prefer to use MXML configuration in such a case: #par
+
+#cdb
+<Object type="{SomeType}">
+    <CommandStatus property="isSaving" type="{SaveUserMessage}"/>
+</Object>
+#cdb
+
+#par For this configuration style there is no risk that refactoring leads to runtime errors
+due to stale fully qualified class names in buried somewhere in metadata tags. 
+But of course, now the property name is only a String, albeit a shorter one. #par        
+
+
+
+   

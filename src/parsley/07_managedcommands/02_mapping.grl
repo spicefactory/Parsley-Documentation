@@ -1,0 +1,158 @@
+#sc2 managedcommands_mapping Mapping Commands to Messages #sc2
+
+#par If you used DynamicCommands in Parsley 2, you are already familiar with the concept of mapping commands to messages.
+In Parsley 3 this feature has been generalized, allowing to map any command, including sequences and flows, to a Parsley
+message, as long as it is implemented in a way that could also be executed by the new Spicelib Commands library (with
+a few feature additions only available in Parsley). #par
+
+
+
+#sc3 managedcommands_mapping_mxml Mapping Commands in MXML #sc3
+
+
+#par A mapping declaration can be as simple as this: #par
+
+#cdb
+<parsley:MapCommand type="{LoadUserCommand}"/>
+#cdb
+
+#par Here the only thing that gets specified is the type of command to execute for matching messages.
+The type of the message the command should map to is determined from the method signature of the 
+execute method, which can receive the trigger message as a method parameter: #par
+
+#cdb
+public class GetUserProfileCommand {
+
+	[Inject("myService")]
+	public var service: RemoteObject;
+
+    public function execute (#hlt msg: GetUserProfileMessage #hlt): AsyncToken {
+    
+    	return service.getUserProfile(msg.userId);
+        
+    }
+    
+}
+#cdb 
+
+#par Like always when something gets configured per-type in Parsley, this is interpreted polymorphically,
+therefore the command will also execute for subclasses of #cdi GetUserProfileMessage #cdi. #par
+
+#par For every matching message the container will create a new instance of the command, add it to the Context,
+so that it can act as a fully managed object, e.g. get injections, send messages, etc., process the result
+of the command, e.g. passing it to matching methods in other objects that are configured as result handlers,
+and finally remove it from the Context after execution. #par
+
+
+#sub Explicit Message Type Configuration #sub
+
+#par If you do not want to pass the message to the execute method (for example to avoid unecessary dependencies),
+you can also specify the message type explicitly in MXML: #par
+
+#cdb
+<parsley: MapCommand type="{LoadUserCommand}" messageType="{LoadUserMessage}"/>
+#cdb
+
+
+#sub Full Command Configuration #sub
+
+#par If you want to specify more than just the type of the command, like setting property values
+or constructor arguments like for regular object configuration in MXML, you can use a nested Command
+tag: #par
+
+#cdb
+<parsley:MapCommand>
+    <parsley:Command type="{LoadUserProfileCommand}">
+        <parsley:Property name="type" value="{UserProfile.EXTENDED}"/>
+        <parsley:Property name="cache" value="true"/>
+    </parsley:Command>
+</parsley:MapCommand>
+#cdb
+
+
+#sub Other Options #sub
+
+
+#par The tag also supports most of the attributes you know from the regular #cdi [MessageHandler] #cdi
+tags: #par
+
+#cdb
+<parsley:MapCommand 
+    type="{ShoppingCartCommand}" 
+    #hlt selector="save"
+    scope="local"
+    order="1" #hlt
+/>
+#cdb
+
+  
+
+#sc3 managedcommands_mapping_xml Mapping Commands in XML #sc3
+  
+#par The syntax for mapping a command in XML is the same as for MXML, only using dash-notation instead of camel case: #par
+
+#cdb
+<map-command 
+    type="com.company.shop.ShoppingCartCommand" 
+    selector="save"
+    scope="local"
+    order="1"
+/>
+#cdb
+  
+  
+  
+#sc3 managedcommands_mapping_programmatic Mapping Commands Programmatically #sc3
+
+#par Finally you can also map a command programmatically: #par
+
+#cdb
+var context: Context = ...
+
+MappedCommands
+    .create(GetUserProfileCommand)
+    .scope(ScopeName.LOCAL)
+    .register(context);
+#cdb
+
+#par In the example above the Context will create a new instance of #cdi GetUserProfileCommand #cdi whenever a matching message
+(deduced from the signature of the execute method) is heard in local scope. #par
+
+#par If you need more setup than just specifying the class, you need to pass a factory function. You cannot pass existing
+command instances, as the container must create new instances for each message: #par
+
+#cdb
+private function createCommand (): Object {
+    var com:GetUserProfileCommand = new GetUserProfileCommand(someParam);
+    com.profileType = ProfileType.EXTENDED;
+    return com;
+}
+
+[...]
+
+var context: Context = ...
+
+MappedCommands
+    .factoryFunction(createCommand, GetUserProfileCommand)
+    .scope(ScopeName.LOCAL)
+    .register(context);       
+#cdb
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+

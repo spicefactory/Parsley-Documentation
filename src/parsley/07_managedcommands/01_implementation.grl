@@ -1,0 +1,187 @@
+#sc2 managedcommands_implementation Implementing a Command #sc2
+
+
+#par A slightly more detailed documentation on how to implement a Command can be found in #ref commands_implementation #ref
+in the Spicelib section of the manual. This chapter will provide a quick overview with a few examples
+and describe the additional options you have when the command is managed by Parsley. #par
+
+
+#sc3 managedcommands_sync Synchronous Commands #sc3
+
+#cdb
+public class SimpleCommand {
+
+    public function execute (): void {
+    
+        trace("I execute, Therefore I am");
+        
+    }
+    
+}
+#cdb    
+
+#par The method to execute is determined by naming convention, there is no interface to implement or base class to extend.
+This allows some flexibility in the signature of the execute method, which may receive result callback functions, results
+from previous commands or the message that triggered the command. #par
+
+
+
+#sc3 managedcommands_sync_result Synchronous Commands with Result #sc3
+
+#cdb
+public class SimpleCommand {
+
+    public function execute (): String {
+    
+        return "This is the result";
+        
+    }
+    
+}
+#cdb    
+
+#par A synchronous execute method may declare a different return type than void. In this case the returned
+value is interpreted as the result of the command. The result may get passed to execute methods of subsequent
+command (in a sequence or flow) or to decoupled result handlers. For details see #ref managedcommands_results #ref. #par
+
+
+
+#sc3 managedcommands_async Asynchronous Commands with Result #sc3
+
+#cdb
+public class GetUserListCommand {
+
+	[Inject("myService")]
+	public var service: RemoteObject;
+
+	public var callback: Function;
+
+    public function execute (): void {
+    
+    	service.getUserList().addResponder(new Responder(result, error));
+        
+    }
+    
+    private function result (result: ResultEvent): void {
+        callback(result.result);
+    }
+    
+    private function error (event: FaultEvent): void {
+        callback(event.fault);
+    }
+    
+}
+#cdb    
+
+#par A command is seen as asnchronous by the framework as soon as it either has a public var of type Function named callback or
+a method parameter of type Function in the execute method. In these cases the framework will inject a function that can be
+used to signal command completion or an error condition. For both regular results and errors the result is simply passed
+to the callback function, the framework can distinguish between results and errors based on the type of the object. #par
+
+
+
+#sc3 managedcommands_async_token Asynchronous Commands with AsyncToken #sc3
+
+#cdb
+public class GetUserListCommand {
+
+	[Inject("myService")]
+	public var service: RemoteObject;
+
+    public function execute (): AsyncToken {
+    
+    	return service.getUserList();
+        
+    }
+    
+}
+#cdb  
+
+#par When all you do is invoking a RemoteObject and passing the results or faults back to the framework for further
+processing, there is a shortcut like shown above. Instead of doing all the plumbing around the Responder yourself,
+you leave this task to the framework. Technically, the command above produces a synchronous command, but of a type
+(in this case AsyncToken) that is known by the framework as not immediately available. The framework will then wait
+for either result or fault and treat that as the outcome of the command. The support for AsyncToken is built into 
+Parsley, but you can create custom #ref commands_resultprocessors #ref for other types if required. #par  
+
+
+
+#sc3 managedcommands_result_handler Result Handlers in Commands #sc3
+
+
+#cdb
+public class GetUserListCommand {
+
+	[Inject("myService")]
+	public var service: RemoteObject;
+
+    public function execute (): AsyncToken {
+    
+    	return service.getUserList();
+        
+    }
+    
+    public function result (users: Array): void {
+        
+        // process users
+    
+    }
+    
+}
+#cdb 
+
+#par If you use the shortcut for AsyncTokens you may still want to process the result inside the command before
+it gets passed to other parts of the application. The method name must be result for the result handler and
+error for the error handler. It must accept one parameter, the type can be the result type you expect from
+the remote call. #par 
+
+
+
+#sc3 managedcommands_changing_result Changing the Result #sc3
+
+
+#cdb
+public class GetUserProfileCommand {
+
+
+	[Inject("myService")]
+	public var service: RemoteObject;
+
+    public function execute (msg: GetUserProfileMessage): AsyncToken {
+    
+    	return service.getUserProfile(msg.userId);
+        
+    }
+    
+    public function result (profile: XML): UserProfile {
+        
+        return parse(profile);
+    
+    }
+    
+}
+#cdb 
+
+#par You can also overwrite the result in case you want to modify or transform it before it
+gets passed to other parts of the application. In the example you receive XML from the server,
+but return the resulting UserProfile instance after parsing the XML. The UserProfile will then
+be treated as the command result. #par 
+
+
+
+#sc3 managedcommands_other Other Options #sc3
+
+
+#par Since Managed Commands are built on top of Spicelib Commands, all the features of that library
+are also available when using Command in Parsley. More example can be found in the Spicelib Manual: #par
+
+#lst
+#lse An example for a command that either executes synchronously or asynchronously depending on whether
+a matching result is already available in a client-side cache is shown in #ref commands_async #ref. #lse
+
+#lse A command can get cancelled, both from the outside and from within the command as shown in 
+#ref commands_cancellation #ref. #lse
+
+#lse For more options on how to produce an error outcome see #ref commands_errors #ref. #lse
+#lst 
+

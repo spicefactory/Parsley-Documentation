@@ -1,0 +1,77 @@
+#sc2 managedcommands_groups Command Groups #sc2
+
+
+#par The Spicelib Commands library offers the option to configure a group of commands for 
+sequential or parallel execution. If you want to configure such a group programmatically
+and execute it in unmanaged mode, you can read #ref commands_groups #ref in the Spicelib
+Manual. This chapter discusses the options that Parsley adds on top. #par
+
+
+#sc3 managedcommands_groups_mxml Declaring Groups in MXML #sc3
+
+#par To map a sequence of commands to a message, you can use the following syntax: #par
+
+#cdb
+<parsley:MapCommand messageType="{LoginMessage}">
+    <parsley:CommandSequence>
+        <parsley:Command type="{LoginCommand}"/>
+        <parsley:Command type="{LoadUserProfileCommand}"/>
+    </parsley:CommandSequence>
+</parsley:MapCommand>
+#cdb
+
+#par Most examples in this chapter show how to map a command group to a message.
+Alternatively you can also declare command groups as factories (wrapped inside a #cdi <CommandFactory> #cdi tag) and then execute
+them programmatically. But you cannot add a #cdi <CommandSequence> #cdi tag to the top level of an MXML configuration class. #par
+
+
+#par For parallel execution you'd just use the #cdi <ParallelCommands> #cdi tag instead of #cdi <CommandSequence> #cdi: #par
+
+#cdb
+<parsley:MapCommand messageType="{LoadDashboardMessage}">
+    <parsley:ParallelCommands>
+        <parsley:Command type="{LoadUserProfileCommand}"/>
+        <parsley:Command type="{LoadPrivateMailboxCommand}"/>
+    </parsley:ParallelCommands>
+</parsley:MapCommand>
+#cdb
+
+
+
+#sc3 managedcommands_groups_xml Declaring Groups in XML #sc3
+
+#par Like always the syntax is the same, you only have to switch to dash notation: #par
+
+#cdb
+<map-command message-type="com.bluebeard.auth.LoginMessage">
+    <command-sequence>
+        <command type="com.bluebeard.auth.LoginCommand"/>
+        <command type="com.bluebeard.user.LoadUserProfileCommand"/>
+    </command-sequence>
+</map-command>
+#cdb
+
+
+
+#sc3 managedcommands_groups_results Using Results from Preceding Commands #sc3
+
+#par Results can get passed to subsequent commands in a sequence in a decoupled way.
+If your #cdi LoginCommand #cdi produces an instance of #cdi User #cdi, the next command
+can accept it as a parameter in the execute method, together with other parameters like
+the callback function or the message that triggered the sequence: #par
+
+#cdb
+public class GetUserProfileCommand {
+
+    public function execute (#hlt user: User #hlt, callback: Function): void {
+    
+    	[...]
+        
+    }
+    
+}
+#cdb
+
+#par The order of parameters does not matter. In case of multiple preceding commands
+that all produced a result, the result will simply be matched by type. If more than
+one command produced the same type, the last of them will be injected. #par 

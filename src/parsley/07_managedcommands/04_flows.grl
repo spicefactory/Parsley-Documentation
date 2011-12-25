@@ -1,0 +1,85 @@
+#sc2 managedcommands_flows Command Flows #sc2
+
+
+#par Command Flows add the concept of decision points to define a dynamic sequence of commands where
+the next command to execute is determined by a link that inspect the result of the preceding command. #par
+
+#par Parsley offers MXML and XML tags for defining a flow, including all
+default link types offered by the Spicelib Commands library: #par
+
+
+#cdb
+<parsley:MapCommand messageType="{LoginMessage}">
+    <parsley:CommandFlow>
+        <parsley:Command type="{LoginCommand}">
+            <parsley:LinkResultType type="{AdminUser}" to="{loadAdminConsole}"/>
+            <parsley:LinkResultType type="{User}" to="{loadProfile}"/>
+        </parsley:Command>
+        <parsley:Command id="loadAdminConsole" type="{LoadAdminConsoleCommand}">
+            <parsley:LinkAllResults to="{loadProfile}"/>
+        </parsley:Command>
+        <parsley:Command id="loadProfile" type="{LoadProfileCommand}"/>
+    </parsley:CommandFlow>
+</parsley:MapCommand>
+#cdb   
+
+#par In the example above the #cdi LoadAdminConsoleCommand #cdi is only executed when the #cdi LoginCommand #cdi
+produced a result of type #cdi AdminUser #cdi. #par
+
+#par For mapping the flow to a message
+the same options like for sequences are available, so we won't repeat them all here. #par
+
+#par Parsley offers MXML and XML tags for all built-in link types Spicelib Commands offer: #par
+
+
+#sub Linking by Result Type #sub
+
+#cdb
+<parsley:Command type="{LoginCommand}">
+    <parsley:LinkResultType type="{AdminUser}" to="{loadAdminConsole}"/>
+    <parsley:LinkResultType type="{User}" to="{loadProfile}"/>
+</parsley:Command>
+#cdb
+
+
+#sub Linking by Result Value #sub
+
+#cdb
+<parsley:Command type="{LoginCommand}">
+    <parsley:LinkResultValue value="{Login.ADMIN}" to="{loadAdminConsole}"/>
+    <parsley:LinkResultValue value="{Login.USER}" to="{loadProfile}"/>
+</parsley:Command> 
+#cdb
+
+
+#sub Linking by Property Value #sub
+
+#cdb
+<parsley:Command type="{LoginCommand}">
+    <parsley:LinkResultProperty name="isAdmin" value="{true}" to="{loadAdminConsole}"/>
+    <parsley:LinkResultProperty name="isAdmin" value="{false}" to="{loadProfile}"/>
+</parsley:Command> 
+#cdb
+
+
+#sub Linking all Results of a Command #sub
+
+#cdb
+<parsley:Command type="{LoginCommand}">
+    <parsley:LinkAllResults to="{loadAdminConsole}"/>
+</parsley:Command> 
+#cdb
+
+
+#sub Custom Links #sub
+
+#par A custom link class encapsulating more complex logic can be added, too. Anything that implements
+the #cdi LinkTag #cdi interface can be inserted as a child tag inside the #cdi <Command> #cdi tag: #par
+
+#cdb
+<Command type="{LoginCommand}">
+    <links:MyCustomLinkType/>
+</Command>
+#cdb  
+
+  
