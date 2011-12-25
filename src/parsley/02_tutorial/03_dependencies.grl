@@ -61,5 +61,7 @@ public var loginService:LoginService;
 
 #par The choice between property, method or constructor injection is up to you. Some prefer
 constructor injection as it enables better encapsulation, allowing you to create immutable classes.
-But constructor injection in Flex has some limitations, in particular if you assemble the objects
-with MXML configuration, see #ref injection_intro #ref for details. #par
+But constructor injection is only recommended if you target Flash Player 10.1 or newer as earlier
+players had reflection bugs on constructors. #par
+
+#par See #ref injection_intro #ref for more details on injection in general. #par

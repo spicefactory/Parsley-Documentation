@@ -14,8 +14,8 @@ a lot more options than covered in this chapter you should browse the remaining 
 #lse #ref config_dsl #ref and #ref config_as3 #ref: You are not limited to configuration with Metadata, MXML or XML, there
 are two more options, which give you additional flexibility. #lse
 
-#lse #ref messaging_interceptors #ref: An interesting alternative to the #cdi MessageHandlers #cdi covered
-in this chapter which even allows you to interfere with the message dispatching process (e.g. suspending
+#lse #ref messaging_interceptors #ref: A #cdi MessageHandlers #cdi as covered
+in this chapter even allows you to interfere with the message dispatching process (e.g. suspending
 and resuming or cancelling the message processing). #lse
 
 #lse #ref managedcommands_intro #ref: You can execute Commands in a way that they are managed
@@ -32,7 +32,7 @@ of other objects until those configured to be asynchronous are ready. #lse
 #lse #ref view_intro #ref: We already mentioned this one briefly. Allows you to wire Flex Components defined
 in MXML to objects declared in the IOC Container. #lse
 
-#lse #ref modules_intro #ref: Associate configured services, actions, mediators and so on with a configuration Context
+#lse #ref modules_intro #ref: Associate configured services, actions, presentation models and so on with a configuration Context
 that can be loaded and unloaded on demand. #lse
 
 #lse #ref resources_bindings #ref: For binding properties of managed objects to localized resources, updating them automatically

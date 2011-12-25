@@ -2,28 +2,43 @@
 
 #par To start working with Parsley you need to add several of its SWCs to your classpath first.
 Which ones you'll need depends on the feature set you'll be using and whether you'll be building
-a Flex or Flash Application. #par
+a Flex or Flash Application. See #ref overview_dependencies #ref for details. #par
 
-#par The quickest way to get started is to add the SWCs that contain the whole framework.
+#par To get started take the Parsley Core download and add the required SWCs from the
+release and dependencies folders to your classpath.
 You'll find them in the #cdi release #cdi folder of the download Zip. #par
 
-#sub Required SWCs for Flex Applications #sub
+
+
+#sub Minimum Set of Required SWCs #sub
+
+#par You always need: #par
 
 #lst
-#lse #cdi parsley-flex3-${version}.swc #cdi (or #cdi -flex4- #cdi when using Flex 4) #lse
-#lse #cdi spicelib-flex-${version}.swc #cdi #lse
+#lse #cdi parsley-core-${version}.swc #cdi #lse
+#lse #cdi spicelib-commands-${version}.swc #cdi #lse
+#lse #cdi spicelib-reflect-${version}.swc #cdi #lse
+#lse #cdi spicelib-util-${version}.swc #cdi #lse
 #lst
 
-#sub Required SWCs for Flash Applications #sub
+
+
+#sub Additional SWC for Flex #sub
+
+#par For Flex you'd also need: #par
 
 #lst
-#lse #cdi parsley-flash-${version}.swc #cdi #lse
-#lse #cdi spicelib-flash-${version}.swc #cdi #lse
+#lse #cdi parsley-flex-${version}.swc #cdi #lse
 #lst
 
-#sub Selecting individual Framework SWCs #sub
 
-#par If you want to explicitly select the framework modules that you are actually using to keep your
-classpatch clean, you can alternatively chose several of the module SWCs contained in the #cdi modules #cdi
-folder within the #cdi release #cdi folder. For that you'd need to know the content and the dependencies
-for those SWCs, which is described in #ref overview_modules #ref. #par
+
+#sub Additional SWCs for XML Configuration #sub
+
+#par Only when using XML configuration you'd also need to add: #par
+
+#lst
+#lse #cdi parsley-xml-${version}.swc #cdi #lse
+#lse #cdi spicelib-xml-mapper-${version}.swc #cdi #lse
+#lst
+
