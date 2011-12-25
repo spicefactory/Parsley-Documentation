@@ -1,0 +1,356 @@
+#sc2 extensions_definitions Working with ObjectDefinitions #sc2
+
+#par In the proceeding sections you were introduced to the mechanisms of creating custom tags, either as metadata, MXML or XML.
+With all of these types of tags you often need to create an #cdi ObjectDefinition #cdi or modify and existing one.
+This can be done with the help of the configuration DSL. This section lists the most important options. For further
+details you may want to browse the ASDoc for the DSL. #par
+
+
+
+
+#sc3 extenstions_definitions_create Creating New Definitions #sc3
+
+#par This is usually only required in MXML or XML tags as metadata tags is most often used to configure existing definitions.
+If you implement #cdi RootConfigurationElement #cdi or #cdi NestedConfigurationElement #cdi for a custom MXML or XML tag,
+then the provided #cdi Configuration #cdi instance can be used to obtain a new builder for an #cdi ObjectDefinition #cdi: #par
+
+#cdb
+public function process (config:Configuration) : void {
+
+    var builder:ObjectDefinitionBuilder = config.builders.forClass(MessageConfirmation);
+                
+    [...]
+    
+}
+#cdb
+
+#par Things you can do with such a builder will be explained in the following sections.
+When implementing #cdi ObjectDefinitionDecorator #cdi for a custom metadata tag, a builder has already
+been created and will be passed to the decorator: #par
+
+#cdb
+public function decorate (builder:ObjectDefinitionBuilder) : void {
+#cdb
+
+#par In rare cases a metadata tag may also wish to create and register additional definitions.
+The #cdi Configuration #cdi instance for the builder is accessible through #cdi builder.config #cdi  
+and can be used like in the #cdi process #cdi method above. #par
+
+
+
+
+#sc3 extensions_definitions_properties Defining Property Values #sc3
+
+#par You can define literal values or injections. #par
+
+#sub Literal Values #sub
+
+#cdb
+builder
+    .property("firstName")
+        .value("Ann");
+#cdb
+
+#sub Injection by Type #sub
+
+#par If the type can be deduced from reflecting on the property type: #par
+
+#cdb
+builder
+    .property("service")
+        .injectByType();
+#cdb
+
+#par If the type cannot be determined through reflection, it can be specified explicitly: #par
+
+#cdb
+builder
+    .property("service")
+        .injectByType(LoginService);
+#cdb
+
+#sub Injection by Id #sub
+
+#cdb
+builder
+    .property("service")
+        .injectById("loginService");
+#cdb
+
+#par This is equivalent to using #cdi [Inject(id="loginService")] #cdi on the property declaration. #par
+
+
+
+
+#sc3 extensions_definitions_constructor Defining Constructor Arguments #sc3
+
+#par Like for properties literal values and injections can be specified. #par
+
+#sub Literal Values #sub
+
+#cdb
+builder
+    .constructorArgs()
+        .value("Alison")
+        .value("Goldfrapp");
+#cdb
+
+#sub Injection by Type #sub
+
+#par If the type for all parameters can be deduced from reflecting on the parameters of the constructor: #par
+
+#cdb
+builder
+    .constructorArgs()
+        .injectAllByType();
+#cdb
+
+#par Note that there is a bug in current Flash Players that reports #cdi '*' #cdi as the type for constructor arguments
+instead of the actual declared type if you reflect on a class before any instances of that class have been created. #par 
+
+#par If the types cannot be determined through reflection, it can be specified explicitly: #par
+
+#cdb
+builder
+    .constructorArgs()
+        .injectByType(LoginService);
+        .injectByType(CartService);
+        .injectByType(ProductService);
+#cdb
+
+#sub Injection by Id #sub
+
+#cdb
+builder
+    .constructorArgs()
+        .injectById("loginService");
+#cdb
+
+#par Of course any mechanisms can be mixed: #par
+
+#cdb
+builder
+    .constructorArgs()
+        .injectById("loginService")
+        .value("http://www.someDomain.com/");
+#cdb
+
+
+
+
+#sc3 extensions_definitions_standard_messaging Standard Message Receivers #sc3
+
+#par If you want to apply one of the builtin message receivers like #cdi [MessageHandler] #cdi
+or #cdi [CommandResult] #cdi programmatically, they are all available through the DSL: #par
+
+#cdb
+builder
+    .method("intercept")
+        .messageHandler()
+            .type(LoginMessage)
+            .scope("local");
+
+builder
+    .method("result")
+        .commandResult()
+            .type(SaveUserMessage)
+            .scope("window");
+            
+builder
+    .property("status")
+        .commandStatus()
+            .type(LoadConfigMessage)
+            .selector("loadServices");       
+#cdb     
+           
+
+
+
+#sc3 extensions_definitions_custom_messaging Custom Message Receivers #sc3
+
+#par In cases where you created a custom message receiver by directly implementing one of the core
+receiver interfaces like #cdi MessageTarget #cdi or #cdi CommandObserver #cdi or extending one of the builtin
+receivers, you can create a custom factory for these receivers: #par
+
+#cdb
+builder
+    .lifecycle()
+        .messageReceiverFactory(new MyCustomFactory());
+#cdb
+
+#par This is the interface such a custom factory must implement: #par
+
+#cdb
+public interface MessageReceiverFactory {
+    
+    function createReceiver (provider:ObjectProvider) : MessageReceiver;
+    
+}
+#cdb
+
+#par This factory will be invoked for each instance that gets created from the target definition.
+Most implementations will very likely be a one liner, taking the specified provider for the new
+instance and using it as an argument for the constructor of the returned receiver instance. #par
+
+#par The framework will do the rest for you. Like registering that receiver when the object gets
+created and removing it again when the object gets removed from the Context. It also takes care
+of the complex proxy handling for singleton definitions. In those cases a receiver proxy will
+be registered even before the target instance will be created, to avoid scenarios where an instance
+"misses" a message just because it was created after the sender at container startup. #par
+
+
+
+
+#sc3 extensions_definitions_instantiators Custom Instantiators #sc3
+
+#par This is a hook that allows you to define the way how the target instance gets instantiated.
+In this case any constructor arguments that were already specified will be ignored since it is
+this instantiator who is responsible for creating the object then. This is how an instantiator
+can be specified: #par
+
+#cdb
+builder
+    .lifecycle()
+        .instantiator(new MyInstantiator());
+#cdb
+
+#par And this is the interface that must be implemented: #par
+
+#cdb
+public interface ObjectInstantiator {
+    
+    function instantiate (target:ManagedObject) : Object;
+    
+}
+#cdb
+
+#par It simply has to return the new instance that should be added to the Context. The specified #cdi target #cdi
+parameter gives access to the ObjectDefinition and the associated Context. The property #cdi target.instance #cdi
+is null still at this point. Obviously, because this will become the instance that this method returns. #par
+
+
+
+
+#sc3 extensions_definitions_processors Custom ObjectProcessors #sc3
+
+#par This is a hook for performing configuration logic when the object gets created and when it gets removed.
+This is explained in detail in section #ref extensions_metadata_processor #ref. #par
+
+#par Do not use such a processor to register and unregister message receivers. It would work in many cases,
+but would not be as robust as using a factory for a message receiver 
+as demonstrated in #ref extensions_definitions_custom_messaging #ref. #par
+
+
+
+
+#sc3 extensions_definitions_register Registering Definitions #sc3
+
+#par Finally after all configuration options have been specified like shown in preceding sections,
+the object has to be registered. Registering a definition has the same effect as adding
+an #cdi <Object> #cdi tag to an MXML configuration class: the object represented by the definition becomes
+available for dependency injection or may be fetched from the Context directly, e.g. with #cdi Context.getObject() #cdi. #par
+
+#par There are two types of objects you can register: Singletons, which will be created on container startup and will
+remain managed until the Context gets destroyed. In this case only one instance will be created from the definition.
+The second option is a DynamicObject. This can be created and removed from the Context at any point in time.
+And more than just one instance can be created from such a definition. Depending on what type of definition
+you create there are some final options for the registration available: #par
+
+#sub Singletons #sub
+
+#cdb
+builder
+    .asSingleton()
+        .id("someId")
+        .lazy(true)
+        .order(1)
+        .register();
+#cdb
+
+#par All the options above are optional, to simply apply the defaults (non-lazy singleton with no particular order)
+you can reduce the above to: #par
+
+#cdb
+builder
+    .asSingleton()
+        .register();
+#cdb
+
+#sub Dynamic Objects #sub
+
+#cdb
+builder
+    .asDynamicObject()
+        .id("someId")
+        .register();
+#cdb
+
+#par Again the id is optional and may be omitted. Lazy or order options do not apply to DynamicObjects. #par
+    
+
+
+
+#sc3 extensions_definitions_dependent Defining Dependent Objects #sc3
+
+#par Sometimes you want to create an object that is not registered and available as a root definition, but only gets
+used within another definition as a kind of private dependency. Something equivalent to the following MXML configuration: #par
+
+#cdb
+<Object type="{SomeService}">
+    <ConstructorArgs>
+        <NestedObject type="{SomeCollaborator}"/>
+    </ConstructorArgss>
+</Object>
+#cdb
+
+#par In this case the instance of #cdi SomeCollaborator #cdi is not available for injection or for being fetched directly
+from the Context instance. Instead it only gets injected as a dependency into the constructor of the host object,
+with the lifecycle of the dependency being tied to that of the host. #par
+
+#par If you want to do the same in code, this is how it works: #par
+
+#cdb
+var config:Configuration = ...;
+
+var dependency:DynamicObjectDefinition = config.builders
+    .forClass(SomeCollaborator)
+        .asDynamicObject()
+            .build();
+            
+var builder:ObjectDefinitionBuilder = config.builders
+    .forClass(SomeService);
+
+builder
+    .constructorArgs()
+        #hlt .injectFromDefinition(dependency); #hlt
+            
+builder
+    .asSingleton()
+        .register();
+#cdb
+
+#par As you see, we do not call #cdi register #cdi for the first definition we create. We just call #cdi build #cdi instead, 
+which gives us a definition the container does not know about. We then pass it to #cdi injectFromDefinition #cdi for the 
+constructor arguments of the other definition and only register the latter with the container. #par
+
+
+
+
+#sc3 extensions_definitions_reflect Reflection #sc3
+
+#par When reflecting on a class where there is already an existing builder for, you can simply use the #cdi ClassInfo #cdi
+instance avaibale through that builder: #par
+
+#cdb
+var p:Property = builder.typeInfo.getProperty("service");
+#cdb
+
+#par If for some reason you have to create a ClassInfo instance yourself, remember to always pass the ApplicationDomain
+that the Context your tag lives in belongs to: #par
+
+#cdb
+var config:Configuration = ...;
+var ci:ClassInfo = ClassInfo.forClass(SomeClass, #hlt config.domain #hlt);
+#cdb
+
+#par Without passing the domain the tag may not work properly in modules loaded into child ApplicationDomains. #par

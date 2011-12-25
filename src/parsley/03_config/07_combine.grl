@@ -1,0 +1,46 @@
+#sc2 config_combine Combining multiple Configuration mechanisms #sc2
+
+#par Although you may prefer to stick with a single configuration mechanism for most simple applications,
+you are not forced to do so. You can use any combination of the configuration styles presented in this chapter,
+and even create your own. #par
+
+#par First you may want to split configuration between multiple files/classes of the same configuration style: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:FlexConfig type="{BookStoreServices}"/>
+    <parsley:FlexConfig type="{BookStoreActions}"/>
+</parsley:ContextBuilder>
+#cdb
+
+#par But finally you can also mix them any way you want: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:FlexConfig type="{BookStoreServices}"/>
+    <parsley:FlexConfig type="{BookStoreActions}"/>
+    <parsley:XmlConfig file="logging.xml"/>
+</parsley:ContextBuilder>
+#cdb
+
+#par or programmatically using the configuration DSL: #par
+
+#cdb
+ContextBuilder.newBuilder()
+    .config(FlexConfig.forClass(BookStoreServices))
+    .config(FlexConfig.forClass(BookStoreActions))
+    .config(XmlConfig.forFile("logging.xml"))
+    .build();
+#cdb
+
+#par In all these examples the final result is a single Parsley Context. For all the IOC Container features
+like Dependency Injection or Messaging it does not matter at all how you split object configuration between files
+and classes, the result is always the same as if they were configured in a single file. #par
+
+#par However for large and complex applications you may want to create modular Contexts, meaning that the multiple
+configuration artifacts are not merged into a single Context, so that they can be loaded and unloaded on demand.
+For modular applications you may want to read #ref modules_intro #ref. #par
+
+#par Finally if you want to create your own configuration mechanism and seamlessly integrate it with existing
+configuration styles, you can create implementations of the #cdi ConfigurationProcessor #cdi interface. 
+See #ref extensions_intro #ref for details. #par

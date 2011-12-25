@@ -1,0 +1,138 @@
+#sc2 config_properties Configuration Properties #sc2
+
+#par Since version 2.3 Parsley supports the use of properties, either loaded from external files at runtime or
+declared inline. #par
+
+
+#sub Supported Syntax #sub
+
+#par The supported syntax allows for key/value pairs delimited with #cdi '=' #cdi, multiline property values
+with #cdi '\' #cdi at the end of the line and comments with #cdi '#' #cdi at the beginning of the line: #par
+
+#cdb
+prop1 = value1
+prop2=value2
+
+#This is a comment which will be ignored
+prop2 = This is a property value that \
+spans more than just one line
+#cdb
+
+#par For the names of the properties there is a restriction though: Those have to be names which would also be valid
+AS3 property names. This means you cannot use #cdi '.' #cdi in property names like in Ant-style property files for 
+example. Instead you could use #cdi '_' #cdi as delimiter in long property names. #par
+
+#par Like shown in the sample above the use of spaces around the #cdi '=' #cdi delimiter does not make any difference
+as both property name and value will be trimmed. #par
+
+
+#sub Using Properties in MXML Configuration #sub
+
+#par Using properties in MXML configuration requires the use of the new #cdi <Objects> #cdi
+root tag, which was added in version 2.3: #par
+
+#cdb
+<Objects 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns="http://www.spicefactory.org/parsley"
+    >
+    
+    <fx:Script>
+        <![CDATA[
+            import com.mycompany.bookstore.BookstoreService;
+        ]]>
+    </fx:Script>
+    
+    <fx:Declarations>
+    
+        <Object type="{BookstoreService}">
+            <Property name="serviceUrl" value="#hlt {properties.serviceUrl} #hlt"/>
+        </Object>
+    
+    </fx:Declarations>
+    
+</Objects>
+#cdb
+
+
+#sub Using Properties in XML Configuration #sub
+
+#par In XML files the Ant-style syntax #cdi ${someProperty} #cdi can be used: #par
+
+#cdb
+<objects xmlns="http://www.spicefactory.org/parsley">
+    
+    <object type="com.mycompany.bookstore.BookstoreService">
+        <property name="serviceUrl" value="#hlt ${serviceUrl} #hlt"/>
+    </object>
+    
+</Objects>
+#cdb
+
+#par Here you don't need the #cdi properties. #cdi prefix like in MXML configuration. #par
+
+
+#sub External Property Files #sub
+
+#par If you want to load the properties at runtime you can use the #cdi PropertiesFile #cdi tag: #par
+
+#cdb
+<parsley:ContextBuilder>
+    #hlt <parsley:PropertiesFile file="bookstore.properties"/> #hlt
+    <parsley:FlexConfig type="{BookStoreConfig}"/>
+    <parsley:XmlConfig file="logging.xml"/>
+</parsley:ContextBuilder>
+#cdb
+
+#par Make sure you declare the property file before any configuration classes or files that use these properties, as the builder
+processes the child tags in the order they are specified. #par
+
+
+#sub Property Files compiled into the Application #sub
+
+#par Alternatively, if you want to maintain properties in a separate file, but prefer to compile them into
+the application rather than loading them at runtime, you can use the #cdi PropertiesString #cdi tag: #par
+
+#cdb
+<fx:String id="props" source="bookstore.properties"/>
+
+<parsley:ContextBuilder>
+    #hlt <parsley:PropertiesString source="{props}"/> #hlt
+    <parsley:FlexConfig type="{BookStoreConfig}"/>
+    <parsley:XmlConfig file="logging.xml"/>
+</parsley:ContextBuilder>
+#cdb
+
+
+#sub Inline Property Declarations #sub
+
+
+#par Finally you can also define properties directly within the builder tag (and of course can combine those
+with external properties). #par
+
+#cdb
+<parsley:ContextBuilder>
+    #hlt <parsley:PropertiesObject>
+        <fx:Object 
+            serviceUrl="http://www.company.com/services/" 
+            mediaPath="images"
+        />
+    </parsley:PropertiesObject> #hlt
+    <parsley:FlexConfig type="{BookStoreConfig}"/>
+    <parsley:XmlConfig file="logging.xml"/>
+</parsley:ContextBuilder>
+#cdb
+
+
+#sub Configuration DSL #sub
+
+#par If you don't use the MXML tags for building a Context, all the variants shown above are also available in 
+the configuration DSL: #par
+
+#cdb
+ContextBuilder
+    .newBuilder()
+        #hlt .config(Properties.forFile("bookstore.properties")) #hlt
+        .config(FlexConfig.forClass(BookStoreConfig))
+        .build()
+#cdb

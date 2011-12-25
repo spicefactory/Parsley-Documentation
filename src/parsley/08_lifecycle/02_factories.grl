@@ -1,0 +1,105 @@
+#sc2 lifecycle_factories Using Factories #sc2
+
+#par Sometimes configuring the target object directly may not be sufficient. Maybe you want to execute some complex
+logic on object creation that would be difficult to setup declaratively. In these cases you can use a factory instead.
+The factory is a normal AS3 class that you can configure like any other class in Parsley, using Metadata, MXML or XML tags.
+The only difference is that one method is marked as a factory method (again using Metadata, MXML or XML): #par
+
+#cdb
+class CategoryFactory {
+
+    public var categoryName:String;
+    
+    [Inject]
+    public var bookManager:BookManager;
+    
+    [Factory]
+    public function createCategory () : Category {
+        var books:Array = bookManager.getBooksForCategory(categoryName);
+        return new Category(categoryName, books);
+    }
+}
+#cdb
+
+#par You can then use this factory in your configuration, for example in MXML: #par
+
+#cdb
+<Objects 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns="http://www.spicefactory.org/parsley"
+    xmlns:model="com.bookstore.model.*">
+    
+    <fx:Declarations>
+    
+        <model:BookManager/>
+    
+        <model:CategoryFactory id="historyCategory" categoryName="history"/>
+
+        <model:CategoryFactory id="politicsCategory" categoryName="politics"/>
+
+        <model:CategoryFactory id="artsCategory" categoryName="arts"/>
+        
+    </fx:Declarations>
+        
+</Objects> 
+#cdb
+
+#par Each of the factories we defined above will get the #cdi BookManager #cdi instance injected and then produce
+instances of #cdi Category #cdi. #par
+
+#par The special thing about using factories is that under the hood Parsley actually
+creates #str two #str object definitions for each factory: One for the factory itself and one for the type the
+factory method produces. This means that you can also place metadata tags on the target type (in this case the
+#cdi Category #cdi class) if you want the object that the factory produces to send and receive application messages
+managed by Parsley for example. #par
+ 
+#par This also means that you can use the factory #str and #str the objects it creates at injection points, although
+in most cases you'll be interested in the objects produced by the factory: #par
+
+#cdb
+[Inject(id="historyCategory")]
+public var historyBooks:Category;
+#cdb
+
+#par It is recommended not to use factory methods with a return type of #cdi Object #cdi like this: #par
+
+#cdb
+[Factory]
+public function createInstance () : Object {
+#cdb
+
+#par It would work, Parsley would happily process this kind of factory method. But you'll lose some of
+Parsley's useful capabilities, since it uses the return type of the method for producing the object
+definition for the target type. If the target type is just Object, the metadata tags on the objects
+this factory actually produces would not be processed, since this happens #str before #str the factory method
+will be invoked for the first time. Furthermore you cannot use objects produced by such a factory
+for Dependency Injection by Type, since the type can only be determined dynamically. You would then
+be constrained to Injection by Id. #par
+
+#par Of course, like with most other Parsley features, you may also declare the factory method in 
+MXML or XML. This may come in handy in some edge cases, for example for a factory that has more than
+one method that produces objects. In this case placing metadata tags in the class itself would not
+be possible (only one #cdi [Factory] #cdi tag is allowed). #par
+
+
+#sub MXML Example #sub
+
+#cdb
+<Object id="monkey" type="{ZooFactory}">
+    <Factory method="createMonkey"/> 
+</Object>
+<Object id="polarBear" type="{ZooFactory}">
+    <Factory method="createPolarBear"/> 
+</Object>
+#cdb
+ 
+#sub XML Example #sub
+
+#cdb
+<object id="monkey" type="com.example.ZooFactory">
+    <factory method="createMonkey"/> 
+</object>
+<object id="polarBear" type="com.example.ZooFactory">
+    <factory method="createPolarBear"/> 
+</object>
+#cdb

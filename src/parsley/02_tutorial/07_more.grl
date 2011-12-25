@@ -1,0 +1,44 @@
+#sc2 tutorial_more Adding more Services #sc2
+
+#par Since this is the Getting Started section we only covered the most common use cases.
+But hopefully for simple applications it is sufficient to get you going.
+As you may have noticed already the manual is quite extensive and if you think you need
+a lot more options than covered in this chapter you should browse the remaining chapters. #par 
+
+#par If you just want to get an idea of the feature set Parsley offers you may want to start with
+#ref overview_features #ref. #par 
+
+#par The most interesting options not covered in this chapter are probably: #par
+
+#lst
+#lse #ref config_dsl #ref and #ref config_as3 #ref: You are not limited to configuration with Metadata, MXML or XML, there
+are two more options, which give you additional flexibility. #lse
+
+#lse #ref messaging_interceptors #ref: An interesting alternative to the #cdi MessageHandlers #cdi covered
+in this chapter which even allows you to interfere with the message dispatching process (e.g. suspending
+and resuming or cancelling the message processing). #lse
+
+#lse #ref managedcommands_intro #ref: You can execute Commands in a way that they are managed
+by the container for the time they execute. #lse
+
+#lse #ref lifecycle_factories #ref: Instead of assembling the target objects itself you can also add
+factories to the IOC Container which create objects, which gives you additional flexibility on how
+objects are instantiated. #lse
+
+#lse #ref lifecycle_async #ref: Configuration option for asynchronously initializing objects (e.g. objects
+that need to load data before they can operate). In this case the container will defer the initialization
+of other objects until those configured to be asynchronous are ready. #lse
+
+#lse #ref view_intro #ref: We already mentioned this one briefly. Allows you to wire Flex Components defined
+in MXML to objects declared in the IOC Container. #lse
+
+#lse #ref modules_intro #ref: Associate configured services, actions, mediators and so on with a configuration Context
+that can be loaded and unloaded on demand. #lse
+
+#lse #ref resources_bindings #ref: For binding properties of managed objects to localized resources, updating them automatically
+when the localeChain changes. #lse
+
+#lse #ref extensions_intro #ref: If you want to add your own Metadata, MXML or XML configuration tags or use
+some of the other available extension points.
+Useful for simplifying recurring configuration tasks or for creating frameworks on top of Parsley. #lse
+#lst

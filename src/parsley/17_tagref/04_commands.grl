@@ -1,0 +1,139 @@
+#sc2 tagref_messaging Messaging #sc2
+
+
+#sc3 tagref_commands_complete CommandComplete #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [CommandComplete] #cdi #tbr
+#tbr may be placed on # method declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <CommandComplete/> #cdi #tbr
+#tbr XML Tag # #cdi <command-complete/> #cdi #tbr
+#tbr Detailed Explanation # #ref managedcommands_results #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi type #cdi # optional # The type (class) of the message that the annotated method wishes to receive. If omitted
+the type will be deduced from the method parameter (if available). #tbr
+#tbr #cdi selector #cdi # optional # An selector value for filtering in addition to message selection by type.
+See #ref messaging_selectors #ref. #tbr
+#tbr #cdi scope #cdi # optional # The scope from which the message should be received. The default is the global scope. #tbr
+#tbr #cdi order #cdi # optional # The order in which complete handlers should be invoked. The default value is #cdi int.MAX_VALUE #cdi. #tbr
+#tbr #cdi method #cdi # required for MXML/XML # The method the result should be passed to. 
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl
+
+
+
+#sc3 tagref_commands_result CommandResult #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [CommandResult] #cdi #tbr
+#tbr may be placed on # method declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <CommandResult/> #cdi #tbr
+#tbr XML Tag # #cdi <command-result/> #cdi #tbr
+#tbr Detailed Explanation # #ref managedcommands_results #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi type #cdi # optional # The type (class) of the message that the annotated method wishes to receive. If omitted
+the type will be deduced from the second method parameter (if available). #tbr
+#tbr #cdi selector #cdi # optional # An selector value for filtering in addition to message selection by type.
+See #ref messaging_selectors #ref. #tbr
+#tbr #cdi scope #cdi # optional # The scope from which the message should be received. The default is the global scope. #tbr
+#tbr #cdi order #cdi # optional # The order in which result handlers should be invoked. The default value is #cdi int.MAX_VALUE #cdi. #tbr
+#tbr #cdi method #cdi # required for MXML/XML # The method the result should be passed to. 
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl
+
+
+
+#sc3 tagref_commands_error CommandError #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [CommandError] #cdi #tbr
+#tbr may be placed on # method declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <CommandError/> #cdi #tbr
+#tbr XML Tag # #cdi <command-error/> #cdi #tbr
+#tbr Detailed Explanation # #ref managedcommands_results #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi type #cdi # optional # The type (class) of the message that the annotated method wishes to receive. If omitted
+the type will be deduced from the second method parameter (if available). #tbr
+#tbr #cdi selector #cdi # optional # An selector value for filtering in addition to message selection by type.
+See #ref messaging_selectors #ref. #tbr
+#tbr #cdi scope #cdi # optional # The scope from which the message should be received. The default is the global scope. #tbr
+#tbr #cdi order #cdi # optional # The order in which error handlers should be invoked. The default value is #cdi int.MAX_VALUE #cdi. #tbr
+#tbr #cdi method #cdi # required for MXML/XML # The method the error should be passed to. 
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl
+
+
+
+#sc3 tagref_commands_status CommandStatus #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [CommandStatus] #cdi #tbr
+#tbr may be placed on # Boolean property declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <CommandStatus/> #cdi #tbr
+#tbr XML Tag # #cdi <command-status/> #cdi #tbr
+#tbr Detailed Explanation # #ref managedcommands_results #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi type #cdi # optional # The type (class) of the message that the annotated method wishes to receive. If omitted
+the type will be deduced from the second method parameter (if available). #tbr
+#tbr #cdi selector #cdi # optional # An selector value for filtering in addition to message selection by type.
+See #ref messaging_selectors #ref. #tbr
+#tbr #cdi scope #cdi # optional # The scope from which the message should be received. The default is the global scope. #tbr
+#tbr #cdi order #cdi # optional # The order in which error handlers should be invoked. The default value is #cdi int.MAX_VALUE #cdi. #tbr
+#tbr #cdi property #cdi # required for MXML/XML # The property which will act as a boolean flag for the matching command type. 
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl
+
+
+
+#sc3 tagref_commands_map MapCommand #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi N/A #cdi #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <MapCommand/> #cdi #tbr
+#tbr XML Tag # #cdi <map-command/> #cdi #tbr
+#tbr Detailed Explanation # #ref managedcommands_mapping #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi type #cdi # required # The type (class) of the command to create. #tbr
+#tbr #cdi messageType #cdi # optional # The type (class) of the message that the command wishes to receive. If omitted
+the type will be deduced from the method parameter (if available). #tbr
+#tbr #cdi selector #cdi # optional # An selector value for filtering in addition to message selection by type.
+See #ref messaging_selectors #ref. #tbr
+#tbr #cdi scope #cdi # optional # The scope from which the message should be received. The default is the global scope. #tbr
+#tbr #cdi order #cdi # optional # The order in which commands should be invoked. The default value is #cdi int.MAX_VALUE #cdi. #tbr
+#tbl
+
+#sub Child Elements #sub
+
+#par Any tag listed in 14.1 through 14.5, ConstructorArgs, Property, All Custom Configuration Tags that implement the
+#cdi ObjectDefinitionDecorator #cdi interface. #par
+

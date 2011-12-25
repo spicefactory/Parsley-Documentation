@@ -1,0 +1,43 @@
+#sc2 logging_spicefactory Configuration for Parsley Framework Logs #sc2
+
+#par Finally you may want to see the output by Parsleys (and Spicelibs) internal loggers which might help with
+debugging. For the internal logs we had to tackle the problem that Parsley and Spicelib can be used in Flex and
+Flash Applications, and thus with the Flex Logging API or the Spicelib Logging Framework. So we created a log wrapper,
+similar to Commons Logging in the Java world, that would delegate the actual log output to any log delegate we feed it with. #par
+
+#par You can obtain such a delegating logger through the #cdi LogContext #cdi class: #par
+
+#cdb
+LogContext.getLogger(MyClass);
+#cdb
+
+#par You may even use those delegating loggers in your own code. It's not very useful for building applications, since
+they are either Flex or Flash Applications so you can simply decide which Logging API to use. But if you create reusable
+libraries that you might want to use with or without Flex, this delegate might come in handy. #par
+
+#par Finally the actual delegate must be initialized, depending on the environment. #par
+
+
+#sub Setting the delegate for the Flex Logging API #sub
+
+#par In most cases the delegates will be initialized automatically. That happens if you either use one of the
+static entry point methods of the #cdi FlexContextBuilder #cdi class or if you use the XML configuration extension tags
+as shown in #ref logging_flex #ref. #par
+
+#par If you are using neither of those you have to initialize the delegate manually: #par
+
+#cdb
+LogContext.factory = new FlexLogFactory();
+#cdb
+
+#sub Setting the delegate for the Spicelib Logging Framework #sub
+
+#par For Spicelib Logging the delegate will be set automatically when you use the custom XML configuration tags
+as shown in #ref logging_flash #ref. #par
+
+#par If you are not using XML configuration you can read ?ref spicelib-logging_config_programmatic ?ref.
+There is an code example where the last line sets the delegate: #par
+
+#cdb
+LogContext.factory = factory;
+#cdb

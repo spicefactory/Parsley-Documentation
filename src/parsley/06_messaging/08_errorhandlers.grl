@@ -1,0 +1,31 @@
+#sc2 messaging_errorhandlers Error Handlers #sc2
+
+#par Since version 2.1 you can also configure a method to be invoked whenever a handler or interceptor for a 
+matching message threw an Error: #par 
+
+#cdb
+[MessageError(type="com.bookstore.LoginEvent")]
+public function handleError (processor:MessageProcessor, error:IOError) : void;
+#cdb 
+
+#par In the example above the error handler would be invoked whenever any handler for a message of type LoginEvent 
+throws an IOError. So you can chose the matching message type and the matching Error type and of course, like with
+all tags, specify an additional selector attribute. #par
+
+#par But you can also create a global handler, for every type of error and any type of message: #par
+
+#cdb
+[MessageError]
+public function handleError (processor:MessageProcessor, error:Error) : void; 
+#cdb
+
+#par Finally, since an error handler configured with the tag shown above always listens to a single
+scope, you may want to add an error handler that will be automatically attached to every scope created
+for an application. You can do that programmatically through the #cdi BootstrapDefaults #cdi: #par
+
+#cdb
+var provider:ObjectProvider = Provider.forInstance(this);
+var handler:MessageErrorHandler 
+                  = new DefaultMessageErrorHandler(provider, "handleError", Object);
+BootstrapDefaults.config.messageSettings.addErrorHandler(handler);
+#cdb

@@ -1,0 +1,61 @@
+#sc2 config_runtime Runtime Configuration #sc2
+
+#par Added in version 2.2 this configuration mechanism allows to specify instances that should
+be part of the container at runtime: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:FlexConfig type="{ServiceConfig}"/>
+    <parsley:FlexConfig type="{ControllerConfig}"/>
+    <parsley:XmlConfig file="logging.xml"/>
+    #hlt <parsley:RuntimeConfig instances="{[instance1, instance2]}"/> #hlt
+</parsley:ContextBuilder>
+#cdb
+
+#par If you need to specify id's then you could alternatively use nested child tags: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:FlexConfig type="{ServiceConfig}"/>
+    <parsley:FlexConfig type="{ControllerConfig}"/>
+    <parsley:XmlConfig file="logging.xml"/>
+    <parsley:RuntimeConfig>
+        #hlt <parsley:Instance id="obj1" instance="{instance1}"/>    
+        <parsley:Instance id="obj2" instance="{instance2}"/>    
+        <parsley:Instance id="obj3" instance="{instance3}"/> #hlt    
+    </parsley:RuntimeConfig>
+</parsley:ContextBuilder>
+#cdb
+
+#par The difference between objects added with the RuntimeConfig tag and DynamicObjects added at a later
+time is that the former are actually root object definitions which are injectable into other objects since
+they are specified at Context construction time. #par
+
+#par You can even use the regular #cdi <Object> #cdi tags inline now: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:FlexConfig type="{ServiceConfig}"/>
+    <parsley:FlexConfig type="{ControllerConfig}"/>
+    <parsley:XmlConfig file="logging.xml"/>
+    <parsley:RuntimeConfig>
+        <parsley:Instance id="obj1" instance="{instance1}"/>    
+        <parsley:Instance id="obj2" instance="{instance2}"/>    
+        #hlt <parsley:Object id="obj3" type="{LoginInterceptor}"/> 
+            <parsley:MessageHandler method="handleLogin" type="{LoginEvent}"/>
+        </parsley:Object> #hlt    
+    </parsley:RuntimeConfig>
+</parsley:ContextBuilder>
+#cdb
+
+#par You can also specify existing instances with the configuration DSL: #par
+
+#cdb
+ContextBuilder.newBuilder()
+    .config(FlexConfig.forClass(ServiceConfig))
+    .config(FlexConfig.forClass(ControllerConfig))
+    .config(XmlConfig.forFile("logging.xml"))
+    .object(instance1, "id1")
+    .object(instance2, "id2")
+    .build();
+#cdb

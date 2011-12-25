@@ -1,0 +1,9 @@
+#sc1 tagref_intro Configuration Tag Reference #sc1
+
+
+#par This chapter serves as a pure reference for all configuration tags, listing all their attributes. 
+For examples or more detailed explanations we will link to the corresponding chapters. #par
+
+#par The reference covers Metadata, MXML and XML tags. Many of the tags are available for all three
+configuration modes. Some only for one or two of them. The corresponding section will list which
+of these options are available. #par

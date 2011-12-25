@@ -1,0 +1,82 @@
+#sc2 lifecycle_managed About Managed Objects #sc2
+
+#par There are many ways to instruct the framework to manage a particular object. But it is important to understand that all these 
+various options are explicit and there is no magic automatic discovery that would let the framework find out about these objects
+on its own. #par
+
+#par There are regular posts on the forum from users who try things like putting #cdi [Inject] #cdi metadata onto a property and 
+then creating an instance of the class that contains the property with #cdi new #cdi and expecting the injection to somehow magically
+happen. For this to work there would be the need for a custom compiler or some runtime bytecode generation that would allow the 
+framework to add hooks to the object creation. Parsley provides neither of those options. It is meant to be used with the normal
+#cdi mxmlc #cdi and #cdi compc #cdi compilers provided by the Flex SDK. Besides it would not make sense to provide these hooks anyway,
+as Parsley is a modular, multi-Context environment, where it would not be obvious which Context such an enhanced object should be 
+wired to. #par
+
+#par Of course that is equally true when an object gets created with #cdi new #cdi inside another managed object. There is no 
+way for the framework to detect these calls. So if a managed object needs some collaborators they would usually need to be injected.
+In rare cases it might create those instances itself and then add them to a Context explicitly as a Dynamic Object. #par
+
+#par Therefore this section aims to provide an overview over the options to turn an object into a managed one and what services
+are available for such an object. #par  
+
+
+
+#sub Types of Managed Objects #sub
+
+#par The types of managed objects can generally be divided into two categories. #par
+
+#par Objects declared at Context initialization time in some configuration artifact such as: #par
+
+#lst
+#lse #ref config_mxml #ref #lse
+#lse #ref config_xml #ref #lse
+#lse #ref config_runtime #ref #lse
+#lse #ref config_dsl #ref #lse
+#lse #ref config_as3 #ref #lse
+#lst
+
+#par Objects dynamically added to an existing Context after it has been initialized using
+one of the following options: #par
+
+#lst
+#lse #ref view_config_explicit #ref (a View Wiring Option) #lse
+#lse #ref view_config_automatic #ref (another View Wiring Option) #lse
+#lse #ref lifecycle_dynamic #ref (for Programmatic Use) #lse 
+#lse #ref bindings_managed #ref (based on the Decoupled Bindings Facility) #lse 
+#lst
+
+
+#sub Services for Managed Objects #sub
+
+#par The level of services provided for the two categories listed in the previous section are nearly identical.
+The only difference is that the dynamically added objects in the second list are not available for injection into
+other objects since injection configuration is designed for robustness and validated at Context creation time.
+There are still other means to get hold of a dynamically added object inside other maneged objects 
+such as #ref bindings_intro #ref or #ref lifecycle_methods #ref. #par
+
+#par Apart from this difference all types of managed objects benefit from the full list of container services
+Parsley provides. Basically this means all the features described in this manual, like Dependency Injection or
+Messaging. The set of services for a particular
+object is determined through processing its metadata tags and other configuration artifacts like nested tags inside
+the #cdi <Object> #cdi tag in MXML configuration. The services are only provided for the time an object is managed. 
+So if it has a #cdi [MessageHandler] #cdi metadata tag for example 
+this method is invoked for all matching messages until the object gets removed from the Context or the Context
+itself gets destroyed. #par
+
+#par The lifetime of the object
+varies depending on its type. An object declared with the #cdi <Object> #cdi tag in the root Context of the application
+for example is often managed for the entire lifetime of the application. A #cdi <DynamicCommand> #cdi represents the other
+extreme: it is only managed as long as the command executes. An object configured in a Context for a Flex Module in turn
+usually only lives until the Module gets unloaded. You can get notified when an object becomes managed or unmanaged inside
+the object itself through its #ref lifecycle_methods #ref. #par
+
+#par Often the framework is also responsible for creating the object. In these cases it is able to provide
+services like #ref injection_constructor #ref. Sometimes though the object is created by the application and then
+added to the Context, which obviously prevents that a service like Constructor Injection can be performed. 
+The most common ways to let the container instantiate the object is using configuration tags like #cdi <Object> #cdi,
+#cdi <DynamicObject> #cdi or #cdi <DynamicCommand> #cdi in an MXML or XML configuration file. #par  
+
+#par For the design of your application it is also important to
+consider that no object can get garbage collected as long as it is managed. For that reason a big and modular application
+should be carefully designed, making sure that you benefit from the support for modular applications that Parsley provides,
+allowing you to create and destroy entire child Contexts dynamically. #par

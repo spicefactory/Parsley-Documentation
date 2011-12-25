@@ -1,0 +1,34 @@
+#sc2 view_config_mxml_xml MXML and XML Configuration #sc2
+
+#par Since version 2.2 you can alternatively (or additionally) configure views in MXML or XML.
+This comes in handy in two scenarios: First you may want to use the same component class in different
+scenarios and thus cannot use metadata configuration as those tags can only be applied on the class
+level not on the instance level. Second you may want to use this configuration mechanism to specify
+the components eligible for autowiring as demonstrated in #ref view_config_automatic #ref. #par
+
+#par This feature was inspired by the configuration mechanism used in #url http://sourceforge.net/projects/flicc/ Flicc #url.
+The container applies the configuration to the view when it
+is wired to the Context. 
+The configuration to apply to a wired component will be matched either by id or by type: #par
+
+#cdb
+<View id="myPanel" type="{MyPanel}">
+    <Property name="url" value="http://www.somewhere.com/"/>
+    <MessageHandler method="execute"/>
+</View>
+#cdb
+
+#par It is basically the same syntax like for regular object configurations. But the use of the View tag instructs
+Parsley not to attempt to create instances of that class but instead wait until any matching component gets dynamically wired
+to the Context and then applies the configuration. #par
+
+#par Parsley will first attempt to match by id. This is either the name of the Flex component or alternatively
+an id specified explicitly in the Configure tag: #par
+
+#cdb
+<parsley:Configure configId="someId"/>
+#cdb
+
+#par If no match for the id is available then the framework will attempt to match by type, throwing an Error
+if it runs into ambiguous definitions. If no matching type is found Parsley will fall back to the old
+mechanism to only process metadata for that instance. #par

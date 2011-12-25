@@ -1,0 +1,45 @@
+#sc2 extensions_points Available Extension Points #sc2
+
+#par Let's start with a quick overview over the extensible parts of the framework. #par
+
+#lst
+#lse #ref extensions_metadata #ref: An extension point also used by all builtin
+metadata tags like #cdi [Inject] #cdi or #cdi [MessageHandler] #cdi. #lse
+
+#lse #ref extensions_mxml_xml #ref: Like with metadata this extension point is also used
+by all builtin tags like #cdi <Object> #cdi or #cdi <DynamicCommand> #cdi. #lse
+
+#lse #ref extensions_config_processors #ref: This hook is also used by all builtin mechanisms
+like MXML, XML or ActionScript configuration. #lse
+
+#lse #ref extensions_kernel #ref: All central services live behind interfaces and can be replaced. 
+These are - amongst others - the #cdi ViewManager #cdi, the #cdi MessageRouter #cdi and the core 
+#cdi Context #cdi interface. #lse
+#lst
+
+#par Other sections in this chapter deal with information about internal APIs that are useful
+for more than just one of the extension points listed above: #par
+
+#lst
+#lse #ref extensions_definitions #ref: APIs used by custom Metadata, MXML and XML tags. #lse
+
+#lse #ref extensions_scopes #ref: Scope-wide managers may be used to orchestrate a set of related custom tags 
+that indirectly interact which each other. #lse
+
+#lse #ref extensions_init #ref: Instruction on how to package an extension module. #lse
+#lst
+
+#par Finally there are further features of the framework that do not even require to directly
+talk to the framework API or implement framework interfaces, but nevertheless may be often
+used in a way similar to other types of extensions. These are: #par
+
+#lst
+#lse #ref lifecycle_factories #ref: Instead of configuring an object directly you can configure 
+a factory that produces the final target instance. #lse
+
+#lse #ref lifecycle_observer #ref: Transparently observe the lifecycle of other objects and
+perform additional configuration tasks once they are created. #lse
+#lst
+
+#par The two links above both point to the lifecycle chapter, these features are not discussed
+in this chapter. #par

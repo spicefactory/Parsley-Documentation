@@ -1,0 +1,39 @@
+#sc2 tagref_extensions Extensibility #sc2
+
+
+#sc3 tagref_extensions_factory Factory #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [Factory] #cdi #tbr
+#tbr may be placed on # method declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <Factory/> #cdi #tbr
+#tbr XML Tag # #cdi <factory/> #cdi #tbr
+#tbr Detailed Explanation # #ref lifecycle_factories #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi method #cdi # required for MXML/XML # The name of the method that produces the obejcts. 
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl
+
+
+#sc3 tagref_extensions_target Target #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [Target] #cdi #tbr
+#tbr may be placed on # property declaration #tbr
+#tbr MXML and XML Namespace # N/A #tbr
+#tbr MXML Tag # N/A #tbr
+#tbr XML Tag # N/A #tbr
+#tbr Detailed Explanation # #ref extensions_metadata #ref in Creating Custom Configuration Tags 
+(final section titled "Metadata on Properties or Methods") #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#par None #par

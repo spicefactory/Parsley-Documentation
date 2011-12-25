@@ -1,0 +1,98 @@
+#sc2 tutorial_assembling Assembling the Objects #sc2
+
+#par There are a lot more configuration options in addition to the tags for Dependency Injection and Messaging.
+But since those are the most common ones we'll now show you how you assemble these objects for the IOC Container. 
+After you added metadata tags to the classes you have to tell the container which objects it should manage. #par
+
+
+#sub Flex Applications #sub
+
+#par In Flex you might want to prefer MXML configuration. You can create a simple MXML class (using #cdi <Objects> #cdi
+from the Parsley namespace as the root tag) and add all the classes you want to be managed by Parsley: #par
+
+#cdb
+<Objects
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns="http://www.spicefactory.org/parsley"
+    xmlns:services="com.bookstore.services.*"
+    xmlns:actions="com.bookstore.actions.*">
+    
+    <fx:Declarations>
+    
+        <services:LoginServiceImpl timeout="3000"/>
+
+        <services:CartServiceImpl timeout="3000"/>
+    
+        <actions:LoginAction/>
+
+        <actions:AddToCartAction/>
+
+        <actions:DeleteCartAction/>
+        
+    </fx:Declarations>
+    
+</Objects> 
+#cdb
+
+#par Of course you can also use this configuration file for setting additional property values. They will be combined
+with the processing of the metadata tags for all classes added to the container. #par
+
+#par In this example we didn't specify any id attributes. If you just use injection by type you don't need them.
+In case you use ids at injection points like in the last example of the section on injection you have to specify them
+here: #par
+
+#cdb
+<services:AdminLoginServiceImpl id="adminLogin" timeout="3000"/>
+<services:UserLoginServiceImpl id="userService" timeout="3000"/>
+#cdb
+
+#par You can then use those ids at injection points: #par
+
+#cdb
+[Inject(id="adminLogin")]
+public var adminLogin:LoginService;
+
+[Inject(id="userLogin")]
+public var userLogin:LoginService;
+#cdb
+
+#par But in general you should try to avoid injection by id and only use it where you work with multiple instances
+of the same type. #par
+
+
+#sub Flash Applications #sub
+
+#par In this case MXML is not available. So the preferred configuration mechanism is probably the use of XML files.
+Of course you can also use external XML files in Flex Applications if you don't want to compile the configuration
+into your application. #par
+
+#par An example XML configuration corresponding to the MXML example above would look like this: #par
+
+#cdb
+<objects 
+    xmlns="http://www.spicefactory.org/parsley"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.spicefactory.org/parsley 
+        http://www.spicefactory.org/parsley/schema/2.3/parsley-core.xsd"
+    >
+    
+    <object type="com.bookstore.services.LoginServiceImpl">
+        <property name="timeout" value="3000"/>
+    </object>
+    
+    <object type="com.bookstore.services.CartServiceImpl">
+        <property name="timeout" value="3000"/>
+    </object>
+    
+    <object type="com.bookstore.actions.LoginAction"/>
+
+    <object type="com.bookstore.actions.AddToCartAction"/>
+
+    <object type="com.bookstore.actions.DeleteCartAction"/>
+</objects>
+#cdb
+
+#par Like with the MXML example we don't specify an id for the object definitions. You can add it if required
+for injection by id. #par
+
+#par These are the most common options for assembling the objects. You'll find many more examples in #ref config_intro #ref. #par

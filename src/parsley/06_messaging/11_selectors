@@ -1,0 +1,63 @@
+#sc2 messaging_selectors Using Selectors #sc2
+
+#par In the examples for the sections about MessageHandlers, MessageBindings and MessageInterceptors the matching methods or 
+properties were always determined solely by the type (class) of the message. Sometimes that may not be sufficient if you dispatch the
+same message type in different scenarios or application states. In such a case you can refine the selection process with
+custom selectors. #par
+
+#par If you are using events the type property of the Event class can serve as a selector: #par
+
+#cdb
+[MessageHandler(selector="loginSuccess")]
+public function handleLogin (message:LoginEvent) : void {
+    [...]
+}
+
+[MessageHandler(selector="loginFailure")]
+public function handleError (message:LoginEvent) : void {
+    [...]
+}
+#cdb
+
+#par In the example above the #cdi handleLogin #cdi method will only be invoked when the #cdi type #cdi property of the
+#cdi LoginEvent #cdi instance has the value #cdi loginSuccess #cdi. #par
+
+#par For custom message types that do not extend #cdi flash.events.Event #cdi there is no default selector property,
+but it can be easily declared with the #cdi [Selector] #cdi metadata tag on a property of the message class: #par
+
+#cdb
+class LoginMessage {
+
+    public var user:User;
+    
+    [Selector]
+    public var role:String;
+    
+    [...]
+}
+#cdb
+
+#par Now you can select message handlers based on the role of the user that logged in: #par
+
+#sub Metadata Example #sub
+
+#cdb
+[MessageHandler(selector="admin")]
+public function handleAdminLogin (message:LoginMessage) : void {
+#cdb
+
+#sub MXML Example #sub
+
+#cdb
+<Object type="{AdminLoginAction}">
+    <MessageHandler method="handleAdminLogin" selector="admin"/> 
+</Object>
+#cdb
+ 
+#sub XML Example #sub
+
+#cdb
+<object type="com.bookstore.actions.AdminLoginAction">
+    <message-handler method="handleAdminLogin" selector="admin"/> 
+</object>
+#cdb

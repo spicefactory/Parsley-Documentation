@@ -1,0 +1,27 @@
+#sc2 tutorial_initialize Initializing the Framework #sc2
+
+#par Now that you configured your classes with metadata tags and assembled them in MXML or XML, it's finally
+time to intialize the whole thing. Fortunately in most cases this is a one liner or a simple tag. #par
+
+#par For the MXML configuration file we created, assuming that we called it #cdi BookStoreConfig.mxml #cdi,
+the tag would look like this: #par
+
+#cdb
+<parsley:ContextBuilder config="{BookStoreConfig}"/>
+#cdb
+
+#par That's all there is to it. #par
+
+#par For the XML example we have to initialize the Context programmatically in a Flash application: #par
+
+#cdb
+XmlContextBuilder.build("config.xml");
+#cdb
+
+#par We covered the most common use cases here. There are a lot more options like splitting
+the configuration into multiple files or even using different configuration mechanisms like MXML and XML
+in the same application and merging them to a single context. This will be demonstrated in #ref config_combine #ref. #par
+
+#par For modular applications you wouldn't want to lump everything together into a single monolithic context and
+load all this stuff on application start. For building modular applications and loading and unloading configurations
+on demand see #ref modules_intro #ref. #par

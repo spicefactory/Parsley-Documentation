@@ -1,0 +1,66 @@
+#sc2 messaging_interceptors Intercepting Messages #sc2
+
+#par This is an optional feature for the receiving side. Interceptors may come in handy when you want to
+decide whether or not the message should be passed to the remaining handlers based on application state or user decisions. 
+Interceptors have the following characteristics: #par  
+
+#lst
+#lse All registered interceptors execute before any handlers or bindings are executed (unless you set the #cdi order #cdi
+attribute explicitly). #lse
+#lse Interceptors can optionally suspend the message processing and resume it at a later time. #lse
+#lst
+
+#par Since version 2.4 any kind of message receiver function can be used as an interceptor.
+For a #cdi MessageHandler #cdi for example the only difference is that you include the optional
+#cdi MessageProcessor #cdi parameter in the handler method signature: #par
+
+#cdb
+[MessageHandler]
+public function intercept (msg:LoginMessage, processor:MessageProcessor) : void {
+#cdb
+
+#par The same can be applied to a #cdi [CommandResult] #cdi or #cdi <DynamicCommand> #cdi or other types
+of message receivers. The first parameter serves for matching the types of messages you are interested
+in like with a normal message handler. #par
+
+#par A simple example where you might want to use such an interceptor, is any kind of interaction
+where the user has to confirm the action in a dialog first. In that case an interceptor could suspend
+the message processing, present the dialog and resume the message processing in case the user
+clicks OK. #par
+
+#par This is how a sample implementation for a simple Alert could look like: #par
+
+#cdb
+public class DeleteItemInterceptor {
+ 
+    [MessageHandler]
+    public function deleteItem (msg:DeleteItemMessage, processor:MessageProcessor) : void {
+        processor.suspend();
+        var listener:Function = function (event:CloseEvent) : void {
+            if (event.detail == Alert.OK) {
+                processor.resume();
+            }  
+            else {
+                processor.cancel();
+            }
+        };      
+        Alert.show("Do you really want to delete this item?", "Warning", 
+            Alert.OK | Alert.CANCEL, null, listener);
+    }
+ 
+}
+#cdb 
+
+#par When the user hits cancel, the #cdi MessageProcessor #cdi never resumes and no subsequent handler will
+be executed. #par
+
+#par It is recommended to use interceptors sparingly as it is the only feature of the Messaging Framework that ties
+you to the Parsley API, as we have to pass a #cdi MessageProcessor #cdi instance to you so that you are able to
+#cdi cancel #cdi or #cdi suspend #cdi the message processing. #par
+
+#par The old #cdi [MessageInterceptor] #cdi tag which was available for versions 2.0 through 2.3 has been deprecated. 
+For backwards-compatibility it will continue to work in version 2.4. It was replaced by the new mechanism explained 
+in this section as it is more flexible (any kind of receiver can now act as an interceptor) and more type-safe (the old
+interceptors often declared the message they are interested in as a String in the metadata tag). #par
+
+

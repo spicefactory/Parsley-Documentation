@@ -1,0 +1,13 @@
+#sc1 remoting_intro Remoting #sc1
+
+#par Parsley is a client-side application framework and does not require any particular server-side technology
+to be useful. Nevertheless in this chapter we want to describe some common scenarios when integrating remoting solutions with
+Parsley. #par
+
+#par For a general discussion on how to integrate services into the application architecture see #ref mvc_intro #ref. #par
+
+#par Of course apart from AMF based remoting solutions presented in this chapter you can also integrate HTTP Services or
+WebServices into your controller actions. The approach is similar to that presented in the MVC chapter: You write a
+controller action class that registers handlers for messages or events dispatched from the View or from Mediators,
+transform them into any kind of asynchronous service invocation, wait for the result, and finally dispatch an application
+message containing the result through Parsleys Messaging Framework. #par

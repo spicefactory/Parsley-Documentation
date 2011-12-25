@@ -1,0 +1,91 @@
+#sc2 injection_constructor Constructor Injection #sc2
+
+#par Many consider this to be the cleanest injection style in terms of encapsulation, since it allows
+you to create immutable classes. Since (unfortunately) the Flash Player currently ignores metadata tags
+placed on constructors you have to place a #cdi [InjectConstructor] #cdi tag on the class declaration to tell Parsley
+to perform Constructor Injection: #par
+
+#cdb
+package com.bookstore.actions {
+
+[InjectConstructor]
+class LoginAction {
+
+    private var service:LoginService;
+    private var manager:UserManager;
+
+    function LoginAction (service:LoginService, manager:UserManager = null) {
+        this.service = service;
+        this.manager = manager;    
+    }
+
+}
+}
+#cdb
+
+#par Note that in the example above the #cdi manager #cdi parameter is optional. Parsley reflects on this
+information and uses it as a hint whether the defined dependency is required or optional.
+So in this case the container will throw an error if it does not contain an object of type #cdi LoginService #cdi,
+but it will simply silently ignore the second parameter if the Context does not contain an object of type #cdi UserManager #cdi. #par
+
+#par Constructor injection selects the dependencies based on the parameter types. This means that it only works for dependencies
+where you know that the Context will always contain at most one object with a matching type. It is also good practice to use
+interfaces as parameter types so that you can switch implementations in the configuration without modifying the class. #par
+
+#par As explained in #ref config_mxml #ref you cannot use simple MXML tags for configuration if you want to use Constructor Injection
+since in that case the MXML compiler generates the object creation code and Parsley only gets hold of the object after
+it was instantiated to perform additional configuration. So instead of defining such a class like this: #par
+
+#cdb
+<Objects
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns="http://www.spicefactory.org/parsley"
+    xmlns:actions="com.bookstore.actions.*">
+    
+    <fx:Declarations>
+        
+        <actions:LoginAction/>
+    
+    </fx:Declarations>
+    
+</Objects> 
+#cdb
+
+#par you should simply declare it like this: #par
+
+#cdb
+<Objects 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns="http://www.spicefactory.org/parsley">
+    
+    <fx:Script>
+        <![CDATA[
+            import com.bookstore.actions.*;        
+        ]]>
+    </fx:Script>
+
+    <fx:Declarations>
+        
+        <Object type="{LoginAction}"/>
+        
+    </fx:Declarations>
+    
+</Objects> 
+#cdb
+
+#par When using Parsley's #cdi Object #cdi tag it's the framework that is responsible for instantiating the object so that
+Constructor Injection can be performed. #par
+
+#par There are no restrictions when you are using XML configuration. #par
+
+#par Unfortunately there is a nasty bug in some Flash Player versions where reflection on constructor parameter types using
+#cdi describeType #cdi does not work properly (the Player always reports #cdi '*' #cdi as the type in these cases. 
+If you run into this bug the only workaround (unfortunately) is to create instances of these classes before you initialize
+Parsley: #par
+
+#cdb
+new LoginAction();
+new ShoppingCartAction();
+#cdb
+
+#par You can simply throw away these instances, just creating an instance "fixes" describe type for the parameter types of that class. #par

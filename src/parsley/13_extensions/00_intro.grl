@@ -1,0 +1,17 @@
+#sc1 extensions_intro Extending the Framework #sc1
+
+#par All previous chapters demonstrated the Parsley feature set from the perspective of an application
+developer. But since Parsley provides such basic IOC capabilites like Dependency Injection or fully
+decoupled Messaging it is equally important that the framework is easy to extend. If you are going
+to build your own framwork, whether inhouse or Open Source, you wouldn't want to reinvent the wheel
+for these basic features and prefer to integrate with existing solutions. #par
+
+#par So extensibility is an area a lot of thought has been put into. And hopefully when starting
+to build your own extensions you will enjoy the huge number of available extensions points,
+the flexibility and the ease of use. One extension point where Parsley particularly shines
+is the #cdi ObjectDefinitionDecorator #cdi interface which allows you to write a single 
+extension class and use it as a custom Metadata, MXML or XML configuration tag. #par
+
+#par When browsing the Parsley code base you'll notice that almost everything in the internal API
+lives behind interfaces. This makes it easy to create your own implementations for a particular aspect
+of the framework and switch it while still using the default implementations for other internal services. #par

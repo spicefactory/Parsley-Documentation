@@ -1,0 +1,61 @@
+#sc2 lifecycle_async Asynchronous Object Initialization #sc2
+
+#par A lot of operations in the Flash Player execute asynchronously. So it might happen that you want an object
+configured in the Parsley IOC Container to load some data or assets first, before the rest of the Context gets
+initialized and before this asynchronously initializing object gets injected into other objects. In this cases
+you can use the #cdi [AsyncInit] #cdi tag on any #cdi EventDispatcher #cdi that fires events when the initialization
+is completed (or if it has failed): #par
+
+#cdb
+#hlt [AsyncInit] #hlt
+public class FileLoader extends EventDispatcher {
+
+    public var filename:String;
+
+    #hlt [Init] #hlt
+    public function init () : void {
+        var loader:URLLoader = new URLLoader();
+        loader.addEventListener(Event.COMPLETE, fileLoaded);
+        loader.addEventListener(IOErrorEvent.IO_ERROR, handleError);
+        loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, handleError);
+        loader.load(new URLRequest(filename));            
+   }
+   
+   private function fileLoaded (event:Event) : void {
+       // handle loaded file
+       #hlt dispatchEvent(new Event(Event.COMPLETE)); #hlt
+   }
+   
+   private function handleError (event:ErrorEvent) : void {
+       #hlt dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, event.text)); #hlt
+   }
+   
+}
+#cdb
+
+#par In the example above the #cdi [AsyncInit] #cdi tag tells the framework that this is an asynchronously initializing
+object. In the method annotated with #cdi [Init] #cdi which will be invoked after configuration and
+dependency injection has been processed for that object (see #ref lifecycle_methods #ref for details) we start the
+loading process. Depending on whether the loading succeeds or not we then dispatch either an #cdi Event.COMPLETE #cdi
+or an #cdi ErrorEvent.ERROR #cdi. The container will listen for those two events. In case of #cdi Event.COMPLETE #cdi it
+will proceed with Context initialization. In case of #cdi ErrorEvent.ERROR #cdi the whole Context initialization process
+will be cancelled. #par
+
+#sub Switching event types #sub
+
+#par #cdi Event.COMPLETE #cdi and #cdi ErrorEvent.ERROR #cdi are the default event types to signal whether initialization
+has completed or failed. They can be switched with attributes of the #cdi [AsyncInit] #cdi tag: #par
+
+#cdb
+[AsyncInit(completeEvent="myCustomCompleteEvent",errorEvent="myCustomErrorEvent")]
+#cdb
+
+#sub Initialization Order #sub
+
+#par AsyncInit objects will always be initialized before regular objects unless you define an order attribute for them
+explicitly which always has a higher precedence. But if you have more than one object marked with #cdi [AsyncInit] #cdi
+you may want to declare the initialization order explicitly as explained in the next section. The order will not be determined
+by analyzing the dependencies, as they are processed on the fly during initialization and also allow for bidirectional or
+circular dependencies which would make it hard to determine the order automatically. But this really is only necessary for
+AsyncInit objects and only if you wish to guarantee that those are ready when they are injected into other objects, 
+otherwise everything will be resolved automatically. #par 

@@ -1,0 +1,64 @@
+#sc2 tutorial_messaging Sending and Receiving Messages #sc2
+
+#par While Dependency Injection already allows some level of decoupling if you declare injection
+points with interface types, for some parts of the application you'll prefer even looser coupling,
+letting the parts of your application communicate through messages, without the sender and receiving
+objects having to know each other. #par
+
+#par If you build an application with the MVC architectural pattern for example, you'll probably
+create Mediator classes that transform low-level view events to application messages which
+will be dispatched through an application-wide messaging subsytem so that any action/controller
+can register for all message types it is interested in. #par
+
+#par For more details on this topic see #ref messaging_intro #ref and #ref mvc_intro #ref. #par
+
+#par With Parsley 2 you can configure the sending as well as the receiving side with metadata tags.
+The sending part may simply contain a #cdi [ManagedEvents] #cdi tag at the class declaration,
+listing which of the events this class dispatches should be managed: #par
+
+#cdb
+[Event(name="loginSuccess",type="com.bookstore.events.LoginEvent")]
+[Event(name="loginFailed",type="com.bookstore.events.LoginEvent")]
+[Event(name="stateChange",type="flash.events.Event")]
+#hlt [ManagedEvents("loginSuccess,loginFailure")] #hlt
+
+public class LoginServiceImpl #hlt extends EventDispatcher #hlt implements LoginService {
+
+    [...]
+    
+    private function handleLoginResult (user:User) : void {
+        #hlt dispatchEvent(new LoginEvent("loginSuccess", user)); #hlt
+    }
+    
+}
+#cdb 
+
+#par Here we tell the container that whenever this class dispatches an event of type #cdi loginSuccess #cdi or
+#cdi loginFailed #cdi we want the container to dispatch it to all registered handlers. Other events will be simply
+ignored, so this class still can dispatch low-level events which other objects that directly depend on this
+class may register regular listeners for. #par
+
+#par For the receiving side you can use the #cdi [MessageHandler] #cdi tag to signal interest in a particular
+message type, determined by the parameter type of the method: #par
+
+#cdb
+[MessageHandler]
+public function login (event:LoginEvent) : void {
+#cdb
+
+#par If you route several different message types of the same event class through the system you can additionally
+select by event type: #par
+
+#cdb
+[MessageHandler(selector="loginSuccess)]
+public function login (event:LoginEvent) : void {
+#cdb
+
+#par Like with Dependency Injection selecting the message receivers by type improves the robustness of the system
+as you don't have to take care of unique event type constants for the whole system. #par
+
+#par There are more tags for the receiving side like the #cdi [MessageBinding] #cdi tag.
+Those will be explained in #ref messaging_intro #ref. #par 
+
+#par Furhermore since the module is called Messaging and not Event System, you can use any class as a message, 
+not only classes extending #cdi flash.events.Event #cdi. For details see #ref messaging_injected_dispatchers #ref. #par

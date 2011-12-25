@@ -1,0 +1,319 @@
+#sc2 view_lifecycle Component Lifecycle #sc2
+
+#par Due to the fact that Flex Components are connected to the IOC Container "on the fly" the lifecycle for Components
+is different than for objects defined directly in the container. Parsley offers several configuration options
+to control that lifecycle. #par
+
+
+#sc3 view_lifecycle_components Controlling the Lifecycle of Components #sc3
+
+#par The default behavior is that a component gets removed from the Context automatically 
+when it gets removed from the stage. But this can be changed through an attribute of the #cdi ViewSettings #cdi tag: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:ViewSettings autoremoveComponents="false"/>
+    <parsley:FlexConfig type="{MyConfig}"/>
+</parsley:ContextBuilder>
+#cdb
+
+#par With the setting above a component must now dispatch a custom "removeView" event when it wishes to get unwired. 
+Note that this option does not have any influence when you use #cdi <FastInject> #cdi as in this case the target component
+is not managed at all and will just receive a one-off injection. #par
+
+
+#sc3 view_lifecycle_viewroots Controlling the Lifecycle of View Roots #sc3
+
+#par Closely related is the lifecycle of the so-called view roots. If you use the #cdi <Configure> #cdi tag for example, this
+tag sends a bubbling event to signal that it wishes to get wired to the nearest Context. Other view wiring options like autowiring
+work in a similar way. A view root is the DisplayObject that catches
+these bubbling events. When you use the #cdi <ContextBuilder> #cdi tag, the component that holds this tag automatically becomes such 
+a view root. The next section on popups and AIR windows shows that there are some scenarios where you need to add additional
+view roots to the Context. #par
+
+#par For these view roots the default behavior is to control their lifecycle in a similar way like for wired components. It means
+that a view root gets removed from the Context when it gets removed from the stage, so it no longer listens for bubbling events.
+On top of that the associated Conetxt gets destroyed when the last view root gets removed. This is very useful in cases where
+a Context is declared in a popup for example. You don't need to destroy it explicitly, this happens automatically when the user closes
+the popup. In case you want to prevent this there is another flag specifically for view roots: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:ViewSettings autoremoveViewRoots="false"/>
+    <parsley:FlexConfig type="{MyConfig}"/>
+</parsley:ContextBuilder>
+#cdb
+
+
+#sc3 view_lifecycle_individual Settings for Individual Components #sc3
+
+#par The two preceding sections showed switches for globally controlling the lifecycle of components and view roots.
+But there is also a way to change the settings for a single component: #par
+
+
+#sub Configure #sub
+
+#par The #cdi Configure #cdi MXML tag and API both come with an #cdi autoremove #cdi property: #par
+
+#cdb
+<parsley:Configure autoremove="false"/>
+#cdb
+
+
+#sub FastInject #sub
+
+#par Likewise the #cdi FastInject #cdi MXML tag and API both come with an #cdi autoremove #cdi property: #par
+
+#cdb
+<parsley:FastInject autoremove="false" property="pm" type="{MyPM}"/>
+#cdb
+
+
+#sub Autowiring #sub
+
+#par When using the default #cdi ViewAutowireFilter #cdi there is support for a metadata tag on the 
+wired view component to indicate whether autoremove should be applied or not. #par
+
+#cdb
+<fx:Metadata>
+    [Autoremove("false")]
+</fx:Metadata>
+#cdb
+
+
+#sc3 view_lifecycle_leaks Beware of Memory Leaks #sc3
+
+#par If you use one of the configuration options shown above that switch off the automatic lifecycle management, you must
+be careful not to introduce memory leaks. A component (or any kind of object) cannot get garbage-collected as long as it
+is managed by Parsley. So if you turn off the lifecycle management, you have to make sure that #str one #str of the following conditions
+is met for all wired components in that Context: #par
+
+#lst
+#lse The component never gets removed from the stage anyway. #lse
+#lse The component occasionally gets removed from the stage, but the instance is always kept in memory for later reuse. #lse
+#lse The component might get removed from the stage and is not meant to be reused, but dispatches the custom
+#cdi removeView #cdi Event to make sure it is properly unwired. #lse
+#lst
+
+
+#sc3 view_lifecycle_initialize Be careful with Component Initialization Logic #sc3
+
+#par Many developers are tempted to initialize the Presentation Model of a managed component like this: #par
+
+#cdb
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:parsley="http://www.spicefactory.org/parsley"
+         width="400" height="300"
+         #hlt addedToStage="init()" #hlt 
+    >
+    
+    <fx:Script>
+        <![CDATA[
+            
+            #hlt [Inject] #hlt
+            public var pm:SomePM;
+            
+            private function init () : void {
+                #hlt pm.init(); #hlt
+            }
+            
+        ]]>
+    </fx:Script>
+
+    <fx:Declarations>
+        <parsley:Configure/>
+    </fx:Declarations>
+    
+</s:Panel>
+#cdb
+
+#par There are two major problems with this approach, and both often introduce bugs that surface late in the
+development lifecycle of an application and are often hard to narrow down: #par
+
+#lst
+#lse There is no guarantee that the injection has been performed at the time that #cdi ADDED_TO_STAGE #cdi is fired.
+First it is impossible to synchronize the Flex component lifecycle to that of Parsley, as there are often subtle differences
+in the event order. For example the #cdi INITIALIZE #cdi event might fire before or after #cdi ADDED_TO_STAGE #cdi,
+and Parsley must wait for both events before performing any injections. 
+Second the associated Context might initialize asynchronously, for example if it contains XML configuration which
+must be loaded first or any object annotated with #cdi [AsyncInit] #cdi. The injection would occur after the Context
+has been initialized in this case. #lse
+
+#lse The #cdi ADDED_TO_STAGE #cdi event might get fired again at unexpected times. This issue is not even related
+to Parsley, but often getting overlooked. Stage events are low-level infrastructure events and make your code fragile
+when you rely on them for application-level lifecycle management. When the user resizes the application for example,
+Flex might need to introduce scroll bars and suddenly reparent a component. This would cause an interim #cdi REMOVED_FROM_STAGE #cdi
+immediately followed by another #cdi ADDED_TO_STAGE #cdi event, which would trigger the initialization shown above again.
+Applications that use this approach might suddenly lose their view state. This is particularly dangerous as testing resizing often
+gets overlooked in QA. Thus it's recommended to avoid this pattern, no matter whether you are using Parsley or not. 
+For its internal lifecycle management Parsley has logic that filters these interim events. #lse
+#lst
+
+#par This is how the right approach would look like. #par
+
+#par Using #cdi <Configure> #cdi or Autowiring: #par
+
+#cdb
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:parsley="http://www.spicefactory.org/parsley"
+         width="400" height="300"
+    >
+    
+    <fx:Script>
+        <![CDATA[
+            
+            [Inject]
+            public var pm:SomePM;
+            
+            #hlt [Init] #hlt
+            public function init () : void {
+                pm.init();
+            }
+            
+        ]]>
+    </fx:Script>
+
+    <fx:Declarations>
+        <parsley:Configure/>
+    </fx:Declarations>
+    
+</s:Panel>
+#cdb
+
+#par Using #cdi <FastInject> #cdi #par
+
+#cdb
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:parsley="http://www.spicefactory.org/parsley"
+         width="400" height="300"
+         creationComplete="init()" 
+    >
+    
+    <fx:Script>
+        <![CDATA[
+            
+            public var pm:SomePM;
+            
+            private function init () : void {
+                pm.init();
+            }
+            
+        ]]>
+    </fx:Script>
+
+    <fx:Declarations>
+        <parsley:FastInject 
+            property="pm"
+            type="{SomePM}"
+            #hlt injectionComplete="init()" #hlt
+        />
+    </fx:Declarations>
+</s:Panel>
+#cdb
+
+#par In both examples shown above it is guaranteed that the injection has been performed when the #cdi init #cdi
+method gets executed. #par
+
+#par When using #cdi <FastInject> #cdi you cannot use the #cdi [Init] #cdi or #cdi [Destroy] #cdi tags as the component
+is not managed in this case and metadata would not get processed. The behavior of these two metadata tags for wired views
+is explained in the following sections. #par
+
+
+#sc3 view_lifecycle_methods Lifecycle Methods #sc3
+
+#par Managed views support the same #cdi [Init] #cdi and #cdi [Destroy] #cdi methods like regular managed objects
+declared in a Parsley configuration class or file, but the lifecycle for managed views is usually different. #par
+
+
+#sub Methods annotated with #cdi [Init] #cdi #sub
+
+#par For an object declared directly within a Parsley configuration file these methods get executed after the 
+container has instantiated and configured the object. For a Flex Component that is dynamically wired it
+will be invoked after the container caught the configuration event dispatched by the Component and after
+all injections have been processed. #par
+
+
+#sub Methods annotated with #cdi [Destroy] #cdi #sub
+
+#par For an object declared directly within a Parsley configuration file these methods get executed after the 
+container has been destroyed with a call to #cdi Context.destroy() #cdi or (in case of DynamicObjects)
+when the object has been removed from the Context.
+For a Flex Component that is dynamically wired, per default the destroy method
+will be invoked after the Component has been removed from the stage. Of course that means that the same
+instance can have multiple invocations of its Init and Destroy methods in case it gets removed and re-added
+to the stage. #par
+
+
+
+#sc3 view_lifecycle_custom Custom Lifecycle Handlers #sc3
+
+#par How the lifecycle of managed views is demarcated is usually determined by the #cdi ViewSettings #cdi
+of the corresponding Context as described in #ref view_lifecycle_components #ref. Thus for the default 
+behaviors Parsley comes with two implementations of the #cdi ViewLifecycle #cdi interface, one that
+controls the lifecycle of the component based on the time it is on the stage, the other based on
+custom events (#cdi configureView #cdi and #cdi removeView #cdi) dispatched by the component. #par
+
+#par But you can install custom lifecycle handlers for particular view classes (and their respective subtypes)
+if more low-level control is required. Here is an example for a lifecycle handler that simply listens 
+for events in the component: #par
+
+#cdb
+public class MyPanelLifecycle extends EventDispatcher implements ViewLifecycle {
+	
+    private static const DESTROY:String = "destroy";
+    private static const INIT:String = "init";
+	
+    private var config:ViewConfiguration;
+	
+    public function start (config:ViewConfiguration, context:Context) : void {
+        this.config = config;
+        config.view.addEventListener(DESTROY, destroyView);
+        config.view.addEventListener(INIT, initView);
+    }
+	
+    public function stop () : void {
+        config.view.removeEventListener(DESTROY, destroyView);
+        config.view.removeEventListener(INIT, initView);
+        config = null;
+    }
+	
+    private function removeView (event:Event) : void {
+        #hlt dispatchEvent(new ViewLifecycleEvent(ViewLifecycleEvent.DESTROY_VIEW, config)); #hlt
+    }
+	
+    private function configureView (event:Event) : void {
+        #hlt dispatchEvent(new ViewLifecycleEvent(ViewLifecycleEvent.INIT_VIEW, config)); #hlt
+    }
+	
+}
+#cdb
+
+#par The only purpose of such a lifecycle handler is to dispatch messages when the lifecycle of the component
+starts or ends (highlighted in red). The class above is just a very simple example where the handler primarily
+"translates" some events it knows to matching events the framework knows. But it could contain any kind of custom
+logic. #par
+
+#par Such a handler can then be installed for a Context and all its children like this: #par
+
+#cdb
+<parsley:ContextBuilder config="...">
+    <parsley:ViewLifecycle viewType="{MyPanel}" lifecycle="{MyPanelLifecycle}"/>
+</parsley:ContextBuilder>
+#cdb
+
+#par For each managed view of type #cdi MyPanel #cdi or any of its subtypes, the specified lifecycle handler
+will then be used. The framework will create a new instance of the lifecycle handler for each view instance
+so that you can keep state in the handler class. #par 
+
+
+
+
+
+
+ 
+
+
+

@@ -1,0 +1,25 @@
+#sc2 tagref_logging_flex Flex Logging #sc2
+
+
+#sc3 tagref_logging_flex_target Target #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML Tag # N/A (the builtin MXML tags for LogTargets can be used instead) #tbr
+#tbr XML Namespace # #cdi http://www.spicefactory.org/parsley/flex/logging #cdi #tbr
+#tbr XML Tag # #cdi <target/> #cdi #tbr
+#tbr Required Initialization # #cdi FlexLoggingXmlSupport.initialize() #cdi #tbr
+#tbr Detailed Explanation # #ref logging_flex #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi id #cdi # optional # The id of the #cdi LogTarget #cdi, usually not needed. #tbr
+#tbr #cdi type #cdi # optional # The type (class) of the #cdi LogTarget #cdi, defaults to #cdi TraceTarget #cdi if omitted. #tbr
+#tbr #cdi level #cdi # optional # The minimum level that this target should log. #tbr
+#tbr attributes of #cdi LineFormattedTarget #cdi # optional # If the specified type extends #cdi LineFormattedTarget #cdi
+all properties of that class can be set: #cdi field-separator #cdi, #cdi include-category #cdi, #cdi include-level #cdi,
+#cdi include-date #cdi, #cdi include-time #cdi. #tbr
+#tbl

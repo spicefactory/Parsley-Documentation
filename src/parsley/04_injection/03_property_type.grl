@@ -1,0 +1,29 @@
+#sc2 injection_property_type Property Injection by Type #sc2
+
+#par This injection mechanism is simliar to Method Injection, but is performed for properties instead: #par
+
+#cdb
+package com.bookstore.actions {
+
+class LoginAction {
+
+    private var manager:UserManager;
+    
+    [Inject]
+    public var service:LoginService;
+    
+    [Inject(required="false")]
+    public function set manager (manager:UserManager) : void {
+        this.manager = manager;
+    }
+
+}
+}
+#cdb
+
+#par You can place the #cdi [Inject] #cdi tag on a var declaration or a setter function. For properties Parsley cannot
+detect whether the dependency is optional or not so you can explicitly set it with the #cdi required #cdi attribute.
+The default is #cdi true #cdi if the attribute is omitted. #par
+
+#par Like with Constructor or Method Injection shown above this mode select dependencies by type. So again you should
+make sure to include at most one object with a matching type into your configuration. #par

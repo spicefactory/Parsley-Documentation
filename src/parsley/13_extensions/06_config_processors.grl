@@ -1,0 +1,90 @@
+#sc2 extensions_config_processors Custom Configuration Mechanisms #sc2
+
+#par Although Parsley is already quite flexible in how you configure objects with support for configuration
+with Metadata, MXML, XML or ActionScript, you may require even more freedom in how you create object
+definitions. You may want to process configuration loaded through Sockets or WebServices or simply programmatically
+create some object definitions. For this purpose you can implement the #cdi ConfigurationProcessor #cdi interface.
+The interface contains a single method: #par
+
+#cdb
+public interface ConfigurationProcessor {
+    
+    function processConfiguration (registry:ObjectDefinitionRegistry) : void;
+    
+}
+#cdb
+
+#par Your implementation of this interface may create any number of #cdi ObjectDefinition #cdi instances and
+add them to the registry provided by the framework. If you still want to process the metadata tags of the classes
+you add to the registry (in addition to your own logic of constructing definitions) you should use the 
+mechanism provided by the framework: #par
+
+#cdb
+var type:Class = AddToCartAction;
+var id:String = "addToCartAction";
+Configurations
+    .forRegistry(registry)
+    .builders
+        .forClass(type)
+            .asSingleton()
+                .id(id)
+                .register();
+#cdb
+
+#par The configuration DSL of the framework always processes metadata on the configured classes and combines
+the metadata configuration with the options specified programmatically through the DSL. #par
+
+#par Your custom processor can then be combined with any existing builder: #par
+
+#par MXML: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:FlexConfig type="{BookStoreConfig}"/>
+    <parsley:XmlConfig file="logging.xml"/>
+    #hlt <parsley:CustomConfig>
+        <mynamespace:MyCustomConfigurationProcessor/>
+    </parsley:CustomConfig> #hlt
+</parsley:ContextBuilder>
+#cdb
+
+#par ActionScript DSL: #par
+
+#cdb
+var viewRoot:DisplayObject = ...;
+
+ContextBuilder.newSetup()
+    .viewRoot(viewRoot)
+    .newBuilder()
+        .config(FlexConfig.forClass(BookStoreConfig))
+        .config(XmlConfig.forFile("logging.xml"))
+#hlt         .config(new MyCustomConfigurationProcessor()) #hlt
+        .build();
+#cdb
+
+#par After the code above executed the objects defined with MXML and XML happily coexist with objects added
+through your custom builder in the same #cdi Context #cdi. #par
+
+
+#sub Asynchronous Processors #sub
+
+#par If your processor operates asynchronously you have to implement the #cdi AsyncConfigurationProcessor #cdi
+interface instead (which extends the #cdi ConfigurationProcessor #cdi interface). This might be necessary
+if you obtain the configuration with some remote service call for example. The interface looks like this: #par
+
+#cdb
+[Event(name="complete", type="flash.events.Event")]
+
+[Event(name="error", type="flash.events.ErrorEvent")]
+
+public interface AsyncConfigurationProcessor 
+                                      extends ConfigurationProcessor, IEventDispatcher {
+    
+    function cancel () : void;
+    
+}
+#cdb
+
+#par First you must be prepared that your asynchronous processor may get cancelled (for example if the application
+destroys the associated #cdi Context #cdi before it was fully configured). Finally you have to throw either
+#cdi Event.COMPLETE #cdi or #cdi ErrorEvent.ERROR #cdi, depending on whether configuration succeeded or failed. #par

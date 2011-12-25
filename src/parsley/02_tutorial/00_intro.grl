@@ -1,0 +1,6 @@
+#sc1 tutorial_intro Getting Started #sc1
+
+#par This chapter gives a very quick introduction on how to build an application with Parsley,
+linking to other parts of the manual for more detailed descriptions. Most of the explanations
+apply in the same way to building Flex or Flash Applications. Examples that only apply
+for Flex development will be pointed out accordingly. #par

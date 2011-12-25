@@ -1,0 +1,40 @@
+#sc2 bindings_flash Bindings in Flash #sc2
+
+#par The implementation for Flash avoids the use of the Flex Binding facility. This feature is fully functional without Flex, too,
+but it requires some additional work. In Flash applications you would leave out the #cdi [Bindable] #cdi tag.
+Instead the publisher has to manually signal that the value of the publisher 
+property has changed: #par
+
+#cdb
+private var _contact:Contact;
+
+[Publish]
+public function get selectedContact () : Contact {
+    return _contact;
+}
+
+public function set selectedContact (value:Contact) : void {
+    _contact = value;
+    #hlt dispatchEvent(new Event(Event.CHANGE)); #hlt
+}
+#cdb
+
+#par If a single class has multiple publisher properties you can alternatively optimize and specify different
+change event types for different properties: #par
+
+#cdb
+private var _contact:Contact;
+
+[Publish(#hlt changeEvent="contactChanged" #hlt)]
+public function get selectedContact () : Contact {
+    return _contact;
+}
+
+public function set selectedContact (value:Contact) : void {
+    _contact = value;
+    #hlt dispatchEvent(new Event("contactChanged")); #hlt
+}
+#cdb
+
+#par Apart from the necessity to dispatch a change event, everything else described in the preceding sections of this 
+chapter also applies to Flash applications. #par

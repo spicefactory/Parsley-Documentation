@@ -1,0 +1,30 @@
+#sc2 view_modules View Wiring in Modular Applications #sc2
+
+#par The following diagram illustrates how view wiring works in a modular application and why it is important
+to manually connect Flex Popups and Native AIR Windows to a Context: #par
+
+#img doc_img view-wiring.jpg #img
+
+#par The Flex Components that contain a #cdi <Configure/> #cdi tag dispatch a bubbling event that gets caught
+by the next listener of a #cdi ViewManager #cdi in the hierarchy above that component. This way each component
+finds its matching Context, which is important because a component loaded into a module usually also needs
+access to the configuration of that module. If it would get wired to the root Context, it would only "see"
+the object in that Context. #par
+
+#par For Context C in the diagram you'll see that two view roots were connected to the Context: One for the root
+component of the loaded module and one for a popup opened by the module. It becomes apparent now why this
+manual connection to the popup is necessary: if a component somewhere below the popup would dispatch a bubbling
+event it will end up in the SystemManager and never reach the #cdi ViewManager #cdi sitting on the root module
+component if we would not place a second listener on the popup itself. #par
+
+#par Finally this mechanism also handles ApplicationDomains for us: The internal ModuleManager of the Parsley
+framework puts listeners on the root module component that catches bubbling events from #cdi ContextBuilders #cdi
+somewhere below and tells them the ApplicationDomain to use. #par
+
+#par In some rare cases you may want to load a Flex Module which only contains a few MXML view classes which
+you want to be wired to the Context, but no controller, command, presentation or domain model. You might be 
+tempted to skip Context creation in this case, but that would lead to problems as the components would be
+wired to the root Context then which reflects on the classes using a different ApplicationDomain.
+So you should still create a Context at the root component in the module, even if it is empty.
+This can simply be achieved through placing an empty #cdi <parsley:ContextBuilder/> #cdi tag into
+the root component. #par

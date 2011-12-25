@@ -1,0 +1,60 @@
+#sc2 messaging_api Using the Messaging API #sc2
+
+#par In normal application code you should try to avoid to directly interact with the Parsley API to keep your classes
+decoupled from the framework. But in some edge cases or if you want to extend the framework or build another framework 
+on top of it, you may want to register message handlers or bindings programmatically. The #cdi MessageReceiverRegistry #cdi 
+interface contains the following methods for regristration: #par
+
+#cdb
+function addTarget (target:MessageTarget) : void;
+
+function addErrorHandler (handler:MessageErrorHandler) : void;
+
+function addCommandObserver (observer:CommandObserver) : void;
+#cdb
+
+#par There are three categories of message receivers: a #cdi MessageTarget #cdi is a regular receiver, implementing
+classes include #cdi MessageHandler #cdi and #cdi MessageBinding #cdi. A #cdi <DynamicCommand> #cdi is also a regular
+target. #cdi MessageErrorHandler #cdi corresponds to the #cdi [MessageError] #cdi tag and finally 
+a #cdi CommandObserver #cdi listens to the result or
+error outcome of a command. The interface contains three for methods for removing these three receiver types. #par
+
+#par To get hold of a #cdi MessageReceiverRegistry #cdi instance you can inject a #cdi Context #cdi instance into your class. 
+You then have to pick the registry for the scope you want your receivers to be applied to. In the following example
+we register a message handler for the global scope: #par
+
+#cdb
+class SomeExoticClass {
+
+    [Inject]
+    public var context:Context;
+    
+    [Init]
+    public function init () : void {
+        var registry:MessageReceiverRegistry 
+                = context.scopeManager.getScope(ScopeName.GLOBAL).messageReceivers;
+        var target:MessageTarget 
+                = new MessageHandler(Provider.forInstance(this), "onLogin");
+        registry.addMessageTarget(target);    
+    }
+}
+#cdb
+
+#par When you place an #cdi [Inject] #cdi metadata tag on a property of type #cdi Context #cdi Parsley will always
+inject the #cdi Context #cdi instance this class is managed in. #par
+
+#par Finally you can also use the #cdi ScopeManager #cdi to dispatch messages: #par
+
+#cdb
+context.scopeManager.dispatchMessage(new LoginMessage(user, "admin"));
+#cdb
+
+#par When dispatching through the #cdi ScopeManager #cdi directly, the message will be dispatched through all
+scopes managed by this Context (by default only global and local scopes, but you can create your own).
+This way the receiving side can decide which scope to listen to. In rare cases you might want to limit
+the choice right on the sending side. In this case you have to dispatch through an individual scope: #par
+
+#cdb
+var scope:Scope = context.scopeManager.getScope(ScopeName.LOCAL);
+scope.dispatchMessage(new LoginMessage(user, "admin"));
+#cdb

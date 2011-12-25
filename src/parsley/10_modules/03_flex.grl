@@ -1,0 +1,10 @@
+#sc2 modules_flex Using Flex Modules #sc2
+
+#par In version 2.0.x the framework offered a special #cdi ContextModule #cdi MXML tag to specify
+the configuration for the module. This is no longer needed. The framework specific ContextModule and ModuleLoader
+tags have been removed. Instead the support for Flex Modules is now fully transparent. You load
+a Module either with the regular Flex ModuleLoader tag or with the Flex ModuleManager.
+You can then create child Contexts anywhere within that Module, it does not have to happen in
+the root Module component. If you connect the Context hierarchy to the view hierarchy like demonstrated in the preceding sections
+the child Context will automatically determine the parent Context and the ApplicationDomain
+of the Module. #par

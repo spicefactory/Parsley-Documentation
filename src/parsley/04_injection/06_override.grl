@@ -1,0 +1,27 @@
+#sc2 injection_override Overriding Dependencies in Child Contexts #sc2
+
+
+#par Whenever you inject by type and the dependency is not optional the Context must contain exactly one instance
+of a matching type. If the dependency is missing or ambiguous (with more than one matching type) the Context will
+throw an error. #par
+
+#par Nevertheless, in an application with more than one Context you have the option to "override" a dependency
+in a child Context without causing these errors for ambiguous dependencies. This allows for more flexibility.
+You could, for example, add a default implementation of an interface to the root Context and still leave it up
+to a loaded module to install alternatives themselves. #par
+
+#par When you declare a dependency by type the framework will look up this type in the Context the dependent
+object belongs to first. Only if no matching instance is found it will look up the next parent in the Context
+inheritance tree. This also means that the overriding only affect the objects in the child Context. It does 
+not mean that the dependency in the parent Context gets "uninstalled". It will still be used for injections
+into other objects in the parent Context. So the overriding is always interpreted as a local override, not
+a global one. #par 
+
+#par This mechanism helps to avoid using string identifiers in #cdi [Inject] #cdi tags even though you
+want to add different implementations of the same interface to different child Contexts. Only when you add
+multiple implementations to the same Context, you must switch to using injection by id to avoid errors. #par
+
+#par You can also add overrides for injection by id in a similar way. It is not allowed to have two or more#
+objects with the same id within a single Context, but it is legal to add an object with an id that is already
+present in a parent Context. #par
+ 

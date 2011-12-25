@@ -1,0 +1,71 @@
+#sc2 config_xml XML Configuration Files #sc2
+
+#par External XML files may be an adequate alternative to MXML if: #par
+
+#lst
+#lse Your configuration changes frequently and you want to avoid the additional compilation step. #lse
+#lse The configuration has to be edited by people without programming knowledge. #lse
+#lse You are not using Flex. #lse
+#lst
+
+#par Of course you may also chose to only externalize parts of your configuration to XML files and stick 
+with MXML for wiring your core services. See #ref config_combine #ref for details. #par
+
+#par Using the same two example classes as shown in the MXML section above, this is how the XML configuration file would
+look like: #par
+
+#cdb
+<objects 
+    xmlns="http://www.spicefactory.org/parsley"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.spicefactory.org/parsley 
+        http://www.spicefactory.org/parsley/schema/2.3/parsley-core.xsd"
+    >
+    <object type="com.bookstore.services.LoginServiceImpl">
+        <property name="timeout" value="3000"/>
+    </object>
+    
+    <object type="com.bookstore.services.LoginServiceImpl"/>
+</objects>
+#cdb
+
+#par In general XML configuration looks very similar like MXML configuration with Parsleys MXML tags. 
+Under the hood XML tags and MXML tags map to the same framework classes. The main difference is that
+we follow XML naming conventions, so the tags are not capitalized and attribute names use dashes
+and not camel case (e.g. target-property instead of targetProperty). #par
+
+#par Initialization is just a one liner, assuming you saved the file as #cdi config.xml #cdi: #par
+
+#cdb
+XmlContextBuilder.build("config.xml");
+#cdb 
+
+#par If you are using XML configuration in Flex you can alternatively use a tag for initialization: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:XmlConfig file="config.xml"/>
+</parsley:ContextBuilder>
+#cdb
+
+
+
+#sub Compiling classes configured in XML #sub
+
+#par One thing you need to be aware of is that in contrast to MXML configuration the classes
+you use in the configuration file will not be compiled into your SWC or SWF if you don't use
+them explicitly in your code. This might happen quite often since it is good practice
+to program against interfaces and only declare the concrete implementation in the container
+configuration. #par
+ 
+#par There are basically three choices to solve this: #par
+
+#lst
+#lse Add a reference to these classes explicity in your code even though it is not needed. 
+Most developers consider this an ugly hack. #lse
+#lse If you want to use these classes as a library, compile them into an SWC (with #cdi compc #cdi
+you can include whole source folders into the SWC) and then include the whole SWC into your SWF
+with the #cdi -include-libraries #cdi option of the #cdi mxmlc #cdi compiler. #lse
+#lse You can alternatively include individual classes with the #cdi -includes #cdi option of
+the #cdi mxmlc #cdi compiler. #lse
+#lst  

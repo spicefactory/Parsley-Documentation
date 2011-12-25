@@ -1,0 +1,9 @@
+#sc2 messaging_dispatching Dispatching Messages #sc2
+
+#par For an object that wants to dispatch messages managed by Parsley you have the following setup options: #par
+
+#lst
+#lse #ref messaging_managed_events #ref if the dispatching object is a regular #cdi EventDispatcher #cdi. #lse
+#lse #ref messaging_injected_dispatchers #ref if your messages are not subclasses of #cdi Event #cdi. #lse
+#lse #ref messaging_api #ref in rare cases where you need to use the Framework API directly #lse
+#lst

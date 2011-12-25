@@ -1,0 +1,232 @@
+#sc2 view_config_noreflect Component Wiring without Reflection #sc2
+
+#par Parsley reflects on all managed objects and reflection on components
+currently is a very expensive operation due to their dozens of properties, methods and events.
+The situation has improved for Parsley 2.4 and newer as it is now based on the #cdi describeTypeJSON #cdi
+function introduced with Flash Player 10.1 which runs significantly faster than the old XML-based #cdi describeType #cdi
+which now will only be used when you are on an older player. But the impact of reflecting on these huge
+UIComponents is still high. Parsley maintains an internal reflection cache
+so that each class is only processed once, but if you are using a high number of different component classes
+this may not help much. 
+In a small application this effect may be negligible, but for larger applications it might indeed
+be a concern. This option allows to avoid a perceivable perfomance degradation in these cases. #par
+
+
+#sc3 view_config_noreflect_tag The FastInject MXML Tag #sc3
+
+#par To allow for performance optimizations the #cdi FastInject #cdi tag was introduced in Parsley 2.2: #par
+
+#cdb
+<s:Panel 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+    xmlns:parsley="http://www.spicefactory.org/parsley"
+    xmlns:view="myproject.view.*"
+    >
+    
+    <fx:Script>
+        <![CDATA[
+            import com.bookstore.model.MyPanelPM;
+            
+            public var model:MyPanelPM;
+        ]]>
+    </fx:Script>
+    
+    #hlt <parsley:FastInject property="model" type="{MyPanelPM}" /> #hlt 
+    
+    <!-- ... -->
+    
+</s:Panel> 
+#cdb
+
+#par This is somewhat similar to the example with the #cdi <Configure> #cdi tag and its #cdi target #cdi
+attribute. Again it is the model that is wired to the Context. But the difference is that in the former
+example the model was created by the tag within the component and then the existing model instance got
+configured by the framework. In this example the container will create the model (it must be configured
+for the corresponding Context) and then inject it into the component. The major advantage of this approach
+is that the model could be shared between components which is not possible with the preceding example. 
+Again use this mechanism only when performance is a concern and you want to avoid that the component
+itseld gets wired to the Context. #par
+
+#par The #cdi <FastInject> #cdi tag also allows to define multiple injections with child tags: #par
+
+#cdb
+<parsley:FastInject injectionComplete="init();">
+    <parsley:Inject property="model" type="{MyPanelPM}"/> 
+    <parsley:Inject property="status" type="{MyApplicationStatus}"/> 
+</parsley:FastInject>
+#cdb 
+
+#par To combine them into a single parent tag if you want to perform some action when all injections have been
+processed. This would be cumbersome if you'd use separate tags since you'd need to manually check which injections 
+have been already processed. In the example above there would be the guarantee that the init method will only
+be invoked when all injections have been performed. #par
+
+#par There are similar events for the #cdi <FastInject> #cdi tag 
+like #cdi creationComplete #cdi or #cdi addedToStage #cdi which differ from the
+original component events that those are only dispatched when the corresponding component event was dispatched 
+#str and #str the injections have been performed, facilitating to find the right moment to initialize the
+component. #par
+
+
+#sc3 view_config_noreflect_api The FastInject API for ActionScript Components #sc3
+
+#par Since version 2.4 there is also an API offering the same functionality as the #cdi <FastInject> #cdi tag. #par
+
+#cdb
+public class MyView extends UIComponent {
+
+    public var pm:MyViewPM;
+    
+    function MyView () {
+        FastInject
+            .view(this)
+            .property("pm")
+            .type(MyViewPM)
+            .complete(injectionComplete)
+            .execute();
+    }
+    
+    private function injectionComplete () : void {
+         /* ... */
+    }
+    
+    /* ... */
+    
+}
+#cdb
+
+#par Of course this API also works in pure Flash applications. #par
+
+
+#sc3 view_config_noreflect_custom Custom ViewProcessors for Autowiring #sc3
+
+#par All the examples in this section avoided reflection on UIComponents at the price of having framework specific
+tags in each component that needs an injection. Some developers prefer to be more purist and use an IOC container
+in a non-invasive way. For these needs the autowiring feature is available as explained in #ref view_config_automatic #ref.
+But the default processor for autowiring adds each view that passes the #cdi ViewAutowireFilter #cdi to the Context,
+which in turn causes reflection on that component. Since this chapter is about showing ways to avoid reflection,
+we'll demonstrate an alternative way of doing autowiring. Since adding the object to the Context is the only
+obvious option for dealing with an autowired view, there are no other defaults available. Autowiring by some other
+means is usually highly application specific, so that you need to create your own #cdi ViewProcessor #cdi for that 
+purpose. #par
+
+#par Creating a custom autowiring mechanism that avoids reflection involves these steps: #par
+
+#lst
+#lse Create a custom #cdi ViewProcessor #cdi that does the actual processing of the view (e.g. performing injections). #lse
+#lse Create a custom #cdi ViewAutowireFilter #cdi that knows which views should get processed. The default filter is more suited
+for the use case where you add the views themselves to the Context. #lse
+#lse Register both the filter and the processor with a ContextBuilder #lse
+#lst
+
+#par The following sections give a simple example for all these steps. #par
+
+
+#sub The View Component #sub
+
+#par Let's assume you want to work with a pattern where all views that belong to a known set of packages and
+have a Presentation Model declared with a variable named #cdi model #cdi automatically get their model added
+to the Context. This is a cheap operation as a Presentation Model usually does not extend from #cdi UIComponent #cdi 
+making reflection on it much faster. This is really just an example, if you don't like this pattern just create
+your own that fits the requirements of your application. #par
+
+#par Here is part of a sample view component: #par
+
+#cdb
+<s:Panel ...>
+
+    <fx:Declarations>
+        <view:MyPanelPM id="model"/>
+    </fx:Declarations>
+    
+    <!-- ... -->
+    
+</s:Panel>
+#cdb
+
+
+#sub The Custom ViewProcessor #sub
+
+#par The ViewProcessor simply adds the model to the Context. To make it bullet-proof you could additionally
+check whether the model's class name matches a particular pattern like <ViewClassName>PM which is often used. #par
+
+#cdb
+public class MyViewProcessor implements ViewProcessor {
+    
+    private var dynamicObject:DynamicObject;
+    
+    public function init (config:ViewConfiguration, context:Context) : void {
+        var target:Object = config.view["model"];
+        dynamicObject = context.addDynamicObject(target);
+    }
+    
+    public function destroy () : void {
+        dynamicObject.remove();
+    }
+    
+}
+#cdb
+
+#par The processor adds the PM to the Context and removes it again at the end of the view lifecycle.
+The invocation of the #cdi destroy #cdi method is triggered by the lifecycle handler in use (where
+you also could write a custom one if required, see #ref view_lifecycle_custom #ref). #par
+
+
+#sub The Custom ViewAutowireFilter #sub
+
+#par Our autowire filter simply checks whether the package name matches a particular pattern and whether
+the object has a property named #cdi model #cdi. For efficiency we do this already in the #cdi prefilter #cdi 
+method. In a multi-Context environment this is always invoked in the filter of the root Context. For every
+object that passes the prefilter, the framework will dispatch a bubbling event that will be caught by
+the nearest Context in the view hierarchy above the target. Then the #cdi filter #cdi method in the target Context
+will make the final decision before the object is passed to the processor in the taget Context. #par
+
+#par Therefore you only need logic in the final #cdi filter #cdi method when the logic is different for
+the target Contexts in use. Different child Contexts created by modules for example might even install
+their own #cdi ViewAutowireFilter #cdi. In this case most of the logic should reside in the #cdi filter #cdi
+method and the #cdi prefilter #cdi method in the root Context should only get used for performance optimizations
+(e.g. sparing the bubbling event when we know it is a skin only). But in our case the final #cdi filter #cdi 
+method always returns #cdi ViewAutowireMode.ALWAYS #cdi. #par
+
+
+#cdb
+public class DefaultViewAutowireFilter extends AbstractViewAutowireFilter {
+    
+    private var packageFilter:RegExp = /^com\.mycompany\..*\.view\..*/;
+    
+    public override function prefilter (object:DisplayObject) : Boolean {
+        return packageFilter.test(getQualifiedClassName(object)) && object.hasOwnProperty("model");
+    }
+    
+    public override function filter (object:DisplayObject) : ViewAutowireMode {
+        return ViewAutowireMode.ALWAYS;
+    }
+    
+}
+#cdb
+
+
+#sub Installing the Custom Processor and Filter #sub
+
+#par Processor and Filter can be installed with child tags of the #cdi ContextBuilder #cdi tag: #par
+
+#cdb
+<parsley:ContextBuilderTag config="">
+    <parsley:ViewSettingsTag autowireFilter="{new MyViewAutowireFilter()}"/>
+    <parsley:ViewProcessorTag type="{MyViewProcessor}"/>
+</parsley:ContextBuilderTag>
+#cdb
+
+#par The filer is an instance that get used for all view components while we just specify a class for the processor
+as the framework will create a new instance for each view. This is convenient as it allows us to keep state, like we 
+do in our example processor shown above. #par
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,52 @@
+#sc2 bindings_basics Basic Usage #sc2
+
+#par To set up a publisher on a managed object you can use the #cdi Publish #cdi metadata tag: #par
+
+#cdb
+[Publish][Bindable]
+public var selectedContact:Contact;
+#cdb
+
+#par In Flex applications you also need to use the #cdi [Bindable] #cdi tag on the publishing side, as the implementation for 
+Flex is based on the standard Flex Binding architecture. For Flash applications see the last section in this chapter. #par
+
+#par As soon as you update such a publisher property, 
+the value will be pushed to all matching subscribers in any other object in any Context: #par
+
+#cdb
+[Subscribe]
+public var selectedContact:Contact;
+#cdb
+
+#par If you do not specify an object id, the matching subscribers will be determined by the type of the property, in this
+case #cdi Contact #cdi. Like with injection and messaging this works polymorphically. You can publish a #cdi Dog #cdi and
+a subscriber for #cdi Animal #cdi would also get updated. #par
+
+#par Like with all other features it is best to stick with matching by type and avoid the use of string identifiers if possible.
+If you need to publish multiple objects of the same type, you can specify an id: #par
+
+#cdb
+[Publish(objectId="selectedContact")][Bindable]
+public var selectedContact:Contact;
+#cdb
+
+#par Of course the subscribers must specify the corresponding id then, too. In some case you may also be able to use scopes
+to confine the area of the application an object is published to and avoid the use of an id this way. #par
+
+#par You can also let a property act as a publisher and subscriber at the same time: #par
+
+#cdb
+[PublishSubscribe][Bindable]
+public var selectedContact:Contact;
+#cdb
+
+#par Now the value will be updated when any other publisher updates, but still act as a publisher itself. #par
+
+#par Finally, like most other tags these tags can be used in MXML and XML, too: #par
+
+#cdb
+<Object type="{MyPublisher}">
+    <Publish property="selectedContact"/>
+    <!-- other tags -->
+</Object>
+#cdb

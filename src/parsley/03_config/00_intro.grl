@@ -1,0 +1,18 @@
+#sc1 config_intro Configuration and Initialization #sc1
+
+#par Configuring and initializing the Parsley Framework usually consists of the following steps: #par
+
+#lst
+
+#lse Step 1: Telling the IOC Container which classes it should manage. 
+This can be done with MXML, XML files or in ActionScript. 
+All three mechanisms will be described in the following sections. #lse
+
+#lse Step 2: Configure the container services like Dependency Injection or Messaging for each individual class.
+This can be done with the mechanism you had chosen for step 1 (e.g. with MXML or XML configuration tags)
+or - in most cases - conveniently with AS3 Metadata Tags right within the classes themselves. #lse 
+
+#lse Step 3: Initialize the IOC Container (usually on application startup). 
+In Parsley 2 this is a one-liner in most cases. See the sections below for examples. #lse
+
+#lst

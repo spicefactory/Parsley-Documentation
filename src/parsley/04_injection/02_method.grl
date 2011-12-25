@@ -1,0 +1,27 @@
+#sc2 injection_method Method Injection #sc2
+
+#par Method Injection is similar to Constructor Injection. You can place #cdi [Inject] #cdi metadata tags on any number of methods: #par
+
+#cdb
+package com.bookstore.actions {
+
+class LoginAction {
+
+    private var service:LoginService;
+    private var manager:UserManager;
+
+    [Inject]
+    public function init (service:LoginService, manager:UserManager = null) : void {
+        this.service = service;
+        this.manager = manager;    
+    }
+
+}
+}
+#cdb
+
+#par As with Constructor Injection Parsley will recognize whether a method parameter is optional or not and
+accordingly treat the dependency as optional or required. The object to be injected will be selected by type, so you
+should make sure to include at most one object with a matching type into your configuration. For Method Injection
+there are no restrictions on MXML configuration, so in contrast to Constructor Injection you could also use 
+simple MXML tags for adding the objects to the container. #par

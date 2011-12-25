@@ -1,0 +1,51 @@
+#sc2 logging_flex Logging Configuration for Flex #sc2
+
+#par If you want to use the Flex Logging API you have two options: You can configure LogTargets in MXML
+with the builtin MXML tags - in this case no Parsley integration is required. For details on using
+the Flex Loggin API see the #url http://livedocs.adobe.com/flex/3/html/help.html?content=logging_09.html#178687 Flex LiveDocs #url. #par
+
+#par If you prefer using external XML files for your logging configuration you can use an XML tag extension
+of Parsley that creates LogTargets: #par
+
+#cdb
+<objects 
+    xmlns="http://www.spicefactory.org/parsley"
+    xmlns:log="http://www.spicefactory.org/parsley/flex/logging"
+    
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.spicefactory.org/parsley 
+      http://www.spicefactory.org/parsley/schema/2.3/parsley-core.xsd 
+    http://www.spicefactory.org/parsley/flex/logging 
+      http://www.spicefactory.org/parsley/schema/2.3/parsley-logging-flex.xsd"
+    >
+    
+    <log:target level="error">
+        <log:filter>org.spicefactory.*</log:filter>        
+    </log:target>
+    <log:target level="debug">
+        <log:filter>com.bookstore.*</log:filter>    
+        <log:filter>com.mycompany.util.*</log:filter>    
+    </log:target>
+    
+    <!-- other object definitions -->
+    
+</objects>
+#cdb
+
+#par With the example configuration above you will see only error from internal logs of Spicefactory framework classes
+while seeing all debug logs from your own application classes. #par
+
+#par The default target type created by this tag is a #cdi TraceTarget #cdi. You can explicitly declare other
+target types: #par
+
+#cdb
+<log:target level="debug" #hlt type="com.bookstore.util.CustomLogTarget" #hlt>
+    <log:filter>com.bookstore.*</log:filter>        
+</log:target>
+#cdb
+
+#par Since this is an extension it has to be initialized explicitly before using the #cdi XmlContextBuilder #cdi: #par
+
+#cdb
+FlexLoggingXmlSupport.initialize();
+#cdb

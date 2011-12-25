@@ -1,0 +1,58 @@
+#sc2 extensions_scopes Working with Scopes #sc2
+
+#par In some cases you may want to create custom configuration tags that interact with some kind
+of central manager in a similar way like the builtin message receiver tags interact with the #cdi MessageReceiverRegistry #cdi
+for example. And often it would be beneficial if there would be a way to avoid just having one global manager instance.
+If you want to allow the users of your custom extension tags to specify scopes the same way like for messaging,
+so that the feature can be applied globally or just locally for one Context only or for a any custom scope, 
+this can be accomplished by registering a scope extension. #par
+
+#par A core framework feature that is built on top of a ScopeExtension is the support for Decoupled Bindings with
+the #cdi [Publish] #cdi and #cdi [Subscribe] #cdi tags. If you want to browse the code for inspiration on building
+scope-wide services, you find the implementation in the #cdi parsley-extensions #cdi source folder in the package
+#cdi org.spicefactory.parsley.binding #cdi. #par
+
+#par Through the use of scopes a publisher may publish an object to a local scope only, which allows for multiple
+windows, popups or modules to have their own local publishing space without creating ambuigities through multiple
+publisher declarations. #par
+
+#par For a custom scope-wide service it is recommended to use a service interface and program the tags against
+that interface. You can then register the implementation for the manager like this: #par
+
+#cdb
+BootstrapDefaults.config.scopeExtensions
+    .forType(NavigationManager)
+    .setImplementation(DefaultNavigationManager);
+#cdb
+
+#par This way a new instance of your scope-wide manager will be created for each scope,
+the global scope, each local scope of each Context and each custom scope. Someone else would then
+be able to specify alernative implementations without the need to change any of the configuration tags
+that might talk to the service. #par
+
+#par A tag implementation may then fetch the manager instance that belongs to the specified target scope: #par
+
+#cdb
+public class EnterScreenDecorator implements ObjectDefinitionDecorator {
+
+    public var scope:String = ScopeName.GLOBAL;
+    
+    [...]
+    
+    public function decorate (builder:ObjectDefinitionBuilder) : void {
+    
+        var scope:Scope = builder.config.context.scopeManager.getScope(scope);
+        
+        var navigationManager:NavigationManager 
+                = scope.extensions.byType(NavigationManager) as NavigationManager;
+       
+        navigationManager.doSomethingWithDefinition(definition);
+    }
+    
+}
+#cdb
+
+#par In the example above the default global scope could be overwritten by the user through the scope attribute.
+Of course your manager does not necessarily have to deal with definitions directly. You can also use
+the scope-wide manager in an #cdi ObjectProcessor #cdi and work with the actual target instance instead of just
+the definition. #par

@@ -1,0 +1,15 @@
+#sc2 messaging_receiving Receiving Messages #sc2
+
+#par For an object that wants to receive and process messages managed by Parsley you have the following setup options: #par
+
+#lst
+#lse #ref messaging_handlers #ref for methods that should be invoked when a particular message is dispatched. #lse
+#lse #ref messaging_bindings #ref for properties that should be set when a particular message is dispatched. #lse
+#lse #ref messaging_interceptors #ref for intercepting, and optionally cancelling or deferring then redispatching a message 
+before it is processed by handlers or bindings. #lse
+#lse #ref messaging_errorhandlers #ref for handling errors thrown by other handlers, bindings or interceptors. #lse
+#lse #ref managedcommands_mapping #ref for mapping Commands to messages, receiving the message in the execute method and 
+having the command's lifecycle tied to its execution time. #lse
+#lse #ref messaging_api #ref in rare cases where you need to use the Framework API to register any of the
+features listed above. #lse
+#lst

@@ -1,0 +1,111 @@
+#sc2 bindings_persistence Persistent Properties #sc2
+
+#par A published property can be marked as persistent. Immediately after the object gets instantiated it will 
+then receive the value from the last time the application ran: #par
+
+#cdb
+[PublishSubscribe(persistent="true",objectId="selectedContact")]
+public var selectedContactId : String;
+#cdb
+
+#par Under the hood Parsley uses Local SharedObjects for storing the values. But this is only the default implementation
+which can be swapped like almost everything in Parsley, like explained in the next section. But if you only use simple types
+like #cdi String #cdi or #cdi Number #cdi and only the global scope (which is the default) and are fine with using
+Local SharedObjects for persistence, then you can safely skip all remaining parts of this section. The #cdi persistent #cdi
+attribute as shown above is all you need to know in this case. #par
+
+
+
+#sub Custom Persistence without Local SharedObjects #sub
+
+#par If you want to persist values in a user session on the server side for example, you can provide your own implementation and read
+and write values to and from a remote service. The interface looks like this: #par
+
+#cdb
+[Event(name="change", type="flash.event.Event")]
+
+public interface PersistenceManager extends IEventDispatcher {
+	
+    function saveValue (scopeId:String, baseType:Class, id:String, value:Object) : void;
+	
+    function deleteValue (scopeId:String, baseType:Class, id:String) : void;
+	
+    function getValue (scopeId:String, baseType:Class, id:String) : Object;
+	
+}
+#cdb
+
+#par The #cdi scopeId #cdi, #cdi baseType #cdi and #cdi id #cdi values can be used to uniquely identify a value.
+The #cdi id #cdi alone is not guaranteed to be unique. You can use these three values to build a unique key
+to send to the server. The #cdi scopeId #cdi will be explained later. 
+A #cdi change #cdi event has to be dispatched by the implementation whenever it receives
+new values from the server (or wherever it gets its data from). This includes the values loaded on application
+startup. The change event should be dispatched once all initial values are available. 
+ #par
+
+#par Such a custom service can be registered like this: #par
+
+#cdb
+BootstrapDefaults.config.scopeExtensions
+    .forType(PersistenceManager)
+    .setImplementation(MyCustomPersistenceManager);
+#cdb
+
+
+
+#sub Persisting Complex Types #sub
+
+#par The framework only detects changes of the actual reference stored in the persistent property.
+This is how the Publish/Subscribe mechanism works in general. When a published object changes internally,
+there is no need to notify the subscribers (and besides no sensible way to do that) as they already have
+a reference to the modified object. For persistent properties this has an impact though, as it means
+that it works best for simple properties like #cdi String #cdi or #cdi Number #cdi out of the box.
+Because for complex types it would indeed be desired that internal changes get persisted, too, as the
+server (or peristent store in general) does not have a permament reference to the object like a normal,
+local subscriber in your application. #par
+
+#par For detecting changes to complex types you'd have to code the knowledge about these types into
+a custom #cdi PersistenceManager #cdi implementation. The framework cannot easily know which changes
+to observe (and how), so it is best to leave that to the application developer. Future versions
+might add support for common types at least (like an #cdi ArrayCollection #cdi where it could 
+listen to the #cdi CollectionEvents #cdi). #par
+ 
+
+
+#sub Using Scopes #sub
+
+#par Persisting values works without additional setup steps when using the global scope (which is the 
+default). But when you are using multiple Contexts and want to have persistent values for each of them
+(through using the local scope or a custom scope), then you need to take care of re-creating the same
+set of scopes and Contexts when the application restarts. This is usually done in some sort of application-specific
+navigation logic that handles the #cdi scopeId #cdi that is always passed to the #cdi PersistenceManager #cdi.
+To guarantee the correct delivery of local persistent values the Contexts need to be created with the same
+id's. Normally you do not care for the id's of the scopes and only specify the name. But if required
+the id can be specified explicitly: #par
+
+#cdb
+<parsley:ContextBuilder config="..."> 
+    <parsley:Scope name="someScopeName" uuid="{idFromLastSession}"/>
+</parsley:ContextBuilder>
+#cdb
+
+#par While the name is not unqiue (you can have as many scopes with the same name as you want as long as they do not 
+overlap), the id is indeed a unique identifier for a scope. This is the same value that gets then passed as the #cdi scopeId #cdi
+parameter to all the methods of the
+#cdi PersistenceManager #cdi. On the persistent property itself you still only have to use the name, as it would get quite
+convoluted if you'd need to pass the uuid around: #par
+
+#cdb
+[PublishSubscribe(persistent="true", objectId="selectedContact", scope="someScopeName")]
+public var selectedContactId : String;
+#cdb
+
+#par The framework simply knows which id that particular instance of the #cdi someScopeName #cdi scope has. #par
+
+#par For a general overview regarding scopes see #ref messaging_scopes #ref. #par
+
+
+
+
+
+

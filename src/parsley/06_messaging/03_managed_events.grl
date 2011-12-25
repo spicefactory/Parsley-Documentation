@@ -1,0 +1,63 @@
+#sc2 messaging_managed_events Managed Events #sc2
+
+#par If the class that you want to dispatch messages managed by Parsley is a regular #cdi EventDispatcher #cdi this
+is the most convenient option. It would work for any existing #cdi EventDispatcher #cdi implementation even if it wasn't
+designed with Parsley in mind. It requires two steps: #par
+
+#lst
+#lse Declare the events that your class dispatches with regular [Event] tags. This is good practice anyway, whether you are
+using Parlsey or not, as it improves the readability of your classes and the ASDoc output where all events declared with
+this tag are included. #lse
+#lse Tell Parsley which of those declared events should be "managed" so that they are available for message receivers
+configured for the framework. Like for all messaging features you can use AS3 Metadata, MXML or XML tags for this step. #lse
+#lst
+
+#sub Metadata Example #sub
+
+#cdb
+[Event(name="loginSuccess",type="com.bookstore.events.LoginEvent")]
+[Event(name="loginFailed",type="com.bookstore.events.LoginEvent")]
+[Event(name="stateChange",type="flash.events.Event")]
+[ManagedEvents("loginSuccess,loginFailure")]
+public class LoginServiceImpl extends EventDispatcher implements LoginService {
+
+    [...]
+    
+    private function handleLoginResult (user:User) : void {
+        dispatchEvent(new LoginEvent("loginSuccess", user));
+    }
+    
+}
+#cdb
+
+#par In the example above the service declares three events. Two of them (#cdi loginSuccess #cdi and #cdi loginFailure #cdi) 
+are application events and should be managed by Parsley and dispatched to all objects in the Context interested in that event. 
+The third one is a low-level event only of interest for objects interacting directly with that service. Those objects may
+still register a regular event listener for that event. #par
+
+#par The example method above shows how a result handler (that probably was registered as a handler for a remote service
+invocation) translates the result into an event and simply dispatches it. No #cdi FrontController.getInstance().dispatch... #cdi
+or anything like that. Since #cdi loginSuccess #cdi was declared as a managed event it will be passed to all #cdi MessageHandlers #cdi
+configured in Parlsey. #par
+
+#sub MXML Example #sub
+
+#cdb
+<Object type="{LoginServiceImpl}">
+    <ManagedEvents names="['loginSuccess','loginFailure']"/>
+</Object>
+#cdb
+
+#par If you declare the managed events in MXML you can omit the #cdi [ManagedEvents] #cdi metadata tag from the previous example.
+Note that you still have to include the #cdi [Event] #cdi metadata tags, since those are not a configuration artifact of Parsley
+but a regular Flash API feature. #par
+ 
+#sub XML Example #sub
+
+#cdb
+<object type="com.bookstore.services.LoginServiceImpl">
+    <managed-events names="loginSuccess,loginFailure"/>
+</object>
+#cdb
+
+#par As always very simliar to MXML configuration apart from several notation differences. #par

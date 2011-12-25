@@ -1,0 +1,63 @@
+#sc2 bindings_difference Comparing Dependency Injection and Decoupled Bindings #sc2
+
+#par This section aims to give an overview over the differences between two framework features that share a few similarities
+and a few suggestions for how to determine which mechanism to use in a particular use case. #par
+
+#par Note that there are other frameworks who even mix these two mechanisms into a single feature. However I think that it is
+better to have a clear distinction as there are significant differences in the pros and cons for both.
+It also makes the code easier to read when there are distinct tags for these capabilities. #par
+
+
+
+#sub Dependency Injection #sub
+
+#par For details see #ref injection_intro #ref #par
+
+#par Classic Dependency Injection (using Parsley's #cdi [Inject] #cdi tag) offers the following advantages 
+over Decoupled Bindings: #par
+
+#lst
+#lse This feature is designed for robustness. An object declares a dependency on some collaborator and it can rely
+on the container injecting a matching instance when the object gets initialized. Likewise it will also
+make sure that the injected object has a lifecycle at least as long as the target it is injected into. This way
+the dependent object has a guarantee that the collaborator does not suddenly "go away". This is the reason that
+you cannot inject from a child Context into a parent (vice versa is fine of course) and also cannot inject 
+dynamic objects (unless they are defined with the #cdi <DynamicObject> #cdi tag in the Context) as they could 
+be removed anytime. #lse
+
+#lse Similarly useful for increased robustness is the fact that the container gives you the guarantee that
+all injections have already been performed when the method marked with #cdi [Init] #cdi gets invoked.
+This often simplifies internal initialization code. #lse
+
+#lse Any errors caused by misconfiguration (e.g. ambuigities or missing dependencies) are already detected at Context 
+initialization time. #lse
+#lst
+
+
+
+
+
+#sub Decoupled Bindings #sub
+
+#par Decoupled Binding (using Parsley's #cdi [Publish] #cdi and #cdi [Subscribe] #cdi tags) offers the following 
+advantages over Dependency Injection: #par
+
+#lst
+#lse This feature is much more dynamic than Dependency Injection. It is perfectly legal for any subscriber to have no value
+at all or to receive multiple updates of the same property during its lifecycle. It is really more the decoupled equivalent
+of the typical usage of Flex Bindings. #lse
+
+#lse The published object does not even have to be a container managed object. So this feature can be used in a more 
+lightweight way. Publishing an object also does not cause reflection on the object (unless you specify that it should
+be managed), so it has benefits for performance. #lse
+#lst
+
+#par Of course there is also a price to pay compared to injection: #par
+
+#lst
+#lse There is no guarantee that the subscribers have any values when the method marked with #cdi [Init] #cdi gets invoked 
+on the object as the value can be published and updated at any point in time. #lse
+
+#lse Errors caused by misconfiguration (in particular ambuigities) are sometimes not detected at Context initialization
+time. They can happen anytime a new publisher enters the Context (dynamic objects can act as publishers, too). #lse
+#lst

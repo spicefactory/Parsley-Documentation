@@ -1,0 +1,30 @@
+#sc2 lifecycle_order Object Initialization Order #sc2
+
+#par In case you want to explicitly specify the initialization order you can do that with the order attribute: #par
+
+#sub MXML Example #sub
+
+#cdb
+<Object id="welcomeText" type="{FileLoader}" order="1">
+    <AsyncInit/>
+    <Init method="init"/>
+    <Property name="filename" value="welcome.txt"/>
+</Object>
+#cdb
+ 
+#sub XML Example #sub
+
+#cdb
+<object id="welcomeText" type="com.example.FileLoader" order="1">
+    <async-init/>
+    <init method="init"/>
+    <property name="filename" value="welcome.txt"/>
+</object>
+#cdb
+
+#par The default value if you omit this attribute is #cdi int.MAX_VALUE #cdi so that all objects without an order attribute
+will execute last and in arbitrary order. The attribute can be set to any positive or negative integer value. #par
+
+#par The order attribute can also be used for objects that initialize synchronously. For any asynchronously initializing
+object in the sequence the container will wait for that object to complete its initialization before starting
+with the next one. #par

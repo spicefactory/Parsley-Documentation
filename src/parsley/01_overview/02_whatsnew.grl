@@ -1,0 +1,64 @@
+#sc2 overview_whatsnew_24 What's new in Parsley 2.4 #sc2
+
+#par This section only lists the parts of the manual which are new or have been signifantly modified. #par
+
+
+#par #str Reflection #str #par
+
+#lst
+#lse Significantly improved performance when running in Flash Player 10.1 or newer (not explicitly documented in the manual) #lse
+#lst
+
+
+#par #ref injection_intro #ref #par
+
+#lst
+#lse #ref injection_override #ref (new) #lse
+#lst
+
+
+#par #ref bindings_intro #ref #par
+
+#lst
+#lse #ref bindings_persistence #ref (new) #lse
+#lst
+
+
+#par #ref messaging_intro #ref #par
+
+#lst
+#lse #ref messaging_interceptors #ref (rewritten for new interceptor mechanism) #lse
+#lse #ref messaging_scopes #ref (new support for changing the default scope) #lse
+#lst
+
+
+#par #ref view_intro #ref #par
+
+#lst
+#lse #ref view_config_explicit #ref (added new Configure API) #lse
+#lse #ref view_config_noreflect_api #ref (new) #lse
+#lse #ref view_config_noreflect_custom #ref (new) #lse
+#lse #ref view_lifecycle_custom #ref (new) #lse
+#lst
+
+
+#par #ref modules_intro #ref #par
+
+#lst
+#lse #ref modules_context_multiple #ref (new) #lse
+#lst
+
+
+#par #ref extensions_intro #ref #par
+ 
+#lst
+#lse #ref extensions_scopes #ref (rewritten for new API) #lse
+#lse #ref extensions_kernel #ref (rewritten for new API) #lse
+#lst 
+
+#par #ref tagref_intro #ref #par
+
+#lst
+#lse #ref tagref_bindings_publish_subscribe #ref (new attribute) #lse
+#lse #str MessageInterceptor #str (removed due to deprecation) #lse
+#lst

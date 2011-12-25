@@ -1,0 +1,113 @@
+#sc2 messaging_scopes Using Scopes #sc2
+
+#par In Parsley 2.0 every child Context simply shared the message router with its parent Context. 
+This way messages were always dispatched globally. An approach that may turn out to be too simplistic for large and modular applications
+where a loaded module, a window or a popup may wish to create its own local messaging context 
+while still being able to inject objects from the root Context or dispatching selected messages
+globally. The scope feature introduced with version 2.1 offers that flexibility, 
+allowing to dispatch into a subset of Contexts only. #par
+
+#sub Global and Local Scopes #sub
+
+#par In the new default scope setup for Parsley 2.1 there is a global scope that is created for each Context that does
+not have a parent (usually only the one root Context created at application startup) and then shared will all
+children of that Context (including grandchildren of course). Additionally each Context will create its own
+local scope which will not be shared with its children. The following diagram shows this default setup: #par
+
+#img doc_img scopes-default.jpg #img
+
+#par Since the global scope represents exactly the only option that was
+available in Parsley 2.0 it will always be the default scope for all configuration tags where no scope is 
+explicitly specified. This way existing configuration files and metadata tags on classes  that were used with version 2.0
+will still work the same way. #par
+
+#cdb
+[MessageHandler(selector="save")]
+public function save (event:ProductEvent) : void {
+#cdb
+
+#par The handler above listens to ProductEvents dispatched from any Context in the hierarchy. It listens to the global
+scope. #par
+
+#cdb
+[MessageHandler(selector="save", scope="local")]
+public function save (event:ProductEvent) : void {
+#cdb
+
+#par Now the handler only listens to events dispatched from the same Context. Of course all tags
+for the various message receiver types accept a scope attribute, including #cdi MessageBinding #cdi
+and #cdi MessageErrorHandler #cdi. #par
+
+#par Since version 2.4 the default scope can now be switched: #par
+
+#cdb
+<parsley:ContextBuilder config="...">
+    <parsley:MessageSettings defaultReceiverScope="local"/>
+</parsley:ContextBuilder>
+#cdb
+
+#par Now the local scope is the default whenever no scope is specified explicitly in a configuration tag.
+The default is in effect for the Context and all its children unless overwritten again for a child Context. #par
+
+#par For the sending side the default behaviour is different. For any #cdi [MessageDispatcher] #cdi or 
+#cdi [ManagedEvents] #cdi tag
+where no scope is explicitly specified the message will be dispatched through all scopes available
+for that particular Context. This way the receiving side can decide which scope it wants to listen to,
+allowing global and local receivers for the same message instance.
+For cases where you even want to restrict the sending side to a single scope there will also be a new scope attribute
+for the #cdi [ManagedEvents] #cdi tag: #par
+
+#cdb
+[ManagedEvents("save,delete", scope="local")]
+#cdb
+
+#sub Custom Scopes #sub
+  
+#par Finally you can also create your own custom scope when neither global nor local messaging is the right choice.
+This may be the case when you create a large AIR window for example. The root window component may create a Context
+with the root application Context as a parent but then also a few child Contexts for parts within that window.
+If you then want to setup a messaging scope for that window only you need a scope that spans multiple Contexts but
+still is not global. Since version 2.1 you can create a scope setup like in the following example diagram: #par
+
+#img doc_img scopes-custom.jpg #img
+
+#par The window scope is a custom scope that exists side-by-side with the two default scopes. Now how do you 
+instruct the framework to create that scope? This has to be done for the root Context of the scope, 
+in this case the two root Contexts for the two window scopes. In MXML you can specify the scope like this: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:FlexConfig type="{ServiceConfig}"/>
+    <parsley:FlexConfig type="{ControllerConfig}"/>
+    <parsley:XmlConfig file="logging.xml"/>
+    #hlt <parsley:Scope name="window" inherited="true"/> #hlt
+</parsley:ContextBuilder>
+#cdb
+
+#par Or programmatically add the scope with the #cdi ContextBuilder #cdi DSL: #par
+
+#cdb
+var viewRoot:DisplayObject = ...;
+
+ContextBuilder.newSetup()
+    .viewRoot(viewRoot)
+    .scope("window")
+    .newBuilder()
+        .config(FlexConfig.forClass(ServiceConfig))
+        .config(FlexConfig.forClass(ControllerConfig))
+        .config(XmlConfig.forFile("logging.xml"))
+        .build();
+#cdb
+
+#par The name of the scope does not have to 
+be unique as long as you make sure that two scopes with the same name do never overlap. This is convenient
+as it allows to define a message handler for the window scope without having to think about which
+window instance it belongs to: #par
+
+#cdb
+[MessageHandler(selector="save", scope="window")]
+public function save (event:ProductEvent) : void {
+#cdb
+
+#par The second boolean parameter specifies whether the scope should be shared with child Contexts.
+So you can also create custom local scopes, although this is probably a rather unsual use case. #par

@@ -1,0 +1,84 @@
+#sc2 troubleshooting_modules Problems with Modules #sc2
+
+#par Applications that load modules are usually also multi-Context applications, as each module normally creates at least
+one internal Context within the module. Errors when working with modules usually occur when the Contexts in the various layers
+do not "connect" correctly or when a view is wired to the wrong Context. This often comes as a surprise as there is a lot of
+magic happening under the hood when you load a module and/or create a child Context. Parsley usually connects them automatically,
+creating a Context hierarchy that matches the view hierarchy the Contexts were created in. This way any child Context does always
+automatically share all dependencies from a parent Context. In some scenarios this magic does not work, most often due to a configuration
+issues. In very rare cases it might even be necessary to specify the parent Context and/or ApplicationDomain manually, which can
+be done through attributes of the #cdi <ContextBuilder> #cdi tag for example. #par
+
+
+#sub Reflection Errors ("Specified ApplicationDomain does not contain the class MyClass") #sub  
+
+#par This can only happen when you load modules into child ApplicationDomains. Reflection errors usually have one of
+the following two causes: #par
+
+#lst
+#lse #str The module does not declare its own Context internally. #str When you want to wire views from within a module that
+was loaded into a child ApplicationDomain, the module must create its own Context. This is because every Context uses
+exactly one ApplicationDomain for reflection internally. If you only want to wire views and otherwise do not want to 
+declare any models or services in the module Context, you can simply add an empty #cdi <ContextBuilder/> #cdi tag
+to the root module component. #lse
+
+#lse #str The module is loaded too early. #str For the automatic detection of the required ApplicationDomain it is important
+that the initialization of the first (root) Parsley Context starts before you load the first module. Otherwise it might happen
+that the framework passes the wrong ApplicationDomain to the module Context. Loading too early might happen if you use
+an #cdi <mx:ModuleLoader> #cdi with a hard-coded url attribute in a component that gets initialized on application startup or
+through other early programmatic loading of modules. This is a limitation of the current version (2.3) and will very likely
+no longer apply for Parsley 2.4. #lse
+
+#lse #str The view is wired to the wrong Context. #str This might happen even when the module does create its own Context
+and that Context has the right ApplicationDomain for reflection. The last possible cause is then that the view did not
+get wired to the module Context, but only to the root application Context. The views connect through bubbling events
+to the nearest Context and this normally works as expected. There are only a few scenarios that might cause problems
+(see #str Problems with popups and AIR windows #str for an example). You can use the log output as demonstrated in 
+the next section to verify whether the view gets wired to the right Context. #lse
+#lst
+
+
+#sub Missing Dependencies #sub
+
+#par If you see errors that a specific dependency cannot be found, although you are sure that you declared it in a
+Context configuration file, then it is very likely that the view got wired to the wrong Context. See
+#str Problems with popups and AIR windows #str for a common error scenario. #par
+
+#par Examining the log output also helps in this case, as it allows you to easily find out which Context connected to which
+parent and which view got wired to which Context. For an example lets assume that you create the root application Context
+using #cdi MyRootConfig #cdi as the MXML configuration class and then #cdi MyModuleConfig #cdi as the configuration for the
+module. Inside the module you have a view of type #cdi MyWindow #cdi that needs to get wired. If all goes well you should
+find these three entries in the log output (intertwined with other logs): #par
+
+#cdb
+22:18:54.953 [INFO] org.spicefactory.parsley.core.bootstrap.impl.DefaultBootstrapConfig
+Creating Context [Context(FlexConfig{MyRootConfig})] without parent
+
+[...]
+
+22:19:01.270 [INFO] org.spicefactory.parsley.core.bootstrap.impl.DefaultBootstrapConfig 
+Creating Context [Context(FlexConfig{MyModuleConfig})] 
+with parent [Context(FlexConfig{MyRootConfig})]
+
+[...]
+
+22:19:01.544 [DEBUG] org.spicefactory.parsley.core.view.impl.DefaultViewConfigurator 
+Add view 'My_Module.ApplicationSkin2._AppSkin_Group1.contentGroup.TestModule23.MyWindow25' 
+to [Context(FlexConfig{MyModuleConfig})]
+#cdb
+
+#par Here you can examine that the module Context found its parent (the root ApplicationContext) and the
+view MyWindow got wired to the module Context and not to the root Context. #par
+
+#par Note that you have to use Parsley 2.3.2 or newer to see the complete log output as shown above. #par
+
+#par You can also improve the readability of the logs when you set the #cdi description #cdi attribute
+explicitly in the ContextBuilder: #par
+
+#cdb
+<parsley:ContextBuilder config="{MyRootConfig}" description="root"/>
+#cdb
+
+#par This would turn the output #cdi [Context(FlexConfig{MyRootConfig})] #cdi into just 
+#cdi [Context(root)] #cdi. This does not make such a big difference if you use only one configuration class,
+but if you use multiple ones the default description would list them all. #par

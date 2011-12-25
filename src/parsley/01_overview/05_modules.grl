@@ -1,0 +1,19 @@
+#sc2 overview_modules Spicelib Module SWCs #sc2
+
+#par Spicelib which Parsley builds upon is very modular, so you are able to only select the SWCs actually
+required for your application in case you want to use that library without Parsley. 
+The #cdi release #cdi folder in the download contains SWCs for Parsley and
+Spicelib which combine all the modules into a single large SWC (for both frameworks SWCs for Flex and one for Flash). #par
+
+#par Alternatively for Spicelib the #cdi module #cdi folder contains smaller SWCs only containing a single library module which can be 
+combined to add only the feature set required by your application to the classpath. #par
+
+#par The following table summarizes the content for each of these SWCs: #par
+
+#tbl
+#tbr #cdi spicelib-core #cdi # Core utilities, errors and events. #tbr 
+#tbr #cdi spicelib-reflect #cdi # The Spicelib Reflection API. See ?ref reflection_intro ?ref for details. #tbr 
+#tbr #cdi spicelib-xml #cdi # The XML-to-Object Mapper. See ?ref xmlmapper_intro ?ref for details. #tbr 
+#tbr #cdi spicelib-task #cdi # The Task Framework for asynchronous operations. See ?ref task_intro ?ref for details. #tbr 
+#tbr #cdi spicelib-flash-support #cdi # The Flash Logging Framework. See ?ref spicelib-logging_intro ?ref for details. #tbr 
+#tbl

@@ -1,0 +1,256 @@
+#sc2 extensions_mxml_xml Custom MXML and XML Tags #sc2
+
+#par In many applications you may be able to stick to the builtin tags like #cdi <Object> #cdi or #cdi <DynamicCommand> #cdi
+for your MXML or XML configuration files. But in case you want to add custom options the format is easy to extend.
+Like with the metadata extension point, all the builtin tags like #cdi <Object> #cdi or #cdi <DynamicCommand> #cdi are implemented
+as extensions themselves. #par
+
+
+
+
+#sc3 extensions_mxml_xml_structure The Structure of Configuration Files #sc3
+
+#par Although technically there are a lot of differences between MXML and XML configuration, they are very similar
+from the framework's perspective. This means that you usually only have to create one implementation of one of the 
+available interfaces and will then be able to use the same tag in MXML and XML configuration. #par
+
+#par The following example shows all the existing types of MXML and XML tags in a single configuration artefact. #par
+
+#img doc_img config_structure.gif #img
+
+#par This example shows an MXML configuration class, but apart from minor syntactical differences the structure for
+XML configuration files is exactly the same, and the same set of interfaces is supported. #par
+
+#par As you see, you'll have two choices for tags on the root level: tags that implement #cdi RootConfigurationElement #cdi
+or literal values. In case of literal values they are interpreted as an instance that should be added to the Context as is.
+The class may have metadata tags for configuration which the framework will process, but the tag cannot have those 
+framework specific MXML child tags. In case of tags implementing #cdi RootConfigurationElement #cdi the framework will
+invoke the #cdi process #cdi method. For details see #ref extensions_mxml_xml_root #ref and #ref extensions_mxml_xml_sample #ref. #par
+
+#par The #cdi NestedConfigurationElement #cdi shares some similarities with the interface for root tags. It can be used wherever
+tags allow child tags that represent values, like the #cdi <Property> #cdi, #cdi <ConstructorArgs> #cdi or #cdi <Array> #cdi tags.
+Like with root tags in any of these places literal values are allowed and are used as is, while for the tags implementing the
+framework interface their #cdi resolve #cdi method will be invoked first to determine the actual value represented by that tag.
+For details see #ref extensions_mxml_xml_nested #ref. #par
+
+#par Finally there are places where tags implementing #cdi ObjectDefinitionDecorator #cdi can be used. Amongst other places they can
+be used as immediate children of the root tags #cdi <Object> #cdi, #cdi <DynamicObject> #cdi and #cdi <DynamicCommand> #cdi. 
+This is the same interface that custom metadata tags have to implement. Thus a single implementation of that interface can be used
+as metadata, MXML or XML, allowing for a great level of flexibility. #par
+
+#par The reason that they are allowed immediately below tags like #cdi <Object> #cdi is that they contain logic to configure
+an object, in the case of MXML or XML usage always the object defined by its parent tag. Custom metadata tags can support nested
+decorator tags, too. For this they must have a DefaultProperty of type Array that expects elements of type #cdi ObjectDefinitionDecorator #cdi.
+And of course the tag must contain logic that knows how to apply the decorators to the corresponding definition. #par
+
+#par Most of the builtin metadata tags support MXML or XML configuration, too. Consider the following metadata tag: #par
+
+#cdb
+[MessageHandler(scope="local")]
+public function handleMessage (msg:MyMessage) : void
+#cdb
+
+#par The equivalent XML configuration would be: #par
+
+#cdb
+<object type="com.foo.MyClass">
+    <message-handler method="handleMessage" scope="local"/>
+</object>
+#cdb
+
+#par As you see the major difference is that you have to specify the method name in XML. This is not needed with metadata
+as the name will be deduced from the property the tag is placed upon. #par
+
+
+
+
+#sc3 extensions_mxml_xml_root The RootConfigurationElement Interface #sc3
+
+#par This interface can be implemented by tags that are intended for use on the top level of MXML or XML configuration
+files. #par
+
+#cdb
+public interface RootConfigurationElement {
+    
+    function process (config:Configuration) : void;
+    
+}
+#cdb
+
+#par In many cases the implementation of the #cdi process #cdi method creates, configures and registers a single definition
+for an object. Many of the builtin tags like #cdi <Object> #cdi behave like that. But it is not a requirement. The tag
+can alternatively register multiple object definitions or even none at all and instead do any other kind of processing. #par
+
+#par The #cdi Configuration #cdi instance passed to the #cdi process #cdi method gives access to the configuration DSL.
+For instruction on how to use the DSL see #ref extensions_definitions #ref. #par
+
+
+
+
+#sc3 extensions_mxml_xml_nested The NestedConfigurationElement Interface #sc3
+
+#par This interface is similar to #cdi RootConfigurationElement #cdi, but comes with a subtle difference: In contrast to
+the root tag which basically can perform any kind of processing, this tag has to represent exactly one value. The reason
+is that such a tag is only used in places where a value is expected. For child tags of the #cdi <Array> #cdi tag for example
+it is expected that each child tag represents an element of that Array. Therefor the interface is slightly different: #par
+
+#cdb
+public interface NestedConfigurationElement {
+    
+    function resolve (config:Configuration) : Object;
+    
+} 
+#cdb
+
+#par The #cdi resolve #cdi method must return a value. This is interpreted as the actual value the tag represents.
+But there can be one more level of indirection: The returned value can represent something which needs to be resolved
+at the time the value is applied to the instance it belongs to. This applies for the #cdi <ObjectRef> #cdi tag for
+example. That tag has to resolve an id value or an object type at the time the target object is configured.
+Such a return value must implement the #cdi ResolvableValue #cdi interface. For examples you may examine
+the #cdi NestedObjectTag #cdi or #cdi ObjectReferenceTag #cdi classes. #par 
+
+
+
+
+#sc3 extensions_mxml_xml_sample Example: The MessageConfirmation Tag #sc3
+
+#par One of the simplest tag implementations is the #cdi <MessageConfirmation> #cdi utility tag, so it serves
+well as a quick example. The tag allows a message type and optional selector to be defined that should trigger
+a confirmation dialog before proceeding with message processing. It can be used like this in MXML configuration
+classes: #par
+
+#cdb
+<MessageConfirmation
+    type="{DeleteUserMessage}"
+    scope="local"
+    title="Confirmation"
+    text="Do you really want to delete this user?"
+/>
+#cdb
+
+#par So whenever a message of type #cdi DeleteUserMessage #cdi is dispatched this utility will kick in first
+and show the dialog using the provided text. When the user clicks cancel, message processing will be cancelled.
+When she clicks Ok, processing of the message resumes, invoking any #cdi [MessageHandler] #cdi that was defined
+for that message type. #par
+
+#par This is how the implementation looks like: #par
+
+#cdb
+public class MessageConfirmationTag implements RootConfigurationElement {
+
+    public var text:String;
+    
+    public var title:String;
+    
+    public var scope:String = ScopeName.GLOBAL;
+    
+    public var type:Class;
+    
+    public var selector:*;
+    
+    public function process (config:Configuration) : void {
+        
+        var builder:ObjectDefinitionBuilder 
+                = config.builders.forClass(MessageConfirmation);
+        
+        builder
+            .constructorArgs()
+                .value(title)
+                .value(text);
+                
+        builder
+            .method("showAlert")
+                .messageHandler()
+                    .type(type)
+                    .selector(selector)
+                    .scope(scope);
+        
+        builder
+            .asSingleton()
+                .register();
+        
+    }
+    
+}
+#cdb
+
+#par It should be almost self-explanatory. It is a good example for how clean and simple the use of the configuration DSL
+can make the implementation of such a tag. It merely uses the values of the properties set by the user to talk to the API
+to define constructor arguments and a message receiver for the actual utility class. Note that the tag as such does not
+contain the actual processing logic. This has been moved into the #cdi MessageConfirmation #cdi class that is configured
+and registered by this tag. It is always good to keep configuration and runtime logic separate. #par
+
+
+
+
+#sc3 extensions_mxml_xml_namespace_mxml Creating Custom MXML Namespaces #sc3
+
+#par Creating a namespace for your custom MXML tags is not required. You can use them like any other class in MXML:
+map a tag prefix to the package of your tag and use it as is. But if you create a larger collection of reusable tags
+your users will probably be happy if you provide a single namespace that holds all the tags of the extension. #par
+
+#par Creating such a namespace is a Flex SDK feature. Nothing is specific to Parsley in this respect, so you can 
+simply look up the Flex documentation on that feature. But for the sake of completeness, we'll give a short summary
+of the necessary steps here. #par
+
+#par First you need to create a manifest file, that list all the tags that should be included in the namespace.
+If you checkout the Parsley project from SVN you can find the manifest files for all Parsley namespaces in the
+#cdi manifest #cdi folder. This is an example for how such a file might look like: #par
+
+#cdb
+<componentPackage>
+    <component id="Objects" class="com.foo.ObjectsTag"/>
+    <component id="Object" class="com.foo.ObjectTag"/>
+    <component id="View" class="com.foo.ViewTag"/>
+    <component id="DynamicObject" class="com.foo.DynamicObjectTag"/>
+    <component id="NestedObject" class="com.foo.NestedObjectTag"/>
+    <component id="DynamicCommand" class="com.foo.DynamicCommandTag"/>
+</componentPackage>
+#cdb
+
+#par It is a simple mapping of a tag name to the fully qualified class name. As you see the tag name does not
+have to be the same as the class name. #par
+
+#par To compile such a namespace into your SWC the following compiler options need to be specified for #cdi compc #cdi: #par
+
+#cdb
+-namespace http://www.myNamespaceUrl.com ${project.dir}/manifest/myNamespace-manifest.xml
+-include-namespaces=http://www.myNamespaceUrl.com
+#cdb
+
+
+
+
+#sc3 extensions_mxml_xml_namespace_xml Creating Custom XML Namespaces #sc3
+
+#par In contrast to MXML creating a namespace for custom tags is required for XML. It's the only way to expand
+the basic feature set of the Parsley XML tags. The XML support is built on top of the Spicelib XML-Object-Mapper.
+For full documentation see ?ref xmlmapper_intro ?ref. But often the full feature set is not required. 
+For basic tags that can also be used in MXML they often only utilize attributes for configuration and avoid
+any complex structure. Since mapping to attributes is the default behaviour of the XML-Object-Mapper, nothing
+has to be configured explicitly then. You'd only need to create the namespace and list the classes that should
+belong to that namespace: #par
+
+#cdb
+XmlConfigurationNamespaceRegistry
+    .getNamespace("http://www.myNamespaceUrl.com")
+    .mappedClasses(SomeTag, SomeOtherTag, YetAnotherTag);
+#cdb
+
+#par You can then use the new namespace alongside the builtin Parsley namespace: #par
+
+#cdb
+<objects xmlns="http://www.spicefactory.org/parsley" 
+    #hlt xmlns:myNS="http://www.myNamespaceUrl.com" #hlt>
+    
+    <object type="com.foo.NormalObject"/>
+    
+    #hlt <myNS:some-tag /> #hlt 
+
+    #hlt <myNS:yet-another-tag /> #hlt 
+    
+</objects>
+#cdb
+
+#par For the mechanism and supported interfaces see #ref extensions_mxml_xml_structure #ref as it is the same as
+for MXML configuration classes. #par

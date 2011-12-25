@@ -1,0 +1,113 @@
+#sc2 config_dsl Configuration DSL #sc2
+
+#par Added in version 2.3 this configuration option allows to specify most of the features you usually specify
+with tags (MXML, XML, Metadata) in code with a fluent syntax that allows to add logic to the configuration.
+The DSL spans multiple levels of configuration, it can be used to create an entire Context from scratch,
+but it can also be used to create object definitions in code and then combine those with the other
+configuration mechanisms. Since it is useful for many types of configuration tasks it is now also getting
+used by nearly all major extension points. Thus when building a custom metadata tag for example,
+you can use this convenient DSL for adding functionality to an object. #par
+
+#par You can refer to #ref extensions_intro #ref for use of the DSL in extensions. This chapter is about
+basic configuration tasks for applications, so will list a few relatively simple examples. #par
+
+#sub Creating an empty Context #sub
+
+#cdb
+var context:Context = ContextBuilder.newBuilder().build();
+#cdb
+
+#par May seem pointless, but you can still use this Context to dynamically add objects later. #par
+
+#sub Specifying configuration classes and files #sub 
+
+#cdb
+ContextBuilder.newBuilder()
+    .config(FlexConfig.forClass(BookStoreServices))
+    .config(FlexConfig.forClass(BookStoreActions))
+    .config(XmlConfig.forFile("logging.xml"))
+    .build();
+#cdb
+
+#sub Adding existing instances to a Context #sub 
+
+#cdb
+var instance1:Object = ...;
+var instance2:Object = ...;
+
+ContextBuilder.newBuilder()
+    .config(FlexConfig.forClass(MainConfig))
+    .object(instance1, "id1")
+    .object(instance2, "id2")
+    .build();
+#cdb
+
+#sub Specifying options for the ContextBuilder #sub 
+
+#cdb
+var viewRoot:DisplayObject = ...;
+var parent:Context = ...;
+
+ContextBuilder.newSetup()
+    .viewRoot(viewRoot)
+    .parent(parent)
+    .description("Root")
+    .scope("window")
+    .messageSettings()
+        .unhandledError(ErrorPolicy.RETHROW)
+    .viewSettings()
+        .autoremoveComponents(false)
+    .newBuilder()
+        .config(FlexConfig.forClass(RootConfig))
+        .config(XmlConfig.forFile("logging.xml"))
+        .build();
+#cdb
+
+#sub Creating object definitions programmatically #sub 
+
+#cdb
+var contextBuilder:ContextBuilder = ContextBuilder.newBuilder();
+
+var objectBuilder:ObjectDefinitionBuilder 
+        = contextBuilder.objectDefinition().forClass(SomeClass);
+
+objectBuilder
+    .property("dependency")
+        .injectByType();
+
+objectBuilder
+    .property("dispatcher")
+         .messageDispatcher();
+         
+objectBuilder
+    .method("handleLogin")
+        .messageHandler()
+            .type(LoginMessage)
+            .scope("local");
+            
+objectBuilder
+    .asDynamicObject()
+        .id("myObject")
+        .register();
+            
+contextBuilder
+    .config(FlexConfig.forClass(MainConfig))
+    .build();
+#cdb
+
+#par This is a bit more verbose, but still convenient. Note that calling register on the object builder 
+adds the definition to the Context, so it will be available in addition to all objects defined in the 
+MainConfig MXML configuration. #par
+
+#par So the above is fully equivalent to adding the following MXML declaration to MainConfig: #par
+
+#cdb
+<DynamicObject id="myObject" type="{SomeClass}">
+    <Property name="dependency" typeRef="{SomeOtherClass}"/>
+    <MessageDispatcher property="dispatcher"/>
+    <MessageHandler method="handleLogin" type="{LoginMessage}" scope="local"/>
+</DynamicObject>
+#cdb
+
+#par Which in turn is equivalent to using the #cdi [Inject] #cdi, #cdi [MessageDispatcher] #cdi and #cdi [MessageHandler] #cdi
+metadata tags in the class definition. #par

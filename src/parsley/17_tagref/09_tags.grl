@@ -1,0 +1,361 @@
+#sc2 tagref_tags MXML and XML Configuration #sc2
+
+
+#sc3 tagref_tags_metadata Variants of Metadata Tags #sc3
+
+#par This section lists tags that can only be used in MXML and XML configuration and not as Metadata in classes.
+Nevertheless most of the other tags documented in previous sections can be used as MXML or XML tags, too (their tag names
+are listed if this is the case). But for the tags in previous sections the most common use case is to use them as Metadata. #par
+
+
+#sc3 tagref_tags_object Object #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <Object/> #cdi #tbr
+#tbr XML Tag # #cdi <object/> #cdi #tbr
+#tbr Detailed Explanation # #ref config_mxml #ref and #ref config_xml #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi type #cdi # required # The type of the object to create. #tbr
+#tbr #cdi lazy #cdi # optional # When set to false (default) the object will be instantiated when the container initializes
+(but only if the singleton attribute keeps the default value (true). When set to true the object will be instantiated
+on demand. Can only be used in root object definitions, not in inline definitions. #tbr
+#tbr #cdi id #cdi # optional # The id the object should be registered with. If omitted the name of the property
+that produces (or holds) the object will be used as the id. Can only be used in root object definitions, not in inline definitions. #tbr
+#tbr #cdi order #cdi # optional # The initialization order. Only considered for non-lazy singletons,
+processed in ascending order. Default #cdi int.MAX_VALUE #cdi. #tbr
+#tbl
+
+#sub Child Elements #sub
+
+#par Any tag listed in 14.1 through 14.5, ConstructorArgs, Property, All Custom Configuration Tags that implement the
+#cdi ObjectDefinitionDecorator #cdi interface. #par
+
+
+
+#sc3 tagref_tags_dynamicobject DynamicObject #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <DynamicObject/> #cdi #tbr
+#tbr XML Tag # #cdi <dynamic-object/> #cdi #tbr
+#tbr Detailed Explanation # #ref lifecycle_dynamic #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi type #cdi # required # The type of the object to create. #tbr
+#tbr #cdi id #cdi # optional # The id the object should be registered with. If omitted the name of the property
+that produces (or holds) the object will be used as the id. Can only be used in root object definitions, not in inline definitions. #tbr
+#tbl
+
+#sub Child Elements #sub
+
+#par Any tag listed in 14.1 through 14.5, ConstructorArgs, Property, All Custom Configuration Tags that implement the
+#cdi ObjectDefinitionDecorator #cdi interface. #par
+
+
+#sc3 tagref_tags_nestedobject NestedObject #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <NestedObject/> #cdi #tbr
+#tbr XML Tag # #cdi N/A (simply use <object>) #cdi #tbr
+#tbr Detailed Explanation # Needed in MXML for inline object definitions. #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi type #cdi # required # The type of the object to create. #tbr
+#tbl
+
+#sub Child Elements #sub
+
+#par Any tag listed in 14.1 through 14.5, ConstructorArgs, Property, All Custom Configuration Tags that implement the
+#cdi ObjectDefinitionDecorator #cdi interface. #par
+
+
+#sc3 tagref_tags_view View #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <View/> #cdi #tbr
+#tbr XML Tag # #cdi <view> #cdi #tbr
+#tbr Detailed Explanation # #ref view_config_mxml_xml #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi type #cdi # required # The type of the view that should be configured. #tbr
+#tbr #cdi id #cdi # optional # The id of the view that should be configured. #tbr
+#tbl
+
+
+#sub Child Elements #sub
+
+#par Any tag listed in 14.1 through 14.5, all Custom Configuration Tags that implement the
+#cdi ObjectDefinitionDecorator #cdi interface except those that deal with object creation
+as the View tag configures objects which already have been created by the Flex framework. #par
+
+
+
+#sc3 tagref_tags_constructor ConstructorArgs #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <ConstructorArgs/> #cdi #tbr
+#tbr XML Tag # #cdi <constructor-args/> #cdi #tbr
+#tbr Description # May be used to explicitly specify the constructor arguments in MXML or XML as a list of child tags #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+None
+
+
+#sub Child Elements #sub
+
+#par Any tag listed in #ref tagref_tags_simple #ref, Object, Array, StaticPropertyRef or any tag that is mapped
+to a simple object or a tag that implements #cdi NestedConfigurationElement #cdi. #par
+
+
+
+#sc3 tagref_tags_property Property #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <Property/> #cdi #tbr
+#tbr XML Tag # #cdi <property/> #cdi #tbr
+#tbr Description # May be used to explicitly specify a property value in MXML or XML.
+The value may be a simple value or a dependency injected by type or by id. #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi name #cdi # required # The name of the property. #tbr
+#tbr #cdi value #cdi # optional # May be used for simple values (instead of a nested child node specifying the value). #tbr
+#tbr #cdi idRef #cdi # optional # Specifies a dependency for this property, referring to another object in the container by id. #tbr
+#tbr #cdi typeRef #cdi # optional # Specifies a dependency for this property, referring to another object in the container by type. #tbr
+#tbr #cdi required #cdi # optional # Indicates whether the dependency is required (only applied if idRef or typeRef is set). #tbr
+#tbl
+
+#par The attributes #cdi value #cdi, #cdi idRef #cdi and #cdi typeRef #cdi are mutually exclusive. #par
+
+
+#sub Child Elements #sub
+
+#par A single Child Elements may be used to specify the value for the property if neither value, idRef nor typeRef have been
+set as an attribute. Allowed are the same tags that are allowed as children of the ConstructorArgs tag:
+Any tag listed in #ref tagref_tags_simple #ref, Object, Array, StaticPropertyRef or any tag that is mapped
+to a simple object or a tag that implements #cdi NestedConfigurationElement #cdi. #par
+
+
+
+#sc3 tagref_tags_dynamicproperty DynamicProperty #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <DynamicProperty/> #cdi #tbr
+#tbr XML Tag # #cdi <dynamic-property/> #cdi #tbr
+#tbr Description # May be used to explicitly specify a property value for a dynamic class in MXML or XML.
+The value may be a simple value or a dependency injected by type or by id. This tag is useful for configuring
+generic Objects or a Dictionary for example. #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi name #cdi # required # The name of the property. #tbr
+#tbr #cdi value #cdi # optional # May be used for simple values (instead of a nested child node specifying the value). #tbr
+#tbr #cdi idRef #cdi # optional # Specifies a dependency for this property, referring to another object in the container by id. #tbr
+#tbr #cdi typeRef #cdi # optional # Specifies a dependency for this property, referring to another object in the container by type. #tbr
+#tbr #cdi required #cdi # optional # Indicates whether the dependency is required (only applied if idRef or typeRef is set). #tbr
+#tbl
+
+#par The attributes #cdi value #cdi, #cdi idRef #cdi and #cdi typeRef #cdi are mutually exclusive. #par
+
+
+#sub Child Elements #sub
+
+#par A single Child Elements may be used to specify the value for the property if neither value, idRef nor typeRef have been
+set as an attribute. Allowed are the same tags that are allowed as children of the ConstructorArgs tag:
+Any tag listed in #ref tagref_tags_simple #ref, Object, Array, StaticPropertyRef or any tag that is mapped
+to a simple object or a tag that implements #cdi NestedConfigurationElement #cdi. #par
+
+
+
+#sc3 tagref_tags_ref ObjectRef #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <ObjectRef/> #cdi #tbr
+#tbr XML Tag # #cdi <object-ref/> #cdi #tbr
+#tbr Description # May be used to specify a reference to another object in the container by id or by type. #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi idRef #cdi # optional # Specifies a dependency for this property, referring to another object in the container by id. #tbr
+#tbr #cdi typeRef #cdi # optional # Specifies a dependency for this property, referring to another object in the container by type. #tbr
+#tbr #cdi required #cdi # optional # Indicates whether the dependency is required (only applied if idRef or typeRef is set). #tbr
+#tbl
+
+#par The attributes #cdi idRef #cdi and #cdi typeRef #cdi are mutually exclusive. #par
+
+
+#sub Child Elements #sub
+
+#par None. #par
+
+
+#sc3 tagref_tags_array Array #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <Array/> #cdi #tbr
+#tbr XML Tag # #cdi <array/> #cdi #tbr
+#tbr Description # May be used to specify Array values in MXML or XML, specifying the elements as a list of child tags.
+Should be preferred over fx:Array if it contains special Parsley tags as children (they won't be processed within a regular
+fx:Array tag). #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+None
+
+
+#sub Child Elements #sub
+
+#par Any tag listed in #ref tagref_tags_simple #ref, Object, Array, StaticPropertyRef or any tag that is mapped
+to a simple object or a tag that implements #cdi NestedConfigurationElement #cdi. #par
+
+
+#sc3 tagref_tags_static StaticPropertyRef #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML Tag # #cdi N/A #cdi #tbr
+#tbr XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr XML Tag # #cdi <static-property-ref/> #cdi #tbr
+#tbr Description # May be used to refer to a static property in XML configuration files. Not necessary
+in MXML configuration, use normal binding syntax in MXML (e.g. value="{Environment.CONSTANT}"). #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi type #cdi # required # The class the static property value should be fetched from. #tbr
+#tbr #cdi property #cdi # required # The name of the static property. #tbr
+#tbl
+
+
+#sub Child Elements #sub
+
+#par None #par
+
+
+#sc3 tagref_tags_simple Simple Values #sc3
+
+#par For MXML configuration you can use the builtin tags to specify simple values like #cdi fx:String #cdi or #cdi fx:int #cdi.
+For XML configuration Parsley includes a number of tags that can be used for simple values: #par
+
+#lst
+#lse string #lse
+#lse boolean #lse
+#lse int #lse
+#lse uint #lse
+#lse number #lse
+#lse date #lse
+#lse class #lse
+#lse null #lse
+#lst
+
+#par Example: #par
+
+#cdb
+<object type="com.example.FooManager">
+    <constructor-args>
+        <string>Hello</string>
+        <int>7</int>
+        <boolean>true</boolean>
+        <object-ref id-ref="barManager"/>
+    </constructor-args>
+</object>
+#cdb
+
+
+#sc3 tagref_tags_include Include #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML Tag # #cdi N/A #cdi #tbr
+#tbr XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr XML Tag # #cdi <include/> #cdi #tbr
+#tbr Description # May be used to include additional XML configuration files. You can place any number of
+include tags in XML configuration files. #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi filename #cdi # required # The name of the file to include. #tbr
+#tbl
+
+
+#sub Child Elements #sub
+
+#par None #par
+
+
+#sc3 tagref_tags_variable Variable #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML Tag # #cdi N/A #cdi #tbr
+#tbr XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr XML Tag # #cdi <variable/> #cdi #tbr
+#tbr Description # May be used to declare variables which may be used in XML attributes or text nodes
+with the notation #cdi ${variableName} #cdi. #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi name #cdi # required # The name of the variable. #tbr
+#tbr #cdi value #cdi # required # The value of the variable. #tbr
+#tbl
+
+
+#sub Child Elements #sub
+
+#par None #par

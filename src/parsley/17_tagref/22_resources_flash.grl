@@ -1,0 +1,92 @@
+#sc2 tagref_resources_flash Flash Localization #sc2
+
+
+#sc3 tagref_resources_flash_manager ResourceManager #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML Tag # N/A #tbr
+#tbr XML Namespace # #cdi http://www.spicefactory.org/parsley/flash/resources #cdi #tbr
+#tbr XML Tag # #cdi <resource-manager/> #cdi #tbr
+#tbr Required Initialization # #cdi FlashResourceXmlSupport.initialize() #cdi #tbr
+#tbr Detailed Explanation # #ref resources_flash #ref #tbr
+#tbl
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi id #cdi # optional # The id of the #cdi ResourceManager #cdi, usually not needed as you should only
+configure one #cdi ResourceManager #cdi instance and thus are able to inject it by type. #tbr
+#tbr #cdi type #cdi # optional # The type (class) of the #cdi ResourceManager #cdi, defaults to #cdi DefaultResourceManager #cdi which
+is usually sufficient. #tbr
+#tbr #cdi cacheable #cdi # optional # Boolean attribute (defaults to #cdi false #cdi). Indicates whether the ResourceManager
+should cache loaded bundles. #tbr
+#tbr #cdi persistent #cdi # optional # Boolean attribute (defaults to #cdi false #cdi). Indicates whether the ResourceManager
+should store the last active locale in a Local Shared Object and restore it on the next application start. #tbr
+#tbl
+
+#sub Child Elements #sub
+
+#tbl
+#tbr #cdi locale #cdi # optional # The locales supported by this ResourceManager. #tbr
+#tbl
+
+
+#sc3 tagref_resources_flash_locale Locale #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML Tag # N/A #tbr
+#tbr XML Namespace # #cdi http://www.spicefactory.org/parsley/flash/resources #cdi #tbr
+#tbr XML Tag # #cdi <locale/> #cdi #tbr
+#tbr Required Initialization # #cdi FlashResourceXmlSupport.initialize() #cdi #tbr
+#tbr Detailed Explanation # #ref resources_flash #ref #tbr
+#tbl
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi language #cdi # optional # The language code for this locale, a lowercase ISO 639 code (e.g. #cdi en #cdi or #cdi fr #cdi). #tbr
+#tbr #cdi country #cdi # optional # The country/region code for this locale, an uppercase ISO 3166 2-letter code
+(e.g. #cdi US #cdi or #cdi FR #cdi). #tbr
+#tbl
+
+#sub Child Elements #sub
+
+#par None #par
+
+
+#sc3 tagref_resources_flash_bundle ResourceBundle #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML Tag # N/A #tbr
+#tbr XML Namespace # #cdi http://www.spicefactory.org/parsley/flash/resources #cdi #tbr
+#tbr XML Tag # #cdi <resource-bundle/> #cdi #tbr
+#tbr Required Initialization # #cdi FlashResourceXmlSupport.initialize() #cdi #tbr
+#tbr Detailed Explanation # #ref resources_flash #ref #tbr
+#tbl
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi id #cdi # required # The id of the bundle. #tbr
+#tbr #cdi basename #cdi # required # The basename of files containing messages for this bundle. 
+For the locale #cdi en_US #cdi for example the basename messages/tooltips will instruct Parsley to load the 
+following files: #cdi messages/tooltips_en_US.xml #cdi, #cdi messages/tooltips_en.xml #cdi and #cdi messages/tooltips.xml #cdi. #tbr
+#tbr #cdi type #cdi # optional # The type (class) of the #cdi ResourceBundle #cdi, defaults to #cdi DefaultResourceBundle #cdi which
+is usually sufficient. #tbr
+
+#tbr #cdi loader-factory #cdi # optional # The type (class) of the #cdi BundleLoaderFactory #cdi, 
+responsible for loading the bundle files. Defaults to #cdi DefaultResourceBundle #cdi which
+is usually sufficient. #tbr
+#tbr #cdi localized #cdi # optional # Boolean attribute (defaults to #cdi true #cdi). If set to false the framework will only load 
+the resources for the basename like #cdi messages/tooltips.xml #cdi and not look for files with localized messages. #tbr
+#tbr #cdi ignore-country #cdi # optional # Boolean attribute (defaults to #cdi false #cdi). If set to true the framework will 
+ignore the country code of the active locale for this bundle. #tbr
+#tbl
+
+
+#sub Child Elements #sub
+
+#par None #par

@@ -1,0 +1,38 @@
+#sc2 modules_lifecycle Context Lifecycle #sc2
+
+#par If you load multiple #cdi Context #cdi instances as modules like described
+in the previous section, you may want to get rid of them when you unload a module - without
+affecting the parent. Actually that is quite easy, just do this: #par
+
+#cdb
+context.destroy();
+#cdb
+
+#par When connecting a Context hierarchy to a view hierarchy it is
+even easier. You don't have to explicitly destroy the Context then, it will happen automatically
+when the last view root associated with the Context gets removed from the stage. 
+This is the default behaviour of the #cdi ViewManager #cdi which can be adjusted in case
+you do not want the Context lifecycle to depend on the time the view is on the stage.
+You can finetune the behaviour with properties of the #cdi ViewManagerFactory #cdi. #par
+
+#par When a Context gets destroyed the following actions occur: #par
+
+#lst
+#lse All objects configured in the destroyed Context stop receiving messages dispatched by Parsleys central
+#cdi MessageRouter #cdi. This affects all elements annotated with #cdi MessageHandler #cdi, #cdi MessageBinding #cdi,
+#cdi CommandResult #cdi and so on. #lse
+
+#lse If any objects declared in the destroyed Context declared #cdi ManagedEvents #cdi they will be ignored from now
+on and no longer dispatched trough Parsleys messaging system. #lse
+
+#lse All methods annotated with #cdi [Destroy] #cdi (or the corresponding MXML or XML tags) 
+on any object of the destroyed Context get invoked. #lse
+
+#lse The destroyed Context will remove all internal references to the configured objects so they are eligible
+for garbage collection. (Of course you have to make sure that your application does not retain any references
+to those objects). #lse
+
+#lse The Context may no longer be used after invoking #cdi destroy #cdi. Any subsequent method invocations
+on that Context throw Errors. The parent of the destroyed Context (if any) is not affected and may continue
+to operate normally. #lse
+#lst

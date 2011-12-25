@@ -1,0 +1,23 @@
+#sc2 tagref_resources Localization #sc2
+
+
+#sc3 tagref_resources_binding ResourceBinding #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [ResourceBinding] #cdi #tbr
+#tbr may be placed on # property declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <ResourceBinding/> #cdi #tbr
+#tbr XML Tag # #cdi <resource-binding/> #cdi #tbr
+#tbr Detailed Explanation # #ref resources_bindings #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi bundle #cdi # required # The bundle name of the resource. #tbr
+#tbr #cdi key #cdi # required # The resource key. #tbr
+#tbr #cdi property #cdi # required for MXML/XML # The name of the property that the resource should be bound to. 
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl

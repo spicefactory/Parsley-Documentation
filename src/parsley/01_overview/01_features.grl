@@ -1,0 +1,85 @@
+#sc2 overview_features Features List #sc2
+
+#par This section gives a quick overview over the available features linking to the other chapters of the manual
+where appropiate. There is also a #ref tutorial_intro #ref chapter containing a few sample use cases for the impatient. #par
+
+
+#sub IOC Container #sub
+
+#par Parsley is a classic IOC Container. It provides support for Dependency Injection, Object Lifecycle Management
+and Messaging. The key differentiator is the scope of the framework: While still being as easy to use  
+as many smaller IOC frameworks for simple applications, it also provides many features which are essential for building
+large, complex and modular applications and numerous extension points. #par
+
+
+#sub Dependency Injection #sub
+
+#par The core feature of any IOC Container. Now with Parsley 2 dependencies can be conveniently declared using AS3 Metadata
+Tags (#cdi [Inject] #cdi) on properties, methods or constructors or alternatively with MXML or XML. 
+See #ref injection_intro #ref for details. #par
+
+
+#sub Decoupled Bindings #sub
+
+#par A feature similar to the concept of Flex Bindings, with the difference that the target does not have to know
+the source of the binding. The source publishes an object on a property marked with #cdi [Publish] #cdi and any
+other object may receive all updates of that value in a property marked with #cdi [Subscribe] #cdi.
+See #ref bindings_intro #ref for details. #par
+
+
+#sub Messaging #sub
+
+#par Parsley contains a Messaging Framework that allows for objects to send and receive messages in a fully decoupled way.
+You can declare events on sending objects with the #cdi [ManagedEvents] #cdi tags, so that they will be routed through
+Parsley to all registered handlers. The receiving objects can declare interest in particular message types with several
+metadata tags like #cdi [MessageHandler] #cdi. Message selection happens based on the type (class) of the message and
+optionally based on additional selectors like event type, instead of being purely String based like regular event handlers.
+This eases development of large applications where you don't have to care for event type constants being unique for the
+whole system. Furthermore messaging can happen in different scopes, globally or just in a particular region (like
+an AIR window for example).
+See #ref messaging_intro #ref for details. #par
+
+
+#sub Object Lifecycle #sub
+
+#par #ref lifecycle_methods #ref: Objects can have methods marked with #cdi [Init] #cdi 
+(which will be invoked after the object has been instantiated and configured) or #cdi [Destroy] #cdi which will be 
+invoked when the container gets destroyed. #par
+ 
+#par #ref lifecycle_async #ref: Configuration option for asynchronously initializing objects (e.g. objects
+that need to load data before they can operate). In this case the container will defer the initialization
+of other objects until those configured to be asynchronous are ready. #par
+
+
+#sub Dynamic View Wiring #sub
+
+#par This module is particularly useful for Flex and solves the problem that you usually wouldn't want to declare
+Flex Components in IOC Container configuration files, but instead inside your MXML view hierarchy like always.
+Parsley 2 now allows to connect these components to the IOC Container on-the-fly when they are added to the stage.
+Also solves the more complicated issues with wiring components in Flex Popups or Native AIR Windows.
+See #ref view_intro #ref for details. #par
+
+
+#sub Support for Modular Applications #sub
+
+#par For modular applications it's essential that you can create configuration sub-contexts and dynamically load
+and undload them as needed. Seamlessly integrates with Flex Modules, but can also be used without.  
+See #ref modules_intro #ref for details. #par
+
+
+#sub Localization #sub
+
+#par Allows to bind properties to resources with the #cdi [ResourceBinding] #cdi tag. Integrates with the
+Flex ResourceManager for Flex Applications and contains its own Localization Module for Flash Applications.
+See #ref resources_intro #ref for details. #par
+
+
+#sub Extensibility #sub
+
+#par Parsley can serve as the base for building higher-level frameworks on top of. Or you may just want to create
+some additional configuration tags for use cases which are frequent for a particular application.
+Parsley is easy to extend. A single implementation of an extension interface can be used to create
+a custom configuration tag that can be used as a Metadata, MXML or XML tag.
+Furthermore basically all central services of the IOC kernel can be swapped out easily.
+See #ref extensions_intro #ref for details. #par
+ 

@@ -1,0 +1,54 @@
+#sc2 logging_flash Logging Configuration for Flash #sc2
+
+#par For Flash Applications Spicelib offers its own Logging Framework. For details on how to use it see
+?ref spicelib-logging_intro ?ref in the Spicelib Manual. Parsley includes an XML tag extension that
+you can use to configure loggers for that framework: #par
+
+#cdb
+<objects 
+    xmlns="http://www.spicefactory.org/parsley"
+    xmlns:log="http://www.spicefactory.org/parsley/flash/logging"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.spicefactory.org/parsley 
+      http://www.spicefactory.org/parsley/schema/2.3/parsley-core.xsd 
+    http://www.spicefactory.org/parsley/flash/logging 
+      http://www.spicefactory.org/parsley/schema/2.3/parsley-logging-flash.xsd"
+    >
+    
+    <log:factory id="logFactory">
+        <log:appender ref="appender" threshold="trace"/>
+        <log:logger name="org.spicefactory" level="warn"/>
+        <log:logger name="com.bookstore" level="debug"/>
+    </log:factory>
+    
+    <object id="appender" type="org.spicefactory.lib.flash.logging.impl.TraceAppender"/>
+    
+</objects>
+#cdb
+
+#par The Appenders that the Logging Framework should use can be defined with regular Parsley #cdi object #cdi tags.
+You can then refer to these definitions in the #cdi log:appender #cdi tag. You can add any number of loggers
+to the configuration and set their level individually. Note that the names always lead to a hierarchical logger
+structure, you don't have to specify an #cdi '*' #cdi at the end of logger names like with the Flex Logging API. #par
+
+#par You always have to add at least one #cdi Appender #cdi, because a #cdi Logger #cdi only dispatches
+#cdi LogEvents #cdi, which all #cdi Appenders #cdi listen to. Those #cdi Appenders #cdi then route the 
+messages to a final destination (console, socket, file, etc.). In the example above we just use the builtin
+#cdi TraceAppender #cdi which uses the Flash Players #cdi trace #cdi function for log output. #par
+
+#par There is also a second #cdi Appender #cdi released with the Spicelib: #cdi SOSAppender #cdi. This 
+#cdi Appender #cdi routes messages to #cdi SOS #cdi 
+(#url http://sos.powerflasher.com/ http://sos.powerflasher.com/#url),
+a free logging tool from Powerflasher, that allows to colorize and filter log messages. #par
+
+#par In the example above we set the threshold for the #cdi TraceAppender #cdi to #cdi TRACE #cdi. This 
+threshold is a second level of filtering. All messages that were not filtered by the log level of
+the individual logger will again be checked against the threshold of the #cdi Appender #cdi.
+In this case we chose the #cdi TRACE #cdi level which is the lowest rank of all levels so all messages
+will pass. #par
+
+#par Since this is an extension it has to be initialized explicitly before using the #cdi XmlContextBuilder #cdi: #par
+
+#cdb
+FlashLoggingXmlSupport.initialize();
+#cdb

@@ -1,0 +1,7 @@
+#sc1 modules_intro Building Modular Applications #sc1
+
+#par Parsley allows you to build a hierarchy of Contexts that can be 
+dynamically loaded and unloaded. This hierarchy can be built no matter whether you are using
+Flex Modules or not, even in pure AS3 applications. For Flex Modules Parsley just offers 
+an additional level of integration in that it makes it easier to deal with multiple different
+ApplicationDomains. #par

@@ -1,0 +1,80 @@
+#sc2 tagref_bindings Decoupled Bindings #sc2
+
+
+#sc3 tagref_bindings_publish Publish #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [Publish] #cdi #tbr
+#tbr may be placed on # property declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # <Publish/> #tbr
+#tbr XML Tag # <publish/> #tbr
+#tbr Detailed Explanation # #ref bindings_intro #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi objectId #cdi # optional # The id the property value is published with. #tbr
+#tbr #cdi scope #cdi # optional # The scope the property value is published to. #tbr
+#tbr #cdi managed #cdi # optional # Indicates whether the value published by this property should be 
+added to the Context (turned into a managed object) while being published. #tbr
+#tbr #cdi changeEvent #cdi # optional (Flash only) # The event that signals that the property value has changed.
+Default is #cdi change #cdi. Not needed in Flex applications where this feature relies on the Flex Binding facility. #tbr
+#tbr #cdi property #cdi # required for MXML/XML # The name of the property that holds the value to publish.
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl
+
+
+
+#sc3 tagref_bindings_publish_subscribe PublishSubscribe #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [PublishSubscribe] #cdi #tbr
+#tbr may be placed on # property declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # <PublishSubscribe/> #tbr
+#tbr XML Tag # <publish-subscribe/> #tbr
+#tbr Detailed Explanation # #ref bindings_intro #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi objectId #cdi # optional # The id the property value is published with. #tbr
+#tbr #cdi scope #cdi # optional # The scope the property value is published to. #tbr
+#tbr #cdi managed #cdi # optional # Indicates whether the value published by this property should be 
+added to the Context (turned into a managed object) while being published. #tbr
+#tbr #cdi persistent #cdi # optional # Indicates whether the value published by this property should be 
+persisted and automatically retrieved back when the application starts the next time. The default implementation is
+based on Local SharedObjects, but can be swapped. #tbr
+#tbr #cdi changeEvent #cdi # optional (Flash only) # The event that signals that the property value has changed.
+Default is #cdi change #cdi. Not needed in Flex applications where this feature relies on the Flex Binding facility. #tbr
+#tbr #cdi property #cdi # required for MXML/XML # The name of the property that holds the value to publish.
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl
+
+
+
+#sc3 tagref_bindings_subscribe Subscribe #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [Subscribe] #cdi #tbr
+#tbr may be placed on # property declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # <Subscribe/> #tbr
+#tbr XML Tag # <subscribe/> #tbr
+#tbr Detailed Explanation # #ref bindings_intro #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi objectId #cdi # optional # The id the source is published with. #tbr
+#tbr #cdi scope #cdi # optional # The scope the binding listens to. #tbr
+#tbr #cdi property #cdi # required for MXML/XML # The name of the property that binds to the subscribed value.
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl

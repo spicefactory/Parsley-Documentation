@@ -1,0 +1,58 @@
+#sc2 troubleshooting_logging Configure Logging #sc2
+
+#par Some services in Parsley and also Flex Bindings in general do not rethrow errors. Thus you'd be completely tapping
+in the dark for some sorts of errors if logging is not turned on. For debugging Parsley applications it's usually sufficient
+to set a filter for #cdi org.spicefactory.parsley.* #cdi and avoid the logs from the underlying Spicelib, as the reflection cache
+emits some pretty verbose logs which would distract from the things you'd be interested in. #par
+
+#par Log output from Parsley covers things like Contexts getting created or destroyed, objects getting configured or removed from the Context,
+messages getting dispatched or views getting wired. #par
+
+#par The logging setup is usually done in the top level application class. It differs depending on the environment: #par
+
+#sub Flex 4 #sub
+
+#cdb
+<fx:Declarations>
+    <s:TraceTarget 
+        includeCategory="true" 
+        includeLevel="true" 
+        includeTime="true"
+        level="{LogEventLevel.DEBUG}"
+        >
+        <s:filters>
+            <fx:String>org.spicefactory.parsley.*</fx:String>
+        </s:filters>
+    </s:TraceTarget>
+</fx:Declarations>
+#cdb
+
+#sub Flex 3 #sub
+
+#cdb
+<mx:TraceTarget 
+    includeCategory="true" 
+    includeLevel="true" 
+    includeTime="true"
+    level="{LogEventLevel.DEBUG}"
+    >
+    <mx:filters>
+        <mx:String>org.spicefactory.parsley.*</mx:String>
+    </mx:filters>
+</mx:TraceTarget>
+#cdb
+
+#sub Flash #sub
+
+#par For Flash it is recommended to use XML configuration files as described in #ref logging_flash #ref.
+If you want to use other configuration mechanisms for the rest of the application, you can still combine
+the XML for the logging setup with the other configuration artifacts: #par
+
+#cdb
+FlashLoggingXmlSupport.initialize();
+ContextBuilder
+    .newBuilder()
+    .config(XmlConfig.forFile("logging.xml"))
+    .config(ActionScriptConfig.forClass(MyApplicationConfig))
+    .build();
+#cdb

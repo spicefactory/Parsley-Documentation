@@ -1,0 +1,32 @@
+#sc2 injection_property_id Property Injection by Id #sc2
+
+#par Instead of letting the container select the dependency by type you can alternatively explicitly set the id
+of the object to inject: #par
+
+#cdb
+[Inject(id="defaultLoginService")]
+public var service:LoginService;
+#cdb
+
+#par In this case Parsley will select the dependency by id so the configuration has to include an object
+with a corresponding id: #par
+
+#cdb
+<Objects
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns="http://www.spicefactory.org/parsley"
+    xmlns:actions="com.bookstore.services.*">
+    
+    <fx:Declarations>
+    
+        <services:LoginServiceImpl id="defaultLoginService"/>
+        
+    </fx:Declarations>
+        
+</Objects> 
+#cdb
+
+#par Often it's not the best idea to include configuration artifacts like ids into your class files.
+Inject metadata tags are usually more appropiate for injection by type like demonstrated in previous sections.
+If you have to set the id of a dependency explicitly it is often preferrable to externalize it to MXML or XML
+configuration like shown in the next section. #par

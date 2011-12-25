@@ -1,0 +1,140 @@
+#sc2 extensions_kernel Replacing IOC Kernel Services #sc2
+
+#par (Note: Prior to version 2.4 kernel services required a dedicated factory. This is no longer needed, you can now
+simply specify the implementation class like shown in the following examples.) #par
+
+#par All central services of the IOC kernel live behind interfaces which can be replaced by custom implementations. 
+The replacement can be done globally or just for a single Context, in case you build a modular application with
+a hierarchy of multiple Contexts. #par
+
+#par In the following example the central #cdi ViewManager #cdi will be replaced globally by specifying
+a custom implementation: #par
+
+#cdb
+BootstrapDefaults.config.services.viewManager.setImplementation(MyCustomViewManager);
+#cdb
+
+#par A new instance of your custom ViewManager will then be created for each new Context. 
+If you want to replace the #cdi ViewManager #cdi for a single Context (and its children) only,
+you can specify the factory with the #cdi ContextBuilder #cdi DSL: #par
+
+#cdb
+var viewRoot:DisplayObject = ...;
+
+ContextBuilder.newSetup()
+    .viewRoot(viewRoot)
+#hlt     .services().viewManager().setImplementation(MyCustomViewManager) #hlt
+    .newBuilder()
+        .config(FlexConfig.forClass(BookStoreConfig))
+        .build();
+#cdb
+
+#par For reusable replacements to be used in Flex applications it is recommended to create a simple
+custom tag like shown in #ref extensions_init #ref that can then be used as a child tag in a #cdi ContextBuilder #cdi
+tag. #par
+
+
+#sub Decorating IOC Kernel Services #sub
+
+#par For most scenarios it is recommended not to create a replacement from scratch but instead decorate an existing service.
+There are two reasons why you should prefer a decorator. First, in most cases you want to add or modify a certain aspect
+of a core service and not implement it with a totally different behavior. Second, there might be 3rd party frameworks or 
+extensions that in turn want to replace or decorate a core service, which would fail if those were full replacements,
+as one replacement would overwrite the other. With a decorated service there is no limitation on the number of decorators
+you wrap around the original service. #par
+
+#par This is how you would write a very simple decorator that simply logs whenever a view root is added or removed
+from the Context. (This is a contrived example as Parsley does that anyway, it's just to demonstrate the principle.) #par 
+
+#cdb
+package {
+
+// [imports...]
+
+public class LoggingViewManager implements ViewManager {
+    
+    private static const log:ILogger = Log.getLogger("com.foo.LoggingViewManager");
+    
+    private var delegate:ViewManager;
+    
+    function LoggingViewManager (delegate:ViewManager) {
+        this.delegate = delegate;
+    }
+
+    public function addViewRoot (view:DisplayObject) : void {
+        log.info("Adding view root " + view.name);
+        delegate.addViewRoot(view);
+    }
+
+    public function removeViewRoot (view:DisplayObject) : void {
+        log.info("Removing view root " + view.name);
+        delegate.removeViewRoot(view);
+    }
+    
+}
+}
+#cdb
+
+#par As you can see all you need to do is implement the kernel interface (#cdi ViewManager #cdi in this example)
+like when replacing kernel services and then adding a constructor that accepts the real #cdi ViewManager #cdi as
+a delegate. You can then apply this decorator globally like this: #par
+
+#cdb
+BootstrapDefaults.config.services.viewManager.addDecorator(LoggingViewManager);
+#cdb
+
+
+#sub Knowing your Environment #sub
+
+#par In many cases you may need access to the configuration settings or collaborating services or just the #cdi Context #cdi
+instance itself. This can be accomplished for service replacements and decorators through implementing the #cdi InitializingService #cdi
+interface: #par
+
+#cdb
+class SomeService implements ViewManager, #hlt InitializingService #hlt {
+
+    #hlt public function init (info:BootstrapInfo) : void { #hlt
+    }
+
+    public function addViewRoot (view:DisplayObject) : void {
+    }
+	
+    public function removeViewRoot (view:DisplayObject) : void {
+    }
+	
+}
+#cdb
+
+#par The #cdi BootstrapInfo #cdi class gives you access to all the other kernel services and the configuration settings for
+the Context your service instance belongs to. The #cdi init #cdi method will be invoked once after your service has been
+instantiated. #par
+
+#par The next section gives you an overview over all services that can be replaced or decorated. #par
+
+
+#sub List of IOC Kernel Services #sub
+
+#tbl
+#tbr #cdi BootstrapManager #cdi # Responsible for processing the configuration
+and then building and initializing the #cdi Context #cdi. 
+May be fed with different types of #cdi ConfigurationProcessor #cdis, like the builtin
+ones for ActionScript, MXML or XML configuration. #tbr
+
+#tbr #cdi Context #cdi # This is the core interface of the framework, putting all the other
+pieces together and delegating most of the work to the other parts of the kernel listed below. 
+It allows you to pull objects out of the container or examine its contents. #tbr
+
+#tbr #cdi ObjectDefinitionRegistry #cdi # The registry for all ObjectDefinitions the #cdi Context #cdi
+will manage. #tbr
+
+#tbr #cdi ObjectLifecycleManager #cdi # Responsible for processing #cdi ObjectDefinitions #cdi, instantiating,
+configuring and disposing the actual instances described by those definitions. #tbr
+
+#tbr #cdi ScopeManager #cdi # Responsible for managing all scopes that are associated with a single Context. #tbr
+
+#tbr #cdi MessageRouter #cdi # The core interface of the Messaging Framework. #tbr
+
+#tbr #cdi ViewManager #cdi # Responsible for dynamically wiring views to the #cdi Context #cdi. #tbr
+#tbl
+
+#par All the services listed above can be replaced through the #cdi BootstrapDefaults #cdi. #par

@@ -1,0 +1,26 @@
+#sc2 lifecycle_methods Object Lifecycle Methods #sc2
+
+#par If you want the Parsley Container to invoke methods on your object when it is created or when it is destroyed,
+you can add the #cdi [Init] #cdi or #cdi [Destroy] #cdi metadata tags to the corresponding methods: #par
+
+#cdb
+[Init]
+public function init () : void {
+    [...]
+}
+[Destroy]
+public function dispose () : void {
+    [...]
+}
+#cdb
+
+#par The methods marked with #cdi [Init] #cdi get invoked after the object has been instantiated and
+all injections have been processed. #par
+
+#par The methods marked with #cdi [Destroy] #cdi get invoked after the Context instance they belong to has been
+destroyed with #cdi Context.destroy() #cdi or when the object was removed from the Context. #par
+
+#par For Flex Components declared in regular MXML files and wired to the Context as described in #ref view_intro #ref
+the lifecycle is different: For those objects the methods get invoked whenever the object is added to or removed from the
+stage respectively. Of course the #cdi [Destroy] #cdi method additionally gets invoked if the Context the object
+was wired to was destroyed. #par

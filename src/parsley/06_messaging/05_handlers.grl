@@ -1,0 +1,44 @@
+#sc2 messaging_handlers MessageHandlers #sc2
+
+#par Message Handlers are the most common approach for the receiving side. You can declare methods to be invoked when
+a particular application message gets dispatched. In the most simple case the method will simply be selected by
+parameter type: #par
+
+#sub Metadata Example #sub
+
+#cdb
+[MessageHandler]
+public function handleLogin (message:LoginMessage) : void {
+#cdb
+
+#par In this case the method will be invoked whenever a message of a matching type (or subtype) gets dispatched. #par
+
+#sub MXML Example #sub
+
+#cdb
+<Object type="{LoginAction}">
+    <MessageHandler method="handleLogin"/> 
+</Object>
+#cdb
+ 
+#sub XML Example #sub
+
+#cdb
+<object type="com.bookstore.actions.LoginAction">
+    <message-handler method="handleLogin"/> 
+</object>
+#cdb
+
+#par There is also a variant where you split properties of the message class to arguments of the message handler method: #par
+
+#cdb
+[MessageHandler(type="com.bookstore.events.LoginMessage",messageProperties="user,role"]
+public function handleLogin (user:User, role:String) : void {
+#cdb
+
+#par Note that in this case you also have to declare the message type since it cannot be detected from the
+parameter type. #par
+
+#par Finally you may encounter a situation where selection by message type is not sufficient. If you dispatch
+the same message type in different scenarios and application states you may want to further refine the message
+selection process. See #ref messaging_selectors #ref for details. #par

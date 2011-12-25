@@ -1,0 +1,112 @@
+#sc2 config_metadata Configuration with AS3 Metadata #sc2
+
+#par AS3 Metadata Tags can be used to configure services like Dependency Injection or Messaging.
+They can be placed on any class that is managed by Parsley. Features configured by metadata tags
+can be combined with configuration in XML or MXML. Almost every metadata tag has a corresponding
+MXML and XML configuration tag. #par
+
+#par The individual metadata tags and their attributes along with examples are described in
+the corresponding sections: #par
+
+#lst
+
+#lse #ref injection_intro #ref #lse
+
+#lse #ref messaging_intro #ref #lse
+
+#lse #ref lifecycle_factories #ref #lse
+
+#lse #ref lifecycle_async #ref #lse
+
+#lse #ref lifecycle_methods #ref #lse
+
+#lse #ref lifecycle_observer #ref #lse
+
+#lst
+
+
+#sub Metadata Inheritance #sub
+
+#par Judging from observations these are the rules the mxmlc compiler uses for deciding on metadata inheritance: #par
+
+#lst
+#lse A metadata tag on the class level is never inherited by subclasses. #lse
+#lse A metadata tag on a property or method that is not overridden in a subclass is always available when reflecting on the subclass. #lse
+#lse A metadata tag on an overridden property getter/setter or method is only inherited if the overriding method or property
+does not have any metadata itself. #lse
+#lst
+
+#par Per default Parsley does nothing on top of these inheritance rules. In particular it only processes the class that gets
+configured and not the entire inheritance tree. That would be impractical due to performance reasons, as reflection in current
+Flash Players is quite slow. This means that any metadata on class level for example would be lost in subclasses. 
+Since this might be undesirable in some cases where the class has a lot of verbose #cdi [ManagedEvents] #cdi declarations
+for example, the framework offers the option to explicitly request to process the superclass or the implemented interfaces
+of a particular class: #par
+
+#cdb
+[ProcessSuperclass][ProcessInterfaces]
+public class SomeClass {
+#cdb
+
+#par When using #cdi [ProcessSuperclass] #cdi only the immediate superclass will be processed, again for performance reasons.
+The superclass itself could also use this tag if you want the framework to move even higher in the inheritance tree.
+When the superclass gets processed its tags will be added to those available on the subclass. This means that when using
+this feature you cannot override a metadata tag from the superclass in the subclass, as both would be used in this case.
+If you want to override tags, you cannot use #cdi [ProcessSuperclass] #cdi. #par
+
+#par When using #cdi [ProcessInterfaces] #cdi all interfaces implemented by the class will be processed in addition
+to the class itself. #par  
+
+
+
+#sub Compiling custom metadata into SWFs #sub
+
+#par Unfortunately the mxmlc compiler has a pretty inconsistent behaviour when it comes to deciding whether custom metadata
+will be included in the SWF or not. If you use the Parsley and Spicelib SWCs to compile the main application you (or your tool) will
+likely specify the library with the #cdi -l #cdi option so that the library will be compiled into your SWF. In this case all the metadata tags
+used by Parsley and Spicelib will be included automatically. So for the main application SWF there is nothing you have to do unless
+you created custom configuration tags that you want to use as AS3 metadata. #par
+
+#par For compiling modules or other SWFs where you (or you tool) choose to use the #cdi -el #cdi option to specify the Parsley SWC
+it is different though. The framework classes will not be compiled into your SWF then (this is intended behaviour) and unfortunately
+the metadata tags won't either. And this is rather erratic behaviour, since for your intention to use the framework and thus its
+metadata configuration tags it shouldn't make a difference if you compile the frameworks classes into the SWF or not.
+So when using the #cdi -el #cdi option you have to explicitly specify the Parsley and Spicelib metadata tags.
+You can do that with adding
+all Spicelib and Parsley metadata tags that you use to the compiler options, either to the #cdi -keep-as3-metadata #cdi
+flag directly or to a configuration file that you then specify with the #cdi -load-config+= #cdi option: #par
+
+#cdb
+<flex-config>
+    <compiler>
+        <keep-as3-metadata append="true">
+            <name>Inject</name>
+            <name>Init</name>
+            <name>Destroy</name>
+            <name>Observe</name>
+            <name>MessageDispatcher</name>
+            <name>MessageHandler</name>
+            <name>CommandResult</name>
+            <name>CommandComplete</name>
+            <name>CommandError</name>
+            <name>Publish</name>
+            <name>Subscribe</name>
+            <name>PublishSubscribe</name>
+		</keep-as3-metadata>
+		
+	</compiler>
+</flex-config>
+#cdb
+
+#par The above is just a subset of the tags available in Parsley. You should either combine exactly the ones
+you are using in your application or directly pass the files #cdi spicelib-metadata.xml #cdi and #cdi parsley-metadata.xml #cdi
+to the #cdi -load-config+= #cdi option. You find those inside the #cdi build/config #cdi folder in the download or the project
+you checked out from Subversion. #par
+			
+#par In case the metadata tags did not get compiled into your SWF the symptoms are usually that several operations silently
+fail. For example injections will not performed then if you specified them with the #cdi [Inject] #cdi tag. When things silently
+fail this is usually a clear indication that some or all of the metadata tags are missing in the SWF. Because if there was some
+other type of problem, like an injection type where the framework does not find a matching object for in the container, Parsley
+will always throw an error. It will not silently fail unless you specified the dependency as optional. #par
+
+#par This section was added to this chapter as a few users already ran into this issue. #par

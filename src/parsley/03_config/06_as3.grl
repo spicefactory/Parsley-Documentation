@@ -1,0 +1,57 @@
+#sc2 config_as3 ActionScript Configuration #sc2
+
+#par This configuration mechanism may seem unfamiliar if you only knew Flex IOC containers so far. It is somehow similar
+to Spring JavaConfig. It allows you to create the objects that should be managed by Parsley in code. The configuration
+classes are plain ActionScript, not talking to Parsely APIs, thus this mechanism is intended to be used in cases where
+you are able to configure the object solely with metadata tags. If you need to specify features like a message handler
+or an injection point programmatically, you should prefer the #ref config_dsl #ref. #par
+
+#par Let's again use the two classes from the MXML example and add them to the IOC Container: #par
+
+#cdb
+package com.bookstore.config {
+
+class BookStoreConfig {
+
+    public const action:LoginAction = new LoginAction();
+    
+    public function get service () : LoginServiceImpl {
+        var service:LoginServiceImpl = new LoginServiceImpl();
+        service.timeout = 3000;
+        return service;    
+    }
+
+}
+}
+#cdb
+
+#par Again we set the timeout property, this time with ActionScript. Note that it does not matter if you define
+the objects as a #cdi var #cdi, a #cdi const #cdi or an implicit getter function. The objects these properties
+hold will all be added to the IOC container. #par
+
+#par Of course intialization is again just a one liner: #par
+
+#cdb
+ActionScriptContextBuilder.build(BookStoreConfig);
+#cdb
+
+#par Or (in Flex) with an MXML tag: #par
+
+#cdb
+<parsley:ContextBuilder config="{BookStoreConfig}"/>
+#cdb
+
+#par This configuration mode allows you to add metadata: #par
+
+#cdb
+[DynamicObject]
+public function get service () : LoginServiceImpl {
+    var service:LoginServiceImpl = new LoginServiceImpl();
+    service.timeout = 3000;
+    return service;    
+}
+#cdb
+
+#par In the example above the container would call the getter function each time this object is requested. 
+The default is to create singletons, so without any metadata tags Parsley would call this
+method only once and then cache the returned object internally and reuse the same instance for all subsequent injections. #par

@@ -1,0 +1,10 @@
+#sc1 view_intro Dynamic View Wiring #sc1
+
+#par So far all objects that "live" inside a Parsley Context have been defined with either MXML, XML or ActionScript as
+detailed in #ref config_intro #ref. For Flash Applications these mechanisms will usually be sufficient as it is very likely
+that you are able to conveniently define all managed objects in XML or ActionScript - including view elements.
+For Flex Applications this approach is not ideal since you'll prefer to declare your components in your MXML files
+within the component hierarchy and not in a separate Parsley Context MXML configuration class.
+So we'll need a different mechanism to connect these components defined within your MXML view definitions
+to objects declared with Parsley configuration files. The solution Parsley offers for this use case will be
+described in this chapter. #par

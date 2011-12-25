@@ -1,0 +1,54 @@
+#sc2 mvc_flow MVC Event Flow Example #sc2
+
+
+#par The following diagram shows an example flow for a particular use case (user adds
+item to shopping cart) in the context of a Parsley MVC application: #par
+
+#img doc_img mvc_flow.jpg #img
+
+#par Explanations for the numbered steps from the diagram: #par
+
+#lst
+
+#lse 1: The user clicks the "Add to cart" button. With Flex for example this will generate a low
+level UI event. The event handler in the component invokes a method on the presentation model instance 
+(usually injected into the view) which handles communication between View and Controller. #lse
+
+#lse 2: 
+The model creates an application message possibly gathering any further
+information from the view and encapsulating this information in the message. 
+This message will then be dispatched through Parsleys #cdi MessageRouter #cdi #lse
+
+#lse 3: The #cdi MessageRouter #cdi will then process any MessageHandlers
+or Commands which were registered for this message type (usually with Metadata tags on methods or properties, alternatively
+in MXML or XML). In this case the #cdi AddToCartCommand #cdi will be invoked. #lse
+
+#lse 4: The command will invoke a remote service method 
+(the service usually being injected). The asynchronous operation will be managed by the framework
+which allows to avoid some of the usual plumbing code. Neither the command nor any other part
+of the application has to explicitly add a result handler to the AsyncToken returned by the remote call. #lse
+
+#lse 5: The framework receives the result. It is first returned to the command instance itself if it contains
+a result handler. But this is purely optional. #lse
+
+#lse 6: The result handler in the command might modify 
+or cache the model before it gets passed to other result handlers. #lse
+
+#lse 7: Next the framework will invoke any other registered result handlers in the application. 
+In this case the CartPM contains a result handler which will now be invoked causing the model
+instance to update its internal state. #lse
+
+#lse 8: The view is refreshed, usually through binding to properties of the presentation model. #lse
+
+#lst
+
+#par From the example above many core elements will have been setup and wired in a
+Parsley #cdi Context #cdi including the view as described in #ref view_intro #ref. 
+This usually includes all controller actions, their dependencies like remote services, 
+and the registration for particular messages in the #cdi MessageRouter #cdi. #par
+
+#par If you think this diagram smells like over-engineering, it merely serves as an example
+for a full blown MVC architecture of a large and complex application. In smaller and simpler
+applications you can of course simplify the design presented above. For example the Mediator
+may be omitted in simpler use cases where the view itself dispatches and receives application
+messages. #par

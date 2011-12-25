@@ -1,0 +1,67 @@
+#sc2 troubleshooting_views Problems with View Wiring #sc2
+
+#par For wiring components it's important to understand the lifecycle of Flex components in relation to Parsley 
+object management. One problem with misplaced initialization logic (that does not only affect views) has already 
+been described in the preceding section under #str Timing issues with object initialization #str. 
+This section lists some of the most frequent issues purely related to wiring views. #par
+
+
+#sub Errors when re-adding a view to the stage #sub
+
+#par The default behavior for a wired view (no matter whether you are using view autowiring or the #cdi <Configure> #cdi tag)
+is to remove the view from the Context once the view is removed from the stage. This is the most convenient option as this is
+what is required in many scenarios where views are not developed for reuse. But when you do reuse a view and are not aware 
+of this behavior you will encounter unexpected behavior. Dependencies like presentation models might get injected for a second
+time for example, causing the view to lose its internal state. #par
+
+#par Fortunately there are ways to prevent this, as this is just the default behavior. For more details see
+#ref view_lifecycle #ref, preferrably including the section #str Beware of Memory Leaks #str as changing the
+default behavior might indeed solve your problem, but at the same time introduce leaks if not done correctly. #par
+
+#par If the #cdi <ContextBuilder> #cdi tag itself is placed into a view, you might even encounter the situation where
+the entire Context gets destroyed when you remove the view from the stage. Again this is only the default that can 
+be switched off like explained in #ref view_lifecycle #ref. #par
+
+
+#sub Error: Object of type [SomeViewClass] is already managed #sub
+
+#par Parsley 2.4 introduced checks to prevent the same object getting wired twice, potentially to two different Contexts 
+which could cause non-deterministic behavior. If you see this error it might have any of the following causes: #par
+
+#lst
+#lse You are not using the latest version. If you are using an explicit wiring mechanism like the #cdi Configure #cdi 
+tag and API you need at least version 2.4.0, if you are using View Autowiring you need at least version 2.4.1. Earlier
+versions had bugs in the way they performed the checks for duplicate wiring. #lse
+
+#lse You may indeed have duplicate configuration. This may happen when you combine an explicit mechanism like the 
+#cdi Configure #cdi tag with View Autowiring (setting the #cdi autowireComponents #cdi property to true in the
+#cdi ViewSettings #cdi tag). #lse
+
+#lse You may use a very old view wiring mechanism which is no longer supported and does not offer the full lifecycle
+features introduced in versions 2.2 to 2.4. This includes manually dispatching events of type #cdi configureIOC #cdi
+or #cdi configureView #cdi. #lse
+#lst
+
+
+#sub Problems with popups and AIR windows #sub
+
+#par When wiring views in popups or AIR windows some additional steps need to be performed as these types of components
+are not placed into the normal view hierarchy below the root Application component. The basics are explained in
+#ref view_popup #ref. If you follow these instructions and still run into problems, they might be caused by one
+of the following issues: #par
+
+#lst
+#lse #str You get errors claiming that dependencies could not be found. #str This might happen even if you connected the popup or window 
+to a Parsley Context, if it is not to the right one. In a multi-Context application
+it is important that you connect the window to the Context where dependencies should be fetched from. While each 
+Context shares dependencies with its parent, the opposite is not true. So if you connect your window to the root Context
+for example, any dependencies defined in any child Context will not be seen. #lse
+
+#lse #str You get reflection errors claiming that some class cannot be found in a particular ApplicationDomain. #str
+This is a very similar issue: when you work with modules and windows it is particularly important to connect the window
+to the right Context. If the window shell is defined in the application and the window content will then be a module
+loaded into that window, it is fully sufficient to connect the window to the root Context as long as the loaded module
+will then define its own Context internally. But if the window or popup
+is launched from within a module that was already loaded, you must make sure to connect the window to the Context defined
+in the module. See the next section for further common error scenarios around working with modules. #lse
+#lst

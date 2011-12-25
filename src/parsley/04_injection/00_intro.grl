@@ -1,0 +1,11 @@
+#sc1 injection_intro Dependency Injection #sc1
+
+#par Defining the dependencies of your classes is one of the core tasks when you configure
+the services and actions of your application. This chapter demonstrates the various options
+Parsley offers you for Dependency Injection. #par
+
+#par The preferred configuration style for dependencies is using AS3 Metadata tags. 
+Since the dependencies of a class are part of the core aspects of a class definition
+it makes sense to define dependencies right in the ActionScript class itself.
+It some cases you may still prefer to externalize dependency declarations, the corresponding options
+are described in the final section of this chapter #ref injection_tags #ref. #par

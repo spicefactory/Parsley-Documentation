@@ -1,0 +1,6 @@
+#sc1 resources_intro Localization #sc1
+
+#par The recommended approach for localizing Parsley based applications is very different dependending
+on whether you are using Flex or not. For Flex Applications Parsley integrates with the Flex ResourceManager.
+For Flash Applications Parsley offers its own Localization Module. In fact that module is the only part
+that survived from version 1 of the framework, albeit with some major refactorings. #par

@@ -1,0 +1,91 @@
+#sc2 tagref_lifecycle Object Lifecycle #sc2
+
+
+#sc3 tagref_lifecycle_asyncinit AsyncInit #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [AsyncInit] #cdi #tbr
+#tbr may be placed on # class declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <AsyncInit/> #cdi #tbr
+#tbr XML Tag # #cdi <async-init/> #cdi #tbr
+#tbr Detailed Explanation # #ref lifecycle_async #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi completeEvent #cdi # optional # The event type signalling that the object is fully initialized. 
+Default #cdi Event.COMPLETE #cdi. #tbr
+#tbr #cdi errorEvent #cdi # optional # The event type signalling that the object failed to initialize correctly. 
+Default #cdi ErrorEvent.ERROR #cdi. #tbr
+#tbl
+
+
+
+#sc3 tagref_lifecycle_init Init #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [Init] #cdi #tbr
+#tbr may be placed on # method declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <Init/> #cdi #tbr
+#tbr XML Tag # #cdi <init/> #cdi #tbr
+#tbr Detailed Explanation # #ref lifecycle_methods #ref #tbr
+#tbr Note # The old name of this tag (PostConstruct) has been deprecated. #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi method #cdi # required for MXML/XML # The name of the method to invoke when the object is fully initialized. 
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl
+
+
+
+#sc3 tagref_lifecycle_destroy Destroy #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [Destroy] #cdi #tbr
+#tbr may be placed on # method declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <Destroy/> #cdi #tbr
+#tbr XML Tag # #cdi <destroy/> #cdi #tbr
+#tbr Detailed Explanation # #ref lifecycle_methods #ref #tbr
+#tbr Note # The old name of this tag (PreDestroy) has been deprecated. #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi method #cdi # required for MXML/XML # The name of the method to invoke when the object is fully initialized. 
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl
+
+
+#sc3 tagref_lifecycle_observe Observe #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [Observe] #cdi #tbr
+#tbr may be placed on # method declaration #tbr
+#tbr MXML and XML Namespace # #cdi http://www.spicefactory.org/parsley #cdi #tbr
+#tbr MXML Tag # #cdi <Observe/> #cdi #tbr
+#tbr XML Tag # #cdi <observe/> #cdi #tbr
+#tbr Detailed Explanation # #ref lifecycle_observer #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi phase #cdi # optional # The lifecycle phase to observe. The default is #cdi postInit #cdi. The other permitted 
+values are #cdi preConfigure #cdi, #cdi preInit #cdi, #cdi preDestroy #cdi and #cdi postDestroy #cdi. #tbr
+#tbr #cdi objectId #cdi # optional # The id of the object to observe. If omitted the observer method will
+be invoked for all matching types (polymorphically). #tbr
+#tbr #cdi method #cdi # required for MXML/XML # The name of the method to invoke when the object is fully initialized. 
+Will be automatically set when used as a Metadata Tag. #tbr
+#tbl

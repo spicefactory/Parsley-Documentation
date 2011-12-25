@@ -1,0 +1,24 @@
+#sc2 bindings_scopes Using Scopes #sc2
+
+#par Like with Messaging the Decoupled Binding facility allows to use scopes. Sometimes you don't want to publish an object
+globally, but instead use different instances in different areas of the application. For a general introduction see
+#ref messaging_scopes #ref in the messaging chapter. #par
+
+#par In contrast to messaging there is one major difference in the default behaviour. With messaging the default for the sending
+side is to dispatch through all scopes available for the Context so that the receiving side can decide which scope to listen for.
+This is different for publishing as the former would lead to conflicts too often (see preceding section). Instead the default is to 
+publish only to the global scope. #par
+
+#par For any other scope than the global scope you have to use the scope attribute explicitly: #par
+
+#cdb
+[Publish(scope="window")][Bindable]
+public var selectedContact:Contact;
+#cdb
+
+#par And of course on all subscribers, too: #par
+
+#cdb
+[Subscribe(scope="window")]
+public var selectedContact:Contact;
+#cdb

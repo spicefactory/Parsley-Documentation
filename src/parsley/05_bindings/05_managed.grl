@@ -1,0 +1,27 @@
+#sc2 bindings_managed Publishing Managed Objects #sc2
+
+#par In all preceding examples the state of the published object did not change. You can use either container-managed objects
+or any other objects not known by the container and publish it to subscribers. If it is unmanaged it would remain so.
+In some cases you might want to explicitly add the object to the Context dynamically only for the time it is being published.
+This way it can also participate in messaging and other container features. This has the same effect as using the 
+Context API to create dynamic objects like demonstrated in #ref lifecycle_dynamic #ref, just with the advantage
+that you do not have to talk to the framework API. #par
+
+#par This is how it works, you just add the #cdi managed #cdi attribute to the #cdi Publish #cdi tag: #par
+
+#cdb
+[Publish(managed="true")][Bindable]
+public var selectedContact:Contact;
+#cdb
+
+#par Now anytime you set this variable to a Contact instance, that instance gets added to the Context automatically.
+It remains managed until: #par
+
+#lst
+#lse The variable is set to a different Contact instance or it is set to null. #lse
+#lse The object holding the variable is removed from the Context. #lse
+#lse The Context the object belongs to gets destroyed. #lse
+#lst
+
+#par This also means that the lifecycle methods demarcated with #cdi [Init] #cdi and #cdi [Destroy] #cdi can be used
+on the published object to get notified when the object gets published and removed. #par

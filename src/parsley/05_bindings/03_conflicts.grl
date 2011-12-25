@@ -1,0 +1,20 @@
+#sc2 bindings_conflicts Avoiding Conflicts #sc2
+
+#par For the Decoupled Binding facility to work in a reliable and robust way, you have to make sure that your setup does not
+lead to ambuigities. The framework must know which publisher is "in charge" for a particular subscriber at any point in time.
+In general publishing to different scopes cannot lead to conflicts as the scopes are completely shielded from each other.
+But for any publishing within a single scope for the same type or id (depending on whether you use an id), the rules
+are as follows: #par
+
+#lst
+#lse You can have exactly one #cdi [Publish] #cdi tag and any number of matching #cdi [Subscribe] #cdi tags. #lse
+#lse You can have any number of #cdi [PublishSubscribe] #cdi tags and any number of matching #cdi [Subscribe] #cdi tags. #lse
+#lse It's also legal to have a #cdi [Publish] #cdi tag without any matching #cdi [Subscribe] #cdi tag and vice versa. If a 
+#cdi [Subscribe] #cdi tag has no matching #cdi [Publish] #cdi tag its value will be set to null. #lse
+#lst
+
+#par As you see having more than one #cdi [Publish] #cdi tag for the same type or id within a single scope is illegal.
+The same goes for combining #cdi [Publish] #cdi and #cdi [PublishSubscribe] #cdi for the same type or id.
+In those cases the framework would not be able to determine "who is in charge". This problem does not occur with multiple
+#cdi [PublishSubscribe] #cdi tags. Since those are subscribers, too, changing one of them will also update all the others,
+so that they are always in sync. #par

@@ -1,0 +1,60 @@
+#sc2 resources_bindings ResourceBindings #sc2
+
+#par This is the only Parsley Localization feature that works the same way in Flex and Flash Applications,
+so we will explain it first. #par
+
+#par You can place #cdi [ResourceBinding] #cdi metadata tags on properties of objects managed by the IOC Container: #par
+
+#cdb
+[ResourceBinding(bundle="errorMessages",key="fileNotFound")]
+public var message:String;
+#cdb
+
+#par The tag has the following effects: #par
+
+#lst 
+#lse When the object is instantiated the container will fetch the message with the specified bundle name and key
+from the ResourceManager and inject it into the property. This step happens while other injections are processed
+and before the methods marked with #cdi [Init] #cdi get invoked. In case the bundle is not yet available at the
+time the object is initialized the resource may get injected at a later time. #lse 
+
+#lse When Flex ResourceManager is updated (Flex Applications) or the #cdi currentLocale #cdi
+property of the Parsley ResourceManager gets changed (Flash Applications) the value for that property will be updated automatically. #lse
+#lst
+
+#par For Flex Applications it is recommended to use this feature primarily for objects defined in Parsley configuration classes
+or files (MXML or XML). For View Components, even when they connect to the Parsley IOC Container like described in
+#ref view_intro #ref, you could just stick to normal Flex Binding syntax like this: #par
+
+#cdb
+<s:Label text="{resourceManager.getString('RegistrationForm','city')}"/>
+#cdb
+
+#par This way your localized View Component does not depend on the Parsley Framework at all. The Parsley
+[ResourceBinding] tag still may come in handy for other localized objects. #par
+
+#par For Flash Applications the #cdi [ResourceBinding] #cdi tag is usually the recommended approach for localizing
+components. #par
+
+#par In most cases the Parsley Framework will automatically detect if it is used in a Flex or Flash Application depending
+on how Parsley is initialized. So the adapter that connects the class that processes the #cdi [ResourceBinding] #cdi tags
+to either the Flex or Parsley ResourceManager will be set automatically. There are a few exceptions described in the 
+following sections. #par
+
+#par Like for most other Parsley metadata tags there are corresponding MXML and XML tags that could be used alternatively: #par
+
+#sub MXML Example #sub
+
+#cdb
+<Object type="{SlideShowController}">
+    <ResourceBinding property="message" bundle="errorMessages" key="fileNotFound"/> 
+</Object>
+#cdb
+ 
+#sub XML Example #sub
+
+#cdb
+<object type="com.bookstore.catalog.SlideShowController">
+    <resource-binding property="message" bundle="errorMessages" key="fileNotFound"/>  
+</object>
+#cdb

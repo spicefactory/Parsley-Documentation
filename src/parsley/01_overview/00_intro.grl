@@ -1,0 +1,13 @@
+#sc1 overview_intro Overview #sc1
+
+#par Parsley is an Application Framework for Flex and Flash Applications built upon an IOC Container and
+Messaging Framework that can be used to create highly decoupled architectures. 
+It allows you to configure objects to be managed by the container with Metadata, MXML, XML or ActionScript
+and is easily extensible. #par
+
+#par While many other Application Frameworks for the Flash Platform are either a pure Flex Framework that cannot
+be used without the Flex SDK or are a classic Flash Framework without any deeper integration with Flex, Parsley
+is both. The core of the framework (the IOC Container and the Messaging Subsystem) does not depend on the
+Flex SDK at all, but there are several additional modules that are specifically designed for Flex, providing
+support for MXML Configuration, View Wiring and Flex Modules. #par
+ 

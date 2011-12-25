@@ -1,0 +1,138 @@
+#sc2 lifecycle_dynamic Dynamic Objects #sc2
+
+#par (Note: Prior to version 2.3 the framework offered the #cdi DynamicContext #cdi interface. This is still
+available for backwards-compatibility, but deprecated and no longer required, since the core #cdi Context #cdi
+interface now includes this functionality alongside a few new additional options). #par
+
+#par In contrast to the usual root singleton objects specified with the #cdi <Object> #cdi tag, dynamic objects can be
+added and removed from the Context dynamically. Dynamic Objects almost behave the same like regular objects. 
+In particular this means: #par
+
+#lst
+#lse You can inject any regular object into the dynamic object. #lse
+#lse The dynamic object can send and receive messages to and from any of the available scopes. #lse
+#lse The dynamic object can have lifecycle methods like #cdi [Init] #cdi and #cdi [Destroy] #cdi. #lse
+#lst
+
+#par There is only one significant restriction for using dynamic objects: #par
+
+#lst
+#lse You cannot inject a dynamic object into another object, unless it was specified with the
+#cdi <DynamicObject> #cdi tag in MXML or XML. #lse
+#lst
+
+#par This restriction is natural, since dependency injection comes with validation which would not be possible
+if the set of objects available for injection could change at any point in time. For a more dynamic way
+of expressing dependencies which more resembles the way Flex Bindings work you can use the #cdi [Subscribe] #cdi
+tag introduced in version 2.3. #par
+
+#par There are multiple ways to create a dynamic object: #par
+
+
+#sub Adding an existing object to the Context #sub
+
+#cdb
+var instance:Object = ...;
+var dynamicObject:DynamicObject = context.addDynamicObject(instance);
+#cdb
+
+#par In this case an #cdi ObjectDefinition #cdi will be created for the existing instance and metadata will
+be processed for the type of that instance, performing any required dependency injection, message receiver
+registration or lifecycle method invocation. #par
+
+#par The object can be removed from the Context at any point in time: #par
+
+#cdb
+dynamicObject.remove();
+#cdb
+
+#par At this point the method marked with #cdi [Destroy] #cdi will be invoked on that object (if existent)
+and any message receiver registrations will be terminated. The object is then fully removed from the Context. #par
+
+
+#sub Creating a dynamic object based on objects configured in MXML or XML #sub
+
+#par Dynamic objects can alternatively be configured in MXML or XML and then created dynamically at runtime based on these
+configurations: #par
+
+#cdb
+<DynamicObject type="{SomeType}" id="dynamic1"/>
+#cdb
+
+#par The tag above offers the same set of nested configuration tags like the #cdi <Object> #cdi tag. 
+You can then pull the dynamic objects from the Context by id: #par
+
+#cdb
+var dynamicObject:DynamicObject = context.createDynamicObject("dynamic1");
+#cdb
+
+#par Or alternatively fetched by type: #par
+
+#cdb
+var dynamicObject:DynamicObject = context.createDynamicObjectByType(SomeType);
+#cdb
+
+#par The instance created by the Context can then be accessed like this: #par
+
+#cdb
+var instance:Object = dynamicObject.instance;
+#cdb
+
+#par With the addition of the #cdi <DynamicObject> #cdi tag the use of the singleton attribute in the #cdi Object #cdi
+tag is deprecated: #cdi <Object type="{SomeType}" singleton="false"/> #cdi will continue to work, but will now get interpreted
+like a #cdi <DynamicObject> #cdi tag anyway, so is no longer required. The #cdi <Object> #cdi tag should solely be used for
+declaring singletons now. #par
+
+
+#sub The lifecycle of injected dynamic objects #sub
+
+#par Dynamic objects declared with the #cdi <DynamicObject> #cdi tag are the only types of dynamic objects which can be
+injected into other objects the same way like singletons, since their defintion is available at Context creation time
+and thus validatable. The way the object's lifecycle is controlled in this case is different than in those cases
+where they are fetched from the Context by application code with #cdi createDynamicObject #cdi. In the latter case
+the application will control the lifecycle and may remove the object from the Context at any point in time.
+In case of an injection however it is the framework that controls the lifecycle. The injected object will 
+remain managed as long as the object it was injected into. This functionality was not available in versions
+prior 2.3 but was requested quite often since it allows resource-friendly injections into dynamic obejcts
+like a #cdi DynamicCommand #cdi. #par
+
+
+#sub Creating a dynamic object based on programmatically created object definitions #sub
+
+#par For building extensions which deal with object definitions from within a #cdi ObjectDefinitionDecorator #cdi
+or #cdi RootConfigurationElement #cdi implementation there are two interesting variants of the #cdi addDynamicObject #cdi method
+shown above. First it is possible to pass an additional #cdi ObjectDefinition #cdi to the method: #par
+
+#cdb
+var definition:ObjectDefinition = ...;
+var instance:Object = ...;
+var dynamicObject:DynamicObject = context.addDynamicObject(instance, definition);
+#cdb
+
+#par In this case the definition will not be created by the dynamic Context like in the preceding example. Instead
+the specified definition will be used. Since version 2.2 this mechanism will be used internally to support the new
+option to configure dynamically wired views in MXML. An existing instance will have to be configured by an
+#cdi ObjectDefinition #cdi then which has been created elsewhere. #par
+
+#par Finally you can also just pass a definition to the dynamic Context and it will create a new instance 
+based on that definition: #par
+
+#cdb
+var definition:ObjectDefinition = ...;
+var dynamicObject:DynamicObject = context.addDynamicDefinition(definition);
+#cdb
+
+#par Again, the instance can be accessed like this: #par
+
+#cdb
+var instance:Object = dynamicObject.instance;
+#cdb
+
+
+#sub Removing a dynamic object from the Context #sub
+
+#par In all these different use cases removal of the object happens in the way already demonstrated: #par
+
+#cdb
+dynamicObject.remove();
+#cdb

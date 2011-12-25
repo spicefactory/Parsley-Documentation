@@ -1,0 +1,184 @@
+#sc2 modules_context Modular Contexts #sc2
+
+#par In larger applications you may want to split your application into modules which are
+loaded on demand. In this case it would be unfortunate to have a monolithic Context
+that is fully loaded and initialized at application startup. Even splitting the configuration into
+multiple files like shown in #ref config_combine #ref won't help since those files will be merged into
+a single Context and loaded and initialized as if it was a single large configuration file. #par
+
+#par This is where another feature of Parsley comes in handy: when creating a #cdi Context #cdi
+it can connect to a parent Context. The parent may be the main context loaded at
+application startup for example and the child context may be one required by a module loaded on demand.
+In the configuration for the child Context you can use any object from the parent Context for Dependency Injection 
+(but not vice versa). Messaging also works across Context boundaries, depending on the scope you dispatch through. 
+You can create deeply nested hierarchies of Contexts, but often the structure would be rather flat, with one 
+root context and any number of child Contexts on the same level. #par
+
+#par There are two different ways to initialize such a child Context: #par
+
+
+
+#sc3 modules_context_views Connecting a Context Hierarchy to a View Hierarchy #sc3
+
+#par When you are specifying a view root with the ContextBuilder API
+or when you are using the MXML ContextBuilder tag introduced which automatically
+uses the document it is placed upon as a view root, then
+the #cdi ViewManager #cdi associated with the Context will use that view root for two purposes:
+it will listen for bubbling events from components that wish to get wired to the Context and
+it will listen for bubbling events from other ContextBuilders sitting somewhere below in the
+view hierarchy. This way you do not have to manually specify the parent Context or the
+ApplicationDomain, the framework will take care of that for you: #par
+
+#cdb
+<parsley:ContextBuilder config="{BookStoreConfig}"/>
+#cdb
+
+#par or: #par
+
+#cdb
+var viewRoot:DisplayObject = ...;
+ContextBuilder
+    .newSetup()
+    #hlt .viewRoot(viewRoot) #hlt
+    .newBuilder()
+    .config(FlexConfig.forClass(BookStoreConfig))
+    .build();
+#cdb
+
+#par In the examples above the new Context will use the view root to automatically look for a parent Context and to
+listen for child Contexts within the view hierarchy. #par
+
+#par In some scenarios you may want to keep the Context hierarchy separate from the view hierarchy.
+This is where the second option for building the hierarchy comes into play: #par
+
+
+
+#sc3 modules_context_manual Setting a Parent Context Manually #sc3
+
+#par You can define an existing Context as the parent for a new Context when using the ContextBuilder
+API: #par
+
+#cdb
+var parent:Context = ...;
+ContextBuilder
+    .newSetup()
+    #hlt .parent(parent) #hlt
+    .newBuilder()
+    .config(FlexConfig.forClass(BookStoreConfig))
+    .build();
+#cdb
+
+#par In this case we did not specify a view root at all (note that you cannot dynamically wire views to this Context
+in this case) and instead specify the parent manually. You must also be aware of the fact that without a view root 
+the Context is not able to automatically detect the ApplicationDomain for reflection. So if you are not working in the
+root ApplicationDomain but instead in a child domain of a loaded Flex Module for example,
+you also have to pass the domain to the builder method: #par
+
+#cdb
+var parent:Context = ...;
+var domain:ApplicationDomain = ...;
+ContextBuilder
+    .newSetup()
+    #hlt .parent(parent) #hlt
+    #hlt .domain(domain) #hlt
+    .newBuilder()
+    .config(FlexConfig.forClass(BookStoreConfig))
+    .build();
+#cdb
+
+#par Again this is not necessary when specifying a view root, since the builder is then able
+to automatically detect the parent Context and the ApplicationDomain. #par
+
+
+
+#sc3 modules_context_multiple Using Multiple Parent Contexts #sc3
+
+#par This is a feature that was introduced with version 2.4. Before that the Context hierarchy was limited to a tree structure,
+so while each Context could have multiple children, it always only had one parent. The option to specify more than one parent adds
+a lot more flexibility for building a Context hierarchy. For example it would allow to build a set of libraries that can depend
+on each other and connect their Contexts accordingly. #par
+
+#par Let's assume you are working with two modules that might be needed by multiple other (otherwise unrelated) 
+modules in the application and that both have their own Context: #par
+
+#cdb
+var messaging:Context = ...;
+var persistence:Context = ...;
+#cdb
+
+#par If you'd then build another Context that needs injections from messaging and persistence,
+you could instruct the ContextBuilder to use both Contexts as parents: #par
+
+#cdb
+<parsley:ContextBuilder config="{BookStoreConfig}" #hlt parents="{[messaging, persistence]}" #hlt/>
+#cdb
+
+#par When using the ContextBuilder tag it would also automatically look for a parent in the view hierarchy.
+So in case it would find a parent, you'd have three parents. #par
+
+#par You can alternatively instruct the ContextBuilder not to look for a parent in the hierarchy: #par
+
+#cdb
+<parsley:ContextBuilder 
+    config="{BookStoreConfig}" 
+    parents="{[messaging, persistence]}"
+    #hlt findParentInView="false" #hlt
+/>
+#cdb
+
+#par Finally, of course the ContextBuilder API also allows you to use this feature. You simply invoke
+the #cdi parent #cdi method multiple times: #par
+
+#cdb
+ContextBuilder
+    .newSetup()
+    .viewRoot(viewRoot)
+    #hlt .parent(messaging) #hlt
+    #hlt .parent(persistence) #hlt
+    .newBuilder()
+    .config(FlexConfig.forClass(BookStoreConfig))
+    .build();
+#cdb
+
+
+#sub Context Precedence for Dependency Lookups #sub
+
+#par When a Context looks up a dependency, it first looks if it finds it amongst its own definitions. If unsuccessful
+it starts to look into the parents one after the other. The order will be the same that you specified when
+constructing the Context. When there is also a parent that was automatically found in the view hierarchy,
+it will always be used as the last Context for lookups. #par
+
+#par When using dependency injection by type (without specifying an id), it is important that the dependency
+is not ambiguous. It means that a single Context should not have more than managed object of a matching type.
+It does not matter whether other Contexts have matching types, too, as the lookup will stop at the Context
+where the first matching instance is found. #par
+
+
+#sub ApplicationDomains for Shared Contexts #sub
+
+#par Realistically the only option for a Shared Context is to exist in the root ApplicationDomain. If you use
+multiple modules that all get loaded into a child ApplicationDomain, it would become difficult to share
+anything between those modules which is not in the root ApplicationDomain. This is because sibling 
+ApplicationDomains do not see each others class definitions. This also means that such a shared module
+cannot be unloaded once it has been used. This is important to keep in mind when planning for the
+maximum memory consumption of very large applications. #par 
+
+
+#sub Loading and Initializing Shared Contexts on Demand #sub
+
+#par The features introduced with version 2.4 are only the start. That version added the low-level hooks in the
+core APIs to be able to build a flexible Context hierarchy where each Context can have multiple parents.
+As you could see from the samples given above, you still have to manage these shared Contexts yourself.
+So it is the responsibility of your application to know which parents are needed by which Context and
+where and how to obtain and construct these Context instances. So for a very large application you'd
+probably still build some level of infrastructure on top of this existing Parsley feature. #par
+
+#par In the future (sometime after the release of Parsley 3.0), there'll be a separate Parsley extension
+project that builds on top of this. It would allow you to specify available shared Contexts in a simple
+XML manifest and the framework will then load and initialize the parents when they are needed for the first
+time. #par
+
+
+
+ 
+

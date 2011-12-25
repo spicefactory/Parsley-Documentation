@@ -1,0 +1,69 @@
+#sc2 extensions_init Initializing Extension Modules #sc2
+
+#par When you create a set of configuration tags and possibly some scope-wide managers that integrate with them,
+you may want to offer your users a convenient way to activate that extension: #par
+
+#cdb
+<parsley:ContextBuilder config="{MyConfig}">
+    <app:NavigationSupport/>
+</parsley:ContextBuilder>
+#cdb
+
+#par Here a custom MXML tag as a child of the #cdi <ContextBuilder> #cdi tag takes the role of doing all the necessary
+setup to make the extension available for that Context. #par
+
+#par Child tags of #cdi <ContextBuilder #cdi have to implement the #cdi ContextBuilderProcessor #cdi interface: #par
+
+#cdb
+public class NavigationSupportTag implements BootstrapConfigProcessor {
+
+    private static var initialized:Boolean = false;
+
+    public static function initialize () : void {
+        if (initialized) return;
+        
+        Metadata.registerMetadataClass(EnterScreenDecorator);
+        Metadata.registerMetadataClass(ExitScreenDecorator);
+
+        BootstrapDefaults.config.scopeExtensions
+            .forType(NavigationManager)
+            .setImplementation(DefaultNavigationManager);
+    
+        [...]
+        
+        initialized = true;
+    }
+
+    public function processConfig (config:BootstrapConfig) : void {
+        initialize();
+    }
+    
+}
+#cdb  
+
+#par The #cdi processBuilder #cdi method of the implemented interface will simply delegate to a public static method.
+This has the advantage that you can use the same class programmatically, in cases where you don't use the MXML tags
+to declare the Context: #par
+
+#cdb
+NavigationSupport.initialize();
+#cdb
+
+#par Like shown in our example, most common tasks in such an initializer are registering custom metadata tags
+or scope-wide managers. #par
+
+#par If you also offer your tags in an XML variant built on top of the custom configuration namespace
+support in Parsley you may want to prefer to offer them with a separate initializer class. This
+way you would make sure that users who do not use XML configuration do not end up with the entire
+Spicelib XML-Object-Mapper framework compiled into their SWF. #par
+
+#cdb
+<parsley:ContextBuilder config="{MyConfig}">
+    <app:NavigationSupport/>
+    <app:NavigationXmlSupport/>
+</parsley:ContextBuilder>
+#cdb
+
+#par In the example above XML support is activated explicitly in addition to the core extension module. 
+The XML initializer is responsible for configuring the custom XML configuration namespace. For details see
+#ref extensions_mxml_xml_namespace_xml #ref. #par

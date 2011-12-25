@@ -1,0 +1,91 @@
+#sc2 view_config_automatic Automatic Component Wiring #sc2
+
+#par Since version 2.2 you can also rely on an automatic variant of view wiring and avoid the need to add framework
+specific configuration to individual component classes. This mode was not trivial to implement as Parsley is 
+a multi-Context environment and for automatic wiring there is the additional difficulty to know which Context
+each component should be wired to. This is now done based on their placement in the view hierarchy. A component
+is wired to the nearest Context in the hierarchy above the component. #par
+
+#par Autowiring has to be explicitly activated: #par
+
+#par MXML #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:ViewSettings autowireComponents="true"/>
+    <parsley:FlexConfig type="{MyConfig}"/>
+</parsley:ContextBuilder>
+#cdb
+
+#par ActionScript #par
+
+#cdb
+BootstrapDefaults.config.viewSettings.autowireComponents = true;
+#cdb
+
+#par The line above must be executed before the first Context gets created. As you might expect the autowireFilter
+is pluggable like almost everything in Parsley. So you can implement your own selection logic, telling the framework
+which components should be wired. The default implementation simply wires all components which are listed in 
+the Context configuration (in MXML or XML) with the new #cdi <View> #cdi tag. This way configuration is really
+centralized and you can see which objects and views are managed by the container by examining a single 
+configuration class. A sample configuration snippet might look like this: #par
+
+#cdb
+<View type="{MainView}"/>
+<Object type="{MainViewPM}"/>
+
+<View type="{StatusBar}"/>
+<Object type="{StatusBarPM}"/>
+
+<View type="{ImageTileList}"/>
+<Object type="{ImageTileListPM}"/>
+
+<View type="{ImagePreviewWindow}"/>
+<Object type="{ImagePreviewWindowPM}"/> 
+#cdb
+
+#par Here we simply list the views and their corresponding presentation models as pairs. 
+Only the views listed here will get wired to the Context. In this example we are only using
+empty View tags, but you might also nest tags within them the same way like with Object tags.
+See #ref view_config_mxml_xml #ref for details. #par
+
+#par As you can see in the example above we are using the <View> tags to declare custom views that are specific 
+to the application. The built-in components from the Flex SDK that live in the #cdi spark.* #cdi or #cdi mx.* #cdi
+packages or the ones from the Flash Player API (#cdi flash.* #cdi packages) are prefiltered to improve performance,
+so they cannot be configured with #cdi <View> #cdi tags if you use the default setup. It's usually not a good idea
+to configure them like this as you have lots of them and the matching to their configuration can become challenging. 
+So normally you'd wire your custom panels, windows, popups, tabs and boxes and pass things down to the components that those views
+contain. #par 
+
+#par But this is only the default mechanism. 
+If you need more finegrained control over which components to wire you can simply implement your own autowire filter
+and for example use a mechanism that selects components based on the package they belong to like some other
+frameworks handle this. The easiest way is to simply extend #cdi DefaultViewAutowireFilter #cdi
+and overwrite the #cdi filter #cdi method: #par
+
+#cdb
+public class MyAutowireFilter extends DefaultViewAutowireFilter {
+
+    public override function filter (view:DisplayObject) : ViewAutowireMode {
+        if (... someCondition ...) {
+            return ViewAutowireMode.ALWAYS;
+        }
+        else {
+            return ViewAutowireMode.NEVER;
+        }
+    }
+
+}
+#cdb
+
+#par And finally install that filter like this: #par
+
+#cdb
+<parsley:ContextBuilder>
+    <parsley:ViewSettings 
+        autowireComponents="true" 
+        autowireFilter="{new MyAutowireFilter()}"
+    />
+    <parsley:FlexConfig type="{MyConfig}"/>
+</parsley:ContextBuilder>
+#cdb

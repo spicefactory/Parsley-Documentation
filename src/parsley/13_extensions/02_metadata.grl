@@ -1,0 +1,294 @@
+#sc2 extensions_metadata Custom Metadata Tags #sc2
+
+#par Being one of the most widely used extension points it allows to create custom metadata you can add
+to any object managed by Parsley. Like with most other extension points all the builtin tags of the core framework
+like #cdi [Inject] #cdi or #cdi [MessageHandler] #cdi are implemented as extensions themselves. #par
+
+
+
+
+#sc3 extensions_metadata_decorator The ObjectDefinitionDecorator Interface #sc3
+
+#par Every custom metadata tag has to implements a simple interface with just one method: #par
+
+#cdb
+public interface ObjectDefinitionDecorator {
+    
+    function decorate (builder:ObjectDefinitionBuilder) : void;
+    
+}
+#cdb
+
+#par The method will be invoked by the container for each configuration tag it encounters for
+an object that was added to the container. It doesn't matter whether it is a builtin configuration tag
+or a custom extension tag, or whether it is a metadata tag, an MXML or XML tag. As long as the tag
+is mapped to a class that implements this interface the container will invoke it for each tag on each object. #par
+
+#par The #cdi builder #cdi parameter it passes to the decorator can be used to specify configuration options for the
+object definition it currently processes. #par
+
+
+
+
+#sc3 extensions_metadata_tasks Tasks performed by Custom Metadata #sc3
+
+#par A custom metadata tag usually performs one or both of the following two tasks: #par
+
+#lst
+#lse Apply one or more of the existing framework features. The framework's configuration DSL accessible through 
+the #cdi ObjectDefinitionBuilder #cdi instance passed to the decorator gives convenient access to core features,
+like specifying injections to be performed or registering message receivers. See #ref extensions_definitions #ref
+for more details. #lse
+
+#lse Add new functionality. Sometimes none of the existing features are sufficient for solving a problem. In this
+case you can apply a custom #cdi ObjectProcessor #cdi that configures each instance created from a definition.
+See #ref extensions_metadata_processor #ref for details. #lse
+#lst
+
+#par For your own applications you usually implement two types of custom metadata tags. One type is a fully generic,
+reusable extension. In this case you are of course invited to blog about it, post on our forum or contribute the
+tag to the framework, if you think that it is generally useful. The other type of tag would be specific to your application.
+Even if it is just reused in a few areas of a single application, a tag may very well help removing a lot of unnecessary
+plumbing. #par
+
+
+
+
+#sc3 extensions_metadata_sample Sample Implementations #sc3
+
+#par As the builtin tags all use this extension point themselves, you can examine these implementations
+as a starting point for you own tags. Most of the tag implementations reside in the #cdi parsley-config #cdi
+source folder in the package #cdi org.spicefactory.parsley.tag #cdi. As you'll see most of them are fairly
+simply, only delegating to the configuration DSL. You should always strive to reduce the logic in your tag 
+implementations, making it easier to apply the feature programmatically in cases where using metadata is not appropiate. #par
+
+#par To give a simple example, lets assume that you have an application that dispatches NavigationEvents managed by
+Parsley whenever the user navigates to a new tab or window. Instead of using the generic #cdi MessageHandler #cdi
+tag for getting notified you could create a custom tag that applies only for these navigation events: #par
+
+#cdb
+[NavigateTo("addUserForm")]
+public function handleNavigation () : void 
+#cdb
+
+#par The implementation for this tag would look like this: #par
+
+#cdb
+[Metadata(types="method", multiple="true")]
+public class NavigateTo implements ObjectDefinitionDecorator {
+
+    [DefaultProperty]
+    public var target:String;
+
+    [Target]
+    public var method:String;
+
+    public var scope:String = ScopeName.GLOBAL;    
+
+    public function decorate (builder:ObjectDefinitionBuilder) : void {
+        builder
+            .method(method)
+                .messageHandler()
+                    .scope(scope)
+                    .type(NavigationEvent)
+                    .selector(target);
+    }
+    
+}
+#cdb
+
+#par The #cdi [Metadata] #cdi tag is required to configure the metadata tag, it is explained in #ref extensions_metadata_register #ref. #par
+
+#par The #cdi [DefaultProperty] #cdi tag marks a property that can be used without attribute name. Without that tag you'd need to always
+explicitly specify the attribute name, so the example from above would read: #cdi [NavigateTo(target="addUserForm")] #cdi. #par
+
+#par The #cdi [Target] #cdi attribute tells the framework that this is the property that holds the name of the member of the class
+(property or method). For metadata to be placed on the class level this is not required of course. #par
+
+#par The
+#cdi scope #cdi property allows to define handlers only interested in navigation events for a particular scope. #par
+
+#par Finally we use these property values in registering a regular #cdi MessageHandler #cdi through the #cdi ObjectDefinitionBuilder #cdi.
+We are passing the scope value, using the global scope as the default in case the attribute is omitted. The name of the navigation 
+target is used as the selector for the handler, while the message type (#cdi NavigationEvent #cdi) is hard-coded in this case. #par
+
+
+
+
+#sc3 extensions_metadata_processor The ObjectProcessor Interface #sc3
+
+#par In the simple example in the preceding section we merely applied an existing feature using the configuration DSL.
+When you want to add custom functionality not provided out of the box, some more work is required. In many cases this
+involves performing some configuration task on the target object once it gets instantiated, but before it is passed
+to the application. For this purpose an #cdi ObjectProcessor #cdi can be used. This is the interface that needs
+to be implemented: #par
+
+#cdb
+public interface ObjectProcessor {
+    
+    function preInit () : void;
+
+    function postDestroy () : void;
+    
+}
+#cdb
+
+#par Again, fairly simple. The #cdi preInit #cdi method will be invoked after the object was instantiated, but before its
+#cdi [Init] #cdi method will be invoked (in case it has one). Likewise the #cdi postDestroy #cdi method will be invoked
+when the object was removed from the Context. #par
+
+
+#sub The 1:N Relationship between Decorators and Processors #sub
+
+#par Understanding this concept is important before implementing your first #cdi ObjectProcessor #cdi. 
+There is a 1:N relationship between a decorator and a processor. When you implement
+the #cdi ObjectDefinitionDecorator #cdi tag like shown in preceding sections, it will be invoked once for a particular
+definition in your Context. If it is a definition created by an #cdi <Object> #cdi tag or any other tag which represents a
+singleton, then the decorator will also map to only one processor. But for other types of objects, like those declared
+with #cdi <DynamicObject> #cdi or #cdi <DynamicCommand> #cdi multiple instances may be created from a single definition.
+In this case one decorator maps to multiple processors, as a new processor gets created for each new instance. #par
+
+#par This mechanism has the advantage that you can keep state that only
+applies to a single target instance inside the processor. This greatly simplifies a lot of common tasks performed by processors
+as most processors need to unregister some configuration artifact in the #cdi postDestroy #cdi method which they
+created and applied in the #cdi preInit #cdi method.
+This simplification is the major reason why version 2.3 introduced the distinction between decorators and processors
+and the 1:N relationship between them. Before that many custom tags that had been built were broken as they did not
+deal with the fact that one decorator may be applied to multiple instances, often ending up with patterns where
+the configuration of the second object overwrote the internal state kept for the first object, thus introducing bugs
+that were hard to track down by application developers. #par
+
+
+#sub Example: The ManagedEventsProcessor #sub
+
+#par Due to this 1:N relationship you also need a factory that creates a new processor for each new instance created for
+a particular definition. That sounds more complicated than it actually is, so let's look at an example, 
+the implementation for the builtin #cdi [ManagedEvents] #cdi
+tag, albeit somewhat simplified for the sake of brevity. #par
+
+#cdb
+public class ManagedEventsProcessor implements ObjectProcessor {
+    
+    private var target:IEventDispatcher;
+    private var names:Array;
+    private var dispatcher:Function;
+    
+    function ManagedEventsProcessor (target:ManagedObject, names:Array, dispatcher:Function) {
+        this.target = IEventDispatcher(target.instance);
+        this.names = names;
+        this.dispatcher = dispatcher;
+    }
+    
+    public function preInit () : void {
+        for each (var name:String in names) {        
+            target.addEventListener(name, dispatcher);
+        }
+    }
+    
+    public function postDestroy () : void {
+        for each (var name:String in names) {        
+            target.removeEventListener(name, dispatcher);
+        }
+    }
+    
+    public static function newFactory (names:Array, 
+                                       dispatcher:Function) : ObjectProcessorFactory {
+        var params:Array = [names, dispatcher];
+        return ObjectProcessorFactories.newFactory(ManagedEventsProcessor, params);
+    }
+    
+}
+#cdb
+
+#par The #cdi preInit #cdi and #cdi postDestroy #cdi methods simply loop through the event names and add the listeners
+when the object gets created and remove them once the object gets removed from the Context. #par
+
+#par Then there is a static
+#cdi newFactory #cdi method that can be used to create a factory for this processor. This is a pattern that is not
+required, but recommended, as it is quite straightforward and all the builtin processors use this pattern, too. 
+If you use the #cdi ObjectProcessorFactories #cdi utility function like above (again not required but convenient),
+you need to know that it is based on a convention how the constructor of your processor has to look like.
+The utility function expects the class of the processor it should create and any number of parameters to pass
+to the constructor. But as you see the actual constructor has one additional parameter which is of type
+#cdi ManagedObject #cdi. The utility function will always pass the actual target instance as the first
+parameter, followed but the ones you specified. #par
+
+#par Finally, in the corresponding decorator, you need to add the processor to the definition: #par
+
+#cdb
+[Metadata(types="class", multiple="true")]
+public class ManagedEvents implements ObjectDefinitionDecorator {
+
+    [DefaultProperty]
+    public var names:Array;
+    
+    public var scope:String;
+    
+    public function decorate (builder:ObjectDefinitionBuilder) : void {
+    
+        var sm:ScopeManager = builder.config.context.scopeManager;
+        var dispatcher:Function = new MessageDispatcher(sm, scope).dispatchMessage;
+        
+        builder
+            .lifecycle()
+                #hlt .processorFactory(ManagedEventsProcessor.newFactory([event], dispatcher)); #hlt
+    }
+    
+}
+#cdb
+
+#par Here we use the static factory method we added to the processor. The framework will take care of the rest
+and make sure you get a fresh instance of your processor for each target to be configured. #par
+
+#par Note that the example above differs from the real implementation of the decorator for managed events.
+The real tag simply uses the configuration DSL to specify the managed events, but that way we could not
+demonstrate how to directly connect a processor with a decorator. #par
+
+
+
+
+#sc3 extensions_metadata_register Registering Metadata Tags #sc3
+
+#par Finally you have to tell the framework and the Flex compiler about your custom metadata. #par
+
+#par The Parsley support for metadata configuration tags is built on top of the Spicelib Reflection API which
+offers the capability to map attributes of metadata tags to properties of classes, bringing AS3 metadata a bit closer
+to the type-safe nature of Java Annotations for example. See ?ref reflection_metadata_mapping ?ref in the Spicelib Manual
+for details. #par
+
+#par Making the custom tag available for metadata configuration requires three steps: #par
+
+
+#sub 1. Add the #cdi [Metadata] #cdi tag to the class declaration: #sub
+
+#cdb
+[Metadata(types="method")]
+public class NavigatorTo implements ObjectDefinitionDecorator {
+#cdb
+
+#par With the types attribute we specify on which declarations we want the tag to be processed. In this case
+we only allow it on method declarations. Other tags may be placed on properties or on the class level. #par
+
+
+#sub 2. Add the class to the Spicelib Metadata Support: #sub
+
+#cdb
+Metadata.registerMetadataClass(NavigatorTo);
+#cdb
+
+#par This must happen before you create your first Parsley #cdi Context #cdi. #par
+
+
+#sub 3. Add the metadata tag to mxmlc or compc compiler arguments: #sub
+
+#cdb
+-keep-as3-metadata+=NavigatorTo
+#cdb
+
+#par If you create a reusable library containing Parsley tag extensions it is recommended to compile the library into an SWC.
+In this case you no longer have to explicitly add the compiler flag for applications that use this SWC as they will be automatically
+included for all applications that use this SWC. In this case you only have to provide the compiler argument to compc when
+creating the SWC. #par
+
+#par For some general explanations on metadata configuration, like metadata inheritance or inconsistencies of the Flex compiler
+in dealing with metadata, see #ref config_metadata #ref. #par

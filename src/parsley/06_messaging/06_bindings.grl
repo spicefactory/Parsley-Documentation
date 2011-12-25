@@ -1,0 +1,40 @@
+#sc2 messaging_bindings MessageBindings #sc2
+
+#par Message Bindings are simply a shortcut, where you want to bind a property of a class to a property of a message,
+that should be updated whenever a message of a matching type is dispatched. 
+In the following example the user property of the example will be set to the value of the user property of
+the #cdi LoginMessage #cdi instance whenever such a message is dispatched. #par
+
+#sub Metadata Example #sub
+
+#cdb
+[MessageBinding(messageProperty="user",type="com.bookstore.events.LoginMessage")]
+public var user:User;
+#cdb
+
+#sub MXML Example #sub
+
+#cdb
+<Object type="{LoginServiceImpl}">
+    <MessageBinding 
+        targetProperty="user" 
+        messageProperty="user"
+        type="{LoginMessage}"
+    />
+</Object>
+#cdb
+ 
+#sub XML Example #sub
+
+#cdb
+<object type="com.bookstore.services.LoginServiceImpl">
+    <message-binding 
+        target-property="user" 
+        message-property="user"
+        type="com.bookstore.events.LoginMessage"
+    />
+</object>
+#cdb
+
+#par As with #cdi MessageHandlers #cdi you may want to use Selectors with #cdi MessageBindings #cdi. 
+See #ref messaging_selectors #ref for details. #par

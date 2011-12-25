@@ -1,0 +1,57 @@
+#sc2 tagref_injection Dependency Injection #sc2
+
+
+#sc3 tagref_injection_properties Inject for Properties #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [Inject] #cdi #tbr
+#tbr may be placed on # property declaration #tbr
+#tbr MXML and XML Namespace # N/A #tbr
+#tbr MXML Tag # N/A #tbr
+#tbr XML Tag # N/A #tbr
+#tbr Detailed Explanation # #ref injection_property_type #ref and #ref injection_property_id #ref #tbr
+#tbr Comment # For MXML or XML see #ref tagref_tags_property #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi id #cdi # optional # Specifies the id of the object to inject, if omitted injection by type is performed. #tbr
+#tbr #cdi required #cdi # optional # Indicates whether the dependency is required, default if omitted: #cdi true #cdi. #tbr
+#tbl
+
+
+#sc3 tagref_injection_methods Inject for Methods #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [Inject] #cdi #tbr
+#tbr may be placed on # method declaration #tbr
+#tbr MXML and XML Namespace # N/A #tbr
+#tbr MXML Tag # N/A #tbr
+#tbr XML Tag # N/A #tbr
+#tbr Detailed Explanation # #ref injection_method #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#par None #par
+
+
+#sc3 tagref_injection_constructor InjectConstructor #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [InjectConstructor] #cdi #tbr
+#tbr may be placed on # class declaration #tbr
+#tbr MXML and XML Namespace # N/A #tbr
+#tbr MXML Tag # N/A #tbr
+#tbr XML Tag # N/A #tbr
+#tbr Detailed Explanation # #ref injection_constructor #ref #tbr
+#tbr Comment # For MXML or XML see #ref tagref_tags_constructor #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#par None #par

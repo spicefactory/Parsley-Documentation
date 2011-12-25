@@ -1,0 +1,64 @@
+#sc2 messaging_injected_dispatchers Injected MessageDispatchers #sc2
+
+#par Sometimes you don't want to work with events for your application messages. Somehow several event semantics may not
+make much sense in a particular scenario. Application events managed by Parsley cannot "bubble", #cdi stopPropagation #cdi
+would not have any effect in the Parsley message processing sequence and for fully decoupled messaging you may even want
+to avoid that the message receiver can get hold of the message dispatcher through #cdi event.target #cdi. #par
+
+#par In those cases Parsley offers the option to use any class as an application message, whether it extends #cdi flash.events.Event #cdi
+or not. You can then request the framework to inject a message dispatcher function that you can use for your custom application messages.
+Assuming you created the following simple message class: #par
+
+#cdb
+class LoginMessage {
+
+    public var user:User;
+    
+    public var role:String;
+    
+    function LoginMessage (user:User, role:String) {
+        this.user = user;
+        this.role = role;
+    }
+    
+}
+#cdb
+
+#par You can then use it in a service like this: #par
+
+#cdb
+public class LoginServiceImpl implements LoginService {
+
+    [MessageDispatcher]
+    public var dispatcher:Function;
+
+    [...]
+    
+    private function handleLoginResult (user:User) : void {
+        dispatcher(new LoginMessage(user));
+    }
+    
+}
+#cdb
+
+#par Now your service does not extend #cdi EventDispatcher #cdi. Instead it declares a variable of type #cdi Function #cdi
+annotated with the #cdi [MessageDispatcher] #cdi tag which instructs Parsley to inject a message dispatcher function 
+on object creation. You can then simply pass any kind of object to this dispatcher function. #par
+
+#sub MXML Example #sub
+
+#cdb
+<Object type="{LoginServiceImpl}">
+    <MessageDispatcher property="dispatcher"/>
+</Object>
+#cdb
+ 
+#sub XML Example #sub
+
+#cdb
+<object type="com.bookstore.services.LoginServiceImpl">
+    <message-dispatcher property="dispatcher"/>
+</object>
+#cdb
+
+#par If you don't want to use Metadata tags you can also request the dispatcher injection with MXML or XML configuration. #par

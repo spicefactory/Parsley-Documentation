@@ -1,0 +1,207 @@
+#sc2 config_mxml MXML Configuration #sc2
+
+#par This is the only Parsley configuration mechanism that (obviously) can only be used in Flex Applications. 
+Everything else is available for Flex and Flash Applications. #par
+
+#par Let's assume you want to configure the following two classes: #par
+
+#cdb
+package com.bookstore.service {
+
+class LoginServiceImpl implements LoginService {
+
+    public var timeout:int;
+    
+    public function login (username:String, password:String) : void {
+        // execute service    
+    }
+    
+}
+}
+#cdb
+
+#cdb
+package com.bookstore.actions {
+
+class LoginAction {
+
+    [Inject]
+    public var service:LoginService
+    
+    [MessageHandler]
+    public function handleLoginEvent (event:LoginEvent) : void {
+           service.login(event.username, event.password); 
+    } 
+    
+}
+}
+#cdb
+
+#par As you see several features are already configured with metadata tags. 
+See #ref injection_intro #ref and #ref messaging_intro #ref for details on these features. #par
+
+#par We now have to tell
+the container to manage these classes and create the an MXML configuration file. #par
+
+#cdb
+<Objects 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:services="com.bookstore.services.*"
+    xmlns:actions="com.bookstore.actions.*"
+    xmlns="http://www.spicefactory.org/parsley"
+    >
+        
+    <fx:Declarations>
+    
+        <services:LoginServiceImpl timeout="3000"/>
+
+        <actions:LoginAction/>
+        
+    </fx:Declarations>
+    
+</Objects> 
+#cdb
+
+
+#par In addition to the metadata tags you can use these MXML tags
+for additional configuration, like the timeout value in the example above. 
+The example uses a special root tag from the Parsley namespace provided by the framework.
+It allows the use of properties within the configuration class. Earlier versions simply
+used #cdi fx:Object #cdi as a root tag which is still supported, but does not allow
+the use of external properties. #par
+
+
+
+#sub Framework Initialization #sub
+
+#par Finally you have to initialize the container. Assuming you saved the configuration in BookstoreConfig.mxml,
+you can initialize it with: #par
+
+#cdb
+<parsley:ContextBuilder config="{BookStoreConfig}"/>
+#cdb
+
+#par In many applications the simple tag shown above could be the only direct dependency on the Parsley framework.
+To initialize the application you can use [Init] metadata tags on methods of classes that should execute 
+logic on application startup. See #ref lifecycle_methods #ref for details. #par
+
+#par In theory you could also directly interact with the Parsley Context: #par
+
+#cdb
+var context:Context = FlexContextBuilder.build(BookStoreConfig, this);
+var initializer:BookStoreInitializer 
+    = context.getObjectByType(BookStoreInitializer) as BookStoreInitializer;
+initializer.execute();
+#cdb
+
+#par But this kind of usage is not recommended. In normal application code there is usually no need to use the Parsley API
+directly. The API is primarily for extending the framework or for building custom frameworks on top of Parsley. #par
+
+
+#sub Context Description for Log Output #sub
+
+#par If you want to have control over the description for a particular Context in log statements, you
+can simply set it in the #cdi ContextBuilder #cdi tag: #par
+
+#cdb
+<parsley:ContextBuilder config="{MyConfig}" description="Main"/>
+#cdb
+
+#par The toString output for the Context will then be: #par
+
+#cdb
+[Context(Main)]
+#cdb
+
+#par If you do not set the description explicitly it will be generated from the names of the configuration
+artifacts the Context was configured with, and thus could eventually be quite long: #par
+
+#cdb
+[Context(FlexConfig{MainConfig,ServiceConfig},XmlConfig{logging.xml},RuntimeConfig{2 instance(s)})]
+#cdb
+
+
+
+#sub Using Parsleys MXML Tags #sub
+
+#par There is a variant of the MXML configuration mode shown above where you use special Parsley tags instead of 
+normal object tags: #par
+
+#cdb
+<Objects
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns="http://www.spicefactory.org/parsley"
+    >
+    
+    <fx:Script>
+        <![CDATA[
+            import com.bookstore.services.*;        
+            import com.bookstore.actions.*;        
+        ]]>
+    </fx:Script>
+    
+    <fx:Declarations>
+    
+        <Object type="{LoginServiceImpl}">
+            <Property name="timeout" value="3000"/>
+        </Object>
+    
+        <Object type="{LoginAction}"/>
+        
+    </fx:Declarations>
+    
+</Objects> 
+#cdb 
+
+#par These special tags give you some additional features that are not available when using normal tags like in the first example.
+Both approaches have pros and cons: #par
+
+#sub Advantages of normal MXML tags: #sub
+
+#lst
+#lse Simple and straightforward to use. #lse
+#lse No knowledge of Parsley configuration tags necessary. #lse
+#lse Compiler checks for the types of the property values. #lse
+#lst
+
+#sub Advantages of Parsley MXML tags: #sub
+
+#lst
+#lse Allows Constructor Injection. Some consider this as the cleanest way of Dependency Injection in terms
+of encapsulation as you can create immutable classes this way. You cannot use Constructor Injection with normal tags
+since in that case the MXML compiler generates the object creation code and Parsley only gets hold of the object after
+it was instantiated to perform additional configuration. When using normal tags your classes are required to have
+a no-argument constructor. #lse
+
+#lse Allows to define an object to be lazy (#cdi <Object lazy="true" type="..."/> #cdi) which means that it won't be
+initialized and configured before the first time you use it. #lse
+
+#lse Allows to configure an object as a DynamicObject/non-singleton (#cdi <DynamicObject type="..."/> #cdi). This means that
+every time this object gets fetched from the container or injected into another object, the container will create a new
+instance. #lse
+
+#lse Allows to use custom tags. Parsley 2 is easy to extend. You can create custom extensions with a single class that can
+then be used as custom metadata, MXML or XML. For examples see #ref extensions_intro #ref. #lse
+#lst
+
+
+#sub Dynamic Objects #sub
+
+#par Apart from the #cdi <Object> #cdi tag already introduced you could alternatively use the #cdi <DynamicObject> #cdi tag.
+It allows the same type of child tags as the #cdi <Object> #cdi tag: #par
+
+#cdb
+<DynamicObject type="{LoginServiceImpl}">
+    <Property name="timeout" value="3000"/>
+</DynamicObject>
+#cdb
+
+#par In contrast to the #cdi <Object> #cdi which just creates one instance and reuses it for subsequent injection requests,
+this tag creates a new instance for each request. So each object or view depending on this service would get its own instance.
+The lifecycle of such a dynamic object gets synchronized with the object it is injected into. So when the target object gets
+removed from the Context, the injected dynamic object will also get removed, since it was specifically created for that one target
+and is no longer needed. #par
+
+#par In addition for serving as a source for injections, such a dynamic object can also be created programmatically based on 
+the MXML configuration and then disposed by the application at any point in time. Details for programmatic access can be
+found in #ref lifecycle_dynamic #ref. #par

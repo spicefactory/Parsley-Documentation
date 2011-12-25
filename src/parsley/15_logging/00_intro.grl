@@ -1,0 +1,9 @@
+#sc1 logging_intro Logging Configuration #sc1
+
+#par Since logging configuration changes very often (depending on deployment scenario and depending on personal
+settings of developers) it is often best to keep them in external XML configuration files. For that reason
+Parsley offers a set of XML tags for logging configuration. #par
+
+#par For Flex Application you can use XML tags to build standard Flex LogTargets. For Flash Applications Parsley
+includes a separate set of tags that build Loggers for the Spicelib Logging Framework instead. In the final
+section we'll demonstrate how you can configure the internal log output of Parsley Framework classes. #par

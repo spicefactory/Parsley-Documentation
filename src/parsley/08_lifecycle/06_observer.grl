@@ -1,0 +1,51 @@
+#sc2 lifecycle_observer Lifecycle Observer Methods #sc2
+
+#par Added in 2.2 this functionality opens some new doors for convenient ways to observe or modify other objects
+without the need to add something to their configuration. This might be particularly useful for short-lived objects
+like views or commands which might enter and leave the Context at any point in time and thus are not valid sources
+for regular injection points. By observing these instances you can still get hold of a reference to such a short-lived
+object. #par
+
+#cdb
+[Observe]
+public function enhance (panel:ShoppingCartPanel) : void;
+#cdb
+
+#par Now this method will be invoked whenever a new instance of #cdi ShoppingCartPanel #cdi (or any subclass) has
+been fully configured. #par
+
+#par The default without attributes like shown above is equivalent to: #par
+
+#cdb
+[Observe(phase="postInit", scope="global")]
+#cdb
+
+#par So you could also use a different phase of the lifecycle (like #cdi preDestroy #cdi 
+to get notified when an object leaves the Context) and can also control the scope and listen 
+only for matching types in the same Context with #cdi scope="local" #cdi for example. 
+Scoping works the same way like scopes for messaging as explained in #ref messaging_scopes #ref. #par
+
+#par With this mechanism you simply plug in some new class that contains such a tag and suddenly existing classes
+can be enhanced without the need to touch their configuration. This is somewhat analogous to the existing
+#cdi [Factory] #cdi tag which can be used to customize the object instantiation. With this tag you can customize
+the object configuration after it has been instantiated. In both cases you do not even depend on the Parsley API
+in any way. #par
+
+#sub Supported lifecycle phases #sub
+
+#tbl
+#tbr #cdi preConfigure #cdi # Invokes the observer right after the object was instantiated but before any dependency injection
+was performed. #tbr
+
+#tbr #cdi preInit #cdi # Invokes the observer after dependency injection has been performed but before the init method of
+the object (if available) gets invoked. #tbr
+
+#tbr #cdi postInit #cdi # The default if the phase attribute is omitted. Invokes the observer after dependency injection
+has been performed and the init method of the object (if available) has been invoked. #tbr
+
+#tbr #cdi preDestroy #cdi # Invoked when the object is removed from the Context but before the destroy method
+on the object (if available) gets invoked. #tbr
+
+#tbr #cdi postDestroy #cdi # Invoked when the object is removed from the Context and after the destroy method
+on the object (if available) was invoked. #tbr
+#tbl

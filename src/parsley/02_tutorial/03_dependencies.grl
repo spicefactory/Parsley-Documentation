@@ -1,0 +1,65 @@
+#sc2 tutorial_dependencies Defining Object Dependencies #sc2
+
+#par This is probably the most frequently used feature of Parsley. Defining dependencies is a lot more convenient since 
+Parsley 2 where we introduced configuration with Metadata or MXML in addition to XML files. #par
+
+#sub Using the #cdi [Inject] #cdi metadata tag #sub
+
+#par You can use the tag on properties: #par
+
+#cdb
+[Inject]
+public var loginService:LoginService;
+#cdb
+
+#cdb
+[Inject]
+public function set loginService (service:LoginService) : void {
+#cdb
+
+#par Or you can use it on methods to declare multiple dependencies at once: #par
+
+#cdb
+[Inject]
+public function init (loginService:LoginService, cartService:CartService = null) : void {
+#cdb
+
+#par The nice thing in the example above is that Parsley will also reflect on the parameter types
+and treat optional parameters as optional dependencies. So in this example the container will throw an 
+Error if the #cdi LoginService #cdi is missing, but silently skip the #cdi CartService #cdi if it is
+not present in the container. #par
+
+#par Finally you can also use a similar tag (#cdi [InjectConstructor] #cdi) on the class declaration
+for constructor injection (as the Flex compiler ignores metadata on constructors): #par
+
+#cdb
+[InjectConstructor]
+public class LoginAction {
+
+    function LoginAction (loginService:LoginService, cartService:CartService = null) : void {
+#cdb
+
+#par Again the second (optional) parameter will treated as an optional dependency accordingly #par
+ 
+
+#sub Best Practices #sub
+
+#par In all the examples we showed in this section the dependencies will be selected by type,
+since Parsley will reflect on the property and method parameter types. To benefit from the decoupling
+that an IOC Container offers you should prefer to declare interface types at injection points.
+This way you can switch implementations in the configuration without touching the injection
+points of classes that need these services. #par
+
+#par Of course this only works when you add only a single object matching the type at the
+injection point to the container. If you have several implementation of the same interface
+you'd need to switch to injection by id instead which is only available for properties: #par
+
+#cdb
+[Inject(id="mainLoginService")]
+public var loginService:LoginService;
+#cdb
+
+#par The choice between property, method or constructor injection is up to you. Some prefer
+constructor injection as it enables better encapsulation, allowing you to create immutable classes.
+But constructor injection in Flex has some limitations, in particular if you assemble the objects
+with MXML configuration, see #ref injection_intro #ref for details. #par

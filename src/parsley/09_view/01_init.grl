@@ -1,0 +1,45 @@
+#sc2 view_init Initializing View Wiring Support #sc2
+
+#par For view wiring each Context needs one or more so called view roots, which is a DisplayObject
+where the framework listens for bubbling events from components that wish to get wired to the Context.
+The mechanism is different whether you are using MXML tags to initialize the Context
+or whether you do that programmatically. #par 
+
+#sub Context intialization with MXML tags #sub
+
+#par In Flex applications you can use the #cdi ContextBuilder #cdi tags introduced with version 2.2.
+Those will automatically use the document object they are placed upon as the view root: #par
+
+#cdb
+<parsley:ContextBuilder config="{BookStoreConfig}"/>
+#cdb
+
+#par In rare cases where this is not desired you may alternatively specify the view root explicitly: #par
+
+#cdb
+<parsley:ContextBuilder config="{BookStoreConfig}" viewRoot="{someOtherDisplayObject}"/>
+#cdb
+
+#sub Programmatic Context intialization #sub
+
+#par If you initialize the framework programmatically the view root has to be specified explicitly: #par
+
+#par XML configuration #par
+
+#cdb
+var viewRoot:DisplayObject = ...;
+XmlContextBuilder.build("bookStoreConfig.xml", viewRoot);
+#cdb
+
+#par Multiple configuration mechanisms #par
+
+#cdb
+var viewRoot:DisplayObject = ...;
+
+ContextBuilder.newSetup()
+    .viewRoot(viewRoot)
+    .newBuilder()
+        .config(FlexConfig.forClass(BookStoreConfig))
+        .config(XmlConfig.forFile("logging.xml"))
+        .build();
+#cdb

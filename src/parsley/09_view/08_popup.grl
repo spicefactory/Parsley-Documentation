@@ -1,0 +1,106 @@
+#sc2 view_popup Flex Popups and Native AIR Windows #sc2
+
+#par For Flex Popups and Native AIR Windows some extra step is required to tell the framework about them.
+This is because those are views which are disconnected from the view
+hierarchy below the main Application component. A Flex Popup usually sits somewhere right below the SystemManager.
+A Native AIR Window even comes with its own SystemManager. So you have to connect both manually to 
+a Parsley #cdi ViewManager #cdi if you want to use view wiring in popups and windows. The following sections
+show you how to do this. #par
+
+
+#sub Flex Popup #sub
+
+#par The following code snippet assumes that it is either part of a wired MXML component or 
+another tpye of object managed by Parsley, so that the injection is actually performed: #par
+
+#cdb
+[Inject]
+public var context:Context;
+
+private function showPopup () : void {
+    var win:TitleWindow = new TitleWindow();
+    // set properties
+    #hlt context.viewManager.addViewRoot(win); #hlt
+    PopUpManager.addPopUp(win, this);
+}
+#cdb
+
+
+#sub Declarative Popups #sub
+
+#par Since version 2.3 you can now also specify popups declaratively within MXML components. This feature is based
+on the Cairngorm 3 popup library, so in order to use it you need to include the corresponding SWC. The Parsley download
+contains both the Flex 3 and Flex 4 version of that library in the #cdi libs #cdi folder. #par
+
+#par The primary addition to the feature set supported by the Cairngorm tag is the transparent and automatic
+wiring to the Parsley Context. So in contrast to the examples shown above, you don't have to explicitly take care
+of connecting the Popup to the Parsley Context. All you have to do is using the #cdi <PopUp> #cdi tag in the 
+Parsley MXML namespace instead of the #cdi <PopUpWrapper> #cdi tag in the Cairngorm namespace. Otherwise the
+Parsley variant supports the same set of attributes like the Cairngorm one: #par
+
+#cdb
+[Bindable]
+private var popupOpen:Boolean;
+
+[...]
+
+<parsley:PopUp open="{popupOpen}" center="true">
+    <myNS:SomePopUp/>
+</parsley:PopUp>
+#cdb
+
+
+#sub AIR Window #sub
+
+#par This is analogous to the wiring of a Flex Popup: #par
+
+#cdb
+[Inject]
+public var context:Context;
+
+private function openWindow () : void {
+    var win:Window = new Window();
+    // set properties
+    #hlt context.viewManager.addViewRoot(win); #hlt
+    win.open();
+}
+#cdb
+
+
+#sub Autoremoval of Contexts in AIR Windows #sub
+
+#par The default behavior for view roots in a Parsley application is to automatically get removed from the Context
+once the view is removed from the stage. For this to work Parsley must listen for stage events. This works reliably
+for Flex Popups without any additional plumbing, but unfortunately native AIR windows show a somewhat flaky behavior 
+in that respect. So if you create a separate Context inside an AIR window and want it to get destroyed automatically 
+when you close the window, some more work is required. #par
+
+#par First switch off the autoremoval feature for the Context you create inside the AIR window: #par
+
+#cdb
+<parsley:ContextBuilder config="...">
+    <parsley:ViewSettings autremoveViewRoots="false"/>
+</parsley:ContextBuilder>
+#cdb
+
+#par This way Parsley does not listen to the stage events of the window, but instead for a custom #cdi "removeView" #cdi
+event. So you have to enhance the wiring of the AIR window shown in the previous section to dispatch this custom event: #par
+
+#cdb
+[Inject]
+public var context:Context;
+
+private function openWindow () : void {
+    var win:Window = new Window();
+    // set properties
+    context.viewManager.addViewRoot(win);
+    #hlt win.addEventListener(Event.CLOSE, function (event:Event) : void {
+        win.dispatchEvent(new Event("removeView"));
+    }); #hlt
+    win.open();
+}
+#cdb
+
+#par In the current version there is no way
+to teach the framework to listen to the #cdi CLOSE #cdi Event directly, so the "translation" step shown above
+is required.  A future version will very likely offer a shortcut for this scenario. #par

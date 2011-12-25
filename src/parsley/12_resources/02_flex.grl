@@ -1,0 +1,22 @@
+#sc2 resources_flex Localized Flex Applications #sc2
+
+#par For Flex Applications the #cdi [ResourceBinding] #cdi tag described in the previous section 
+is currently the only integration feature that is available (and probably the only feature you'll need in a
+Flex environment). Otherwise you should use the Flex Localization features the same way
+like you would without using the framework. There is extensive documentation available in the
+#url http://livedocs.adobe.com/flex/3/html/help.html?content=l10n_1.html Flex Livedocs #url. #par
+
+#par We might think about expanding the Flex Module Support to include management of dynamically
+loaded Flex Resource Modules which are associated with a particular Flex Module. But we will wait
+for feedback on this and see how the Module Support gets used. #par
+
+#sub Initializing the ResourceBinding metadata tag support for Flex #sub
+
+#par Whenever you are using the #cdi FlexContextBuilder #cdi to initialize your MXML-based
+Parsley Configuration the framework will automatically set the required adapter for you.
+In rare cases where you would build a Parsley Flex Application but not use MXML configuration at all (for example
+confining yourself to use XML configuration files) you'd need to set the adapter manually: #par
+
+#cdb
+ResourceBindingDecorator.adapterClass = FlexResourceBindingAdapter;
+#cdb 

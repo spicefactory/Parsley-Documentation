@@ -1,0 +1,30 @@
+#sc2 overview_other_resources Other resources #sc2
+
+#par In addition to the material presented in this manual there are also some articles and sample applications
+available which have been created by other users. If you have created something that you want to see listed here
+just post a link in the #url /forum/ Forum #url. #par
+
+#par Furthermore the download now includes a Hello World sample application created by Tom Sugden which you
+might want to examine first, as this (finally) is the first "official" sample application for Parsley.
+More samples that demonstrate more than just the basic features are likely to follow. 
+You can also find #url http://www.spicefactory.org/parsley/docs/2.2/samples/helloworld/HelloWorld.html this sample online #url,
+View Source is enabled for this application. #par
+
+
+#lst 
+
+#lse #url http://coenraets.org/blog/2009/07/building-a-flex-application-with-the-parsley-framework/ Building a Flex Application with the Parsley Framework #url:
+Article and Sample Application created by Christophe Coenraets. The sample is a small Contact Management application. It can be run with a
+mock service implementation or with BlazeDS. #lse
+
+#lse #url http://joelhooks.com/2009/07/12/inversion-of-control-and-dependency-injection-in-flex-using-the-parsley-application-framework-part-1/ Inversion of Control and Dependency Injection in Flex using the Parsley Application Framework #url:
+Two-part article by Joel Hooks. #lse
+
+#lse #url http://blogs.adobe.com/tomsugden/2009/07/the_trend_towards_inversionofc.html The Trend Towards Inversion-of-Control Frameworks in Flex #url:
+Article written by Tom Sugden. Not focused solely on Parsley but nevertheless and interesting read. #lse
+
+#lse #url http://www.sitronnier.com/blog/parsley-2-basic-flex-example Basic Flex Example #url and 
+#url http://www.sitronnier.com/blog/parsley-2-basic-flash-example Basic Flash Sample #url: Two basic samples created by
+Laurent Sitronnier. Demonstrates the use of Parsley in Flex and Flash Applications side-by-side. #lse
+
+#lst

@@ -1,0 +1,62 @@
+#sc2 tagref_asconfig ActionScript Configuration #sc2
+
+
+#sc3 tagref_asconfig_definition ObjectDefinition #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [ObjectDefinition] #cdi #tbr
+#tbr may be placed on # property declaration #tbr
+#tbr MXML and XML Namespace # N/A #tbr
+#tbr MXML Tag # #cdi N/A #cdi #tbr
+#tbr XML Tag # #cdi N/A #cdi #tbr
+#tbr Detailed Explanation # #ref config_as3 #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi lazy #cdi # optional # When set to false (default) the object will be instantiated when the container initializes. 
+When set to true the object will be instantiated on demand. #tbr
+#tbr #cdi id #cdi # optional # The id the object should be registered with. If omitted the name of the property
+that produces (or holds) the object will be used as the id. #tbr
+#tbr #cdi order #cdi # optional # The initialization order. Only considered for non-lazy objects,
+processed in ascending order. Default #cdi int.MAX_VALUE #cdi. #tbr
+#tbl
+
+
+#sc3 tagref_asconfig_dynamicobject DynamicObject #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [DynamicObject] #cdi #tbr
+#tbr may be placed on # property declaration #tbr
+#tbr MXML and XML Namespace # N/A #tbr
+#tbr MXML Tag # #cdi N/A #cdi #tbr
+#tbr XML Tag # #cdi N/A #cdi #tbr
+#tbr Detailed Explanation # #ref config_as3 #ref #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi id #cdi # optional # The id the object should be registered with. If omitted the name of the property
+that produces (or holds) the object will be used as the id. #tbr
+#tbl
+
+
+#sc3 tagref_asconfig_internal Internal #sc3
+
+#tbl
+#tbr Metadata Tag # #cdi [Internal] #cdi #tbr
+#tbr may be placed on # property declaration #tbr
+#tbr MXML and XML Namespace # N/A #tbr
+#tbr MXML Tag # #cdi N/A #cdi #tbr
+#tbr XML Tag # #cdi N/A #cdi #tbr
+#tbr Detailed Explanation # May be placed on properties in an AS3 Configuration Class that should not be included in the IOC Container. #tbr
+#tbl
+
+
+#sub Attributes #sub
+
+#par None #par

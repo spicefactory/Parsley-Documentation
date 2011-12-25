@@ -1,0 +1,7 @@
+#sc1 troubleshooting_intro Troubleshooting Guide #sc1
+
+#par This chapter aims to summarize some of the more common error scenarios. It was compiled based
+on questions asked on the forum and will most likely grow over time. It would be nice if you'd follow the guidelines in this chapter
+and do some investigation yourself before you post on the forum in case you run into any kind of problem. 
+Please start with #ref troubleshooting_logging #ref, as logging should be turned on in all debugging 
+scenarios, and then jump to the section which applies to your problem. #par

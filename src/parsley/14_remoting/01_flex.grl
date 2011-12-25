@@ -1,0 +1,109 @@
+#sc2 remoting_flex Flex Remoting #sc2
+
+#par For remoting the framework can help you in two respects. First you can declare your RemoteObjects
+in a Parsley configuration class alongside other objects and inject them into your commands.
+Second (since version 2.2) you can use the convenient support for asynchronous commands to 
+also route result and faults of remote invocations in a decoupled manner. #par
+
+#sub Configuration #sub
+
+#par Since Parsley offers MXML-based container configuration you can easily integrate the existing MXML tags
+for RemoteObjects with other Parsley configuration tags: #par
+
+#cdb
+<Objects 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns="http://www.spicefactory.org/parsley">
+
+    <fx:Declarations>
+		
+        <fx:RemoteObject 
+            id="loginService" 
+            destination="loginService" 
+            showBusyCursor="true"
+        />
+
+        <!-- other object definitions -->
+        
+    </fx:Declarations>
+    
+</Objects> 
+#cdb
+
+#par You can then chose to inject those RemoteObjects into
+controller actions. But due to the nature of RemoteObjects not being type-safe you'd need to stick with id-based
+injection then: #par
+
+#cdb
+#hlt [Inject(id="loginService")] #hlt
+public var service:RemoteObject;
+
+[Command]
+public function login (event:LoginEvent) : AsyncToken {
+    return service.login(event.username, event.password);
+}
+
+#cdb
+
+#par For Commands the framework will manage the AsyncToken for you. 
+Other objects (or the same instance) can then listen for the results: #par
+
+#cdb
+[CommandResult]
+public function loginResult (user:User, trigger:LoginEvent) : void {
+    [...]
+}
+[CommandError]
+public function loginFault (fault:FaultEvent, trigger:LoginEvent) : void {
+    [...]
+}
+#cdb
+
+#sub Using BusinessDelegates #sub
+
+#par If you prefer to use delegates instead of injecting the RemoteObjects directly you could define
+both the RemoteObjects and the delegates in Parsley MXML: #par
+
+#cdb
+<Objects 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns="http://www.spicefactory.org/parsley">
+
+    <fx:Script>
+        <![CDATA[
+            import com.bookstore.services.*;
+        ]]>
+    </fx:Script>
+    
+    <fx:Declarations>
+    
+        <fx:RemoteObject 
+            id="loginService" 
+            destination="loginService" 
+            showBusyCursor="true"
+        />
+
+	    <Object id="loginDelegate" type="{LoginDelegate}">
+	        <ConstructorArgs>
+	            <ObjectRef idRef="loginService"/>
+	        </ConstructorArgs>
+	    </Object>
+       
+        <!-- other objects -->
+        
+    </fx:Declarations>
+    
+</Objects> 
+#cdb
+
+#par With delegates you can then return to injection by type: #par
+
+#cdb
+#hlt [Inject] #hlt
+public var loginDelegate:LoginDelegate;
+
+[Command]
+public function login (event:LoginEvent) : AyncToken {
+    return loginDelegate.login(event.username, event.password);
+}
+#cdb

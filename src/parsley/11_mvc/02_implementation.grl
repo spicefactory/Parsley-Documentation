@@ -1,0 +1,90 @@
+#sc2 mvc_implementation Example Command Implementation #sc2
+
+#par Finally we'll pick one of the pieces presented in the diagram above and show
+how the implementation and configuration of such an application part may look like.
+We'll chose the #cdi AddToCartCommand #cdi that participates in the application flow shown in the diagram. #par
+
+#cdb
+package com.bookstore.actions {
+
+import mx.rpc.AsyncToken;
+import mx.rpc.Fault;
+import mx.rpc.remoting.RemoteObject;
+
+import com.bookstore.events.CartEvent;
+import com.bookstore.services.CartService;
+import com.bookstore.model.LineItem;
+
+public class AddToCartCommand {
+
+
+    [Inject(id="cartService")]
+    public var cartService:RemoteObject;
+
+    
+    public function execute (event:CartEvent) : AsyncToken {
+        return cartService.addItem(event.item);
+    }
+    
+    public function result (item:LineItem) : void {
+        /* modify or cache the result */
+    }
+    
+    public function error (fault:Fault) : void {
+        /* handle fault */
+    }
+    
+}
+
+} 
+#cdb
+
+#par And this is how you can configure such a command in a Parsley configuration class (in this case MXML): #par
+
+#cdb
+<DynamicCommand 
+    type="{AddToCartCommand}" 
+    selector="addItem"
+/>
+#cdb
+
+#par We'll now examine the various parts of this class in detail. First there is the method
+that executes the command: #par
+
+#cdb
+public function execute (event:CartEvent) : AsyncToken {
+#cdb
+
+#par In this example we are using regular Flash Events as application messages, but you are not forced to do so
+as described in #ref messaging_dispatching #ref. #par
+
+#par The method parameter tells the framework that we are interested
+in #cdi CartEvents #cdi. MessageHandler selection happens based on message type, so in a large and complex application
+you won't run into problems having to maintain event type constants which are unique across the whole system. #par
+
+#par But since we are not interested in all CartEvents that get dispatched we specify a #cdi selector #cdi attribute
+in the MXML configuration
+which in case of Events points to the type property of the Event. In this case we are intereseted in CartEvents with
+the type #cdi addItem #cdi which was dispatched by the View or the presentation model as a result of an UI event. #par
+
+#par In the body of that method we are using the injected #cdi CartService #cdi: #par
+
+#cdb
+[Inject(id="cartService")]
+public var cartService:RemoteObject;
+#cdb
+
+#par In this example we are using a RemoteObject. We usually prefer to use injection by type but this is not
+applicable for RemoteObjects which can only be distinguished by id. For details see #ref remoting_intro #ref. #par
+
+#par Finally there are the result and error handlers: #par
+
+#cdb
+public function result (item:LineItem) : void {
+    
+public function error (fault:Fault) : void {
+#cdb
+
+#par We are following a naming convention here so we can avoid any metadata configuration altogether.
+Based on the method names the framework knows which method executes the command and which handles results
+or faults. The result and error handler are both optional. #par

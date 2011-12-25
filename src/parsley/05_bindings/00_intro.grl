@@ -1,0 +1,6 @@
+#sc1 bindings_intro Decoupled Bindings #sc1
+
+#par Introduced with version 2.3 this feature adds a major new option to the existing ways of decoupling the parts of your 
+application, injection and messaging. It's not a new idea though. Similar concepts existed in Seam in the Java world (based
+on its #cdi @In #cdi and #cdi @Out #cdi annotations) and have already been picked up by other Flex frameworks, too, like 
+in GraniteDS that also offers #cdi [In] #cdi and #cdi [Out] #cdi metadata configuration. #par 

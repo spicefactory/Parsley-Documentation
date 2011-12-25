@@ -1,0 +1,42 @@
+#sc2 view_config_metadata Metadata Configuration #sc2
+
+#par In many cases metadata is sufficient and the most convenient configuration mechanism.
+The metadata tags have the same effect on a component like on a regular object created
+by the container: #par
+
+#cdb
+<s:Panel 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns:s="library://ns.adobe.com/flex/spark"
+    xmlns:parsley="http://www.spicefactory.org/parsley"
+    addedToStage="dispatchEvent(new Event('configureView', true));"
+    >
+    
+    <fx:Script>
+        <![CDATA[
+            import com.bookstore.events.*;
+            import com.bookstore.model.*;
+            
+            [Bindable]
+            private var user:User;
+            
+            #hlt [Inject] #hlt
+            public var model:LoginPanelPM;    
+            
+            #hlt [MessageHandler] #hlt
+            public function handleLogin (event:LoginEvent) : void {
+                this.user = event.user;            
+            }
+        ]]>
+    </fx:Script>
+    
+    <s:Label text="Current User: {user.name}"/>
+    
+    <!-- some more components ... -->
+    
+</s:Panel> 
+#cdb
+
+#par Many developers prefer to avoid to add too much logic to their components. In these cases the only
+Parsley tag used in a component is often the #cdi [Inject] #cdi tag on the presentation model which
+encapsulates all the logic and data required by that component. #par

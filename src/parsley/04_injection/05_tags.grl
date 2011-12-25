@@ -1,0 +1,99 @@
+#sc2 injection_tags Declaring Dependencies in MXML or XML #sc2
+
+#par Finally you can also declare dependencies in MXML or XML. #par
+
+#sub MXML example: #sub
+
+#cdb
+<Objects 
+    xmlns:fx="http://ns.adobe.com/mxml/2009"
+    xmlns="http://www.spicefactory.org/parsley">
+    
+    <fx:Script>
+        <![CDATA[
+            import com.bookstore.actions.*;        
+            import com.bookstore.services.*;        
+        ]]>
+    </fx:Script>
+    
+    <fx:Declarations>
+
+        <Object id="loginService" type="{LoginServiceImpl}">
+            <Property name="timeout" value="3000"/>
+        </Object>
+
+        <Object id="userManager" type="{UserManager}"/>
+   
+        <Object type="{LoginAction}">
+            <ConstructorArgs>
+                #hlt <ObjectRef idRef="userManager"/> #hlt
+            </ConstructorArgs>
+            <Property name="service" #hlt idRef="loginService" #hlt/>
+        </Object>
+    
+    </fx:Declarations>
+    
+</Objects> 
+#cdb
+
+#sub XML example: #sub
+
+#cdb
+<objects
+    xmlns="http://www.spicefactory.org/parsley">
+    
+    <object id="loginService" type="com.bookstore.services.LoginServiceImpl">
+        <property name="timeout" value="3000"/>
+    </object>
+
+    <object id="userManager" type="com.bookstore.services.UserManager"/>
+   
+    <object type="com.bookstore.actions.LoginAction">
+        <constructor-args>
+            #hlt <object-ref id-ref="userManager"/> #hlt
+        </constructor-args>
+        <property name="service" #hlt id-ref="loginService" #hlt/>
+    </object>
+    
+</objects> 
+#cdb
+
+#par As you see MXML and XML configuration is almost identical except for some subtle notation differences
+(capitalized camel-case vs. lower case names with dashes). You can set dependencies for constructor arguments
+or properties. For constructor arguments you could even mix it with tags for simple properties: #par
+
+#cdb
+<constructor-args>
+    <object-ref id-ref="userManager"/>
+    <string>http://www.bookstore.com/services/</string>
+    <uint>3000</uint>
+</constructor-args>
+#cdb
+
+#par For properties you just use the #cdi id-ref #cdi attribute instead of the #cdi value #cdi attribute to point
+to another object definition. #par
+
+
+#sub Declaring dependencies inline #sub
+
+#par If a dependency is only needed by a single object you can alternatively declare it inline: #par
+
+#cdb
+<objects
+    xmlns="http://www.spicefactory.org/parsley">
+    
+    <object type="com.bookstore.actions.LoginAction">
+        <constructor-args>
+            #hlt <object type="com.bookstore.services.UserManager"/> #hlt
+        </constructor-args>
+        <property name="service">
+            #hlt <object type="com.bookstore.services.LoginServiceImpl">
+                <property name="timeout" value="3000"/>
+            </object> #hlt
+        </property>
+    </object>
+    
+</objects> 
+#cdb
+
+#par Note that you cannot set an id for an inline object definition. The MXML example would be analogous. #par

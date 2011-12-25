@@ -1,0 +1,102 @@
+#sc2 resources_flash Localized Flash Applications #sc2
+
+#par For Flash Applications Parsley offers its own Localization Module. This is the oldest part of
+the framework that already existed in early AS2 versions of the framework. But it's still a good solution
+if you are not using Flex. This section describes how you configure and use this module. #par
+
+
+
+#sc3 resources_flash_config Configuration #sc3
+
+#par Parsley includes a separate XML configuration namespace that you can use to declare the bundles
+that the framework should load when initializing the IOC Container: #par
+
+#cdb
+<objects xmlns="http://www.spicefactory.org/parsley" 
+    xmlns:res="http://www.spicefactory.org/parsley/flash/resources"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.spicefactory.org/parsley 
+      http://www.spicefactory.org/parsley/schema/2.3/parsley-core.xsd
+    http://www.spicefactory.org/parsley/flash/resources 
+      http://www.spicefactory.org/parsley/schema/2.3/parsley-resources-flash.xsd">
+    
+    <res:resource-manager id="resourceManager">
+        <res:locale language="en" country="US"/>
+        <res:locale language="de" country="DE"/>
+        <res:locale language="fr" country="FR"/>
+    </res:resource-manager>
+	        
+    <res:resource-bundle id="tooltips" basename="messages/tooltips" localized="true"/>
+
+    <res:resource-bundle id="alerts" basename="messages/alerts" localized="true"/>
+
+    <!-- other object definitions ... -->
+    
+</objects>
+#cdb
+
+#par In the example above we declare a ResourceManager and the supported locales. In a modular application you should
+only declare a single ResourceManager instance (usually in the main application Context initialized on application start).
+You can then add any number of ResourceBundles in the main Context as well as child Context configurations. In the example
+above we add two bundles, one for tooltips and one for alerts. #par
+
+#par With the basename attribute you specify how Parsley concatenates the actual names of the files it attempts to load.
+For the basename #cdi messages/tooltips #cdi and the active locale en_US it would look for the following files: #par
+
+#lst
+#lse messages/tooltips.xml #lse
+#lse messages/tooltips_en.xml #lse
+#lse messages/tooltips_en_US.xml #lse
+#lst
+
+#par This way you could keep messages that differ for each country in #cdi tooltips_en_US #cdi while adding messages
+which are the same for each country with English messages to #cdi tooltips_en.xml #cdi. You can reduce the number of
+files Parsley attempts to load though: When you set the #cdi ignore-country #cdi attribute to true the third file from
+the list will be omitted, if you set the #cdi localized #cdi attribute to false the second one will be omitted, too. #par
+
+#par Since this is an extension it has to be initialized explicitly before using the #cdi XmlContextBuilder #cdi: #par
+
+#cdb
+FlashResourceXmlSupport.initialize();
+#cdb
+
+#sc3 resources_flash_bundles XML Resource Bundle Files #sc3
+
+#par The structure for the bundle files themselves is quite trivial: #par
+
+#cdb
+<resource-bundle 
+    xmlns="http://www.spicefactory.org/parsley/flash/resource-bundle"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.spicefactory.org/parsley/flash/resource-bundle 
+        http://www.spicefactory.org/parsley/schema/2.3/parsley-resources-flash-bundle.xsd"
+    >
+    <resource key="tooltip.save">Saves the file</resource>
+    <resource key="tooltip.open">Opens a new file</resource>
+    <resource key="tooltip.saveAs">Saves the file with a new name</resource>
+    <resource key="tooltip.delete">Deletes the file</resource>
+</resource-bundle>
+#cdb
+
+
+
+#sc3 resources_flash_switching Switching the active Locale #sc3
+
+#par If you want to switch the active locale at runtime (and thereby trigger updates for properties
+marked with #cdi [ResourceBinding] #cdi), you can inject the configured #cdi ResourceManager #cdi into any
+object and set its #cdi currentLocale #cdi property: #par
+
+#cdb
+[Inject]
+public var resourceManager:ResourceManager;
+
+public function switchLocale (lang:String) : void {
+    resourceManager.currentLocale = new Locale(lang);
+} 
+#cdb
+
+#par This will trigger the loading of the XML bundle files associated with that locale.
+The #cdi ResourceManager #cdi will dispatch a #cdi LocaleSwitchEvent.COMPLETE #cdi event when the 
+loading process has completed. But in many cases you don't even have to listen for that
+event as the ResourceBindings will update automatically. You only need this event
+if switching the locale involves more than just updating property values. #par

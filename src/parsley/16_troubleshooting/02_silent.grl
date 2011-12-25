@@ -1,0 +1,102 @@
+#sc2 troubleshooting_silent Silent Failure #sc2
+
+#par Even after you have configured logging as described in the preceding section, you still might run into a situation
+where an expected action is not performed while the logging output remains completely silent about it. Since Parsley generally
+logs all errors this usually hints at a problem where the framework does not even attempt to perform the desired action.
+This is usually caused by some sort of configuration error. The following sections list the most common scenarios that
+lead to silent failure: #par
+
+
+#sub The object is not managed #sub
+
+#par Some developers new to the concept of IOC containers simply add metadata like #cdi [Inject] #cdi to a class and then create
+an instance with #cdi new #cdi and are suprised that nothing happens. Such an instance is not known to the framework and thus
+will never get configured. Another common error is to add the class to a Parsley configuration file or class as required and then
+create an instance with #cdi new #cdi. This is a similar problem: Now you have two instances of the same class, but the one you
+created with #cdi new #cdi is not managed by the framework. #par
+
+#par If you are not familiar with the concept of managed objects, please read #ref lifecycle_managed #ref first. #par
+
+#par If you are not sure whether the object you are working with is managed, you can use the framework API to find out: #par
+
+#cdb
+var obj:SomeClass = ...; // the object that does not work
+trace("managed? " + ContextUtil.isManaged(obj));
+#cdb
+
+#par Apart from that you'll also find logs for all objects that are getting added or removed from a Context. They look like this: #par
+
+#cdb
+21:09:07.967 [INFO] org.spicefactory.parsley.core.lifecycle.impl.DefaultManagedObjectHandler 
+    Configure managed object with [ObjectDefinition(type = com.foo::MyClass, id = someId)] 
+    and 2 processor(s)
+#cdb
+
+
+#sub Metadata not compiled into the SWF or SWC #sub
+
+#par Another very common error. The mxmlc compiler of the Flex SDK has a confusingly inconsistent behavior when it comes to compiling
+metadata into SWFs. The outcome is different whether you merge Parsley into the code or whether you specify it as an external library.
+As a consequence it usually works in the top level application without additional configuration steps, but then fails when used
+in a Flex Module for example. #par
+
+#par To find out whether metadata has actually been compiled into your application, you can trace the reflection output of the
+Flash Player for that class: #par
+
+#cdb
+var obj:SomeClass = ...; // the object that does not work
+trace(describeType(obj));
+#cdb
+
+#par Here you can see whether the metadata is present on the property or method where you expect it.
+For Flex Modules or RSLs the metadata usually has to be specified explicitly. For detailed instructions
+see #ref config_metadata #ref, specifically the section titled #str Compiling custom metadata into SWFs #str. #par
+
+
+#sub Metadata on private or protected members #sub
+
+#par The Reflection facility in the Flash Player will only consider metadata on public members. This is not a limitation
+of the Parsley framework, it's the way the Flash Player works. Thus the following will simply be ignored, you won't get
+any error messages: #par
+
+#cdb
+[Inject]
+private var service:RemoteObject;
+#cdb
+
+
+#sub Typos in metadata #sub
+
+#par Although this is pretty obvious it's worth mentioning it as this also leads to silent failure. When you misspell an
+attribute on a Parsley metadata tag the framework will throw an Error, but if you misspell the tag name itself it will
+simply get ignored. #par
+
+
+#sub Timing issues with object initialization #sub
+
+#par Also a pretty common scenario. The dependency injection does get performed in this case, just not at the time the
+developer expects it. The most extreme example is trying to access the value of a variable marked with [Inject] in the
+constructor of an object. It should be pretty obvious that it is virtually impossible that the injection has already happened at
+this point. #par
+
+#par Somewhat less obvious but still very common is to use a Flex component event like #cdi addedToStage #cdi or 
+#cdi creationComplete #cdi and then access an expected injected value in the event handler. Please don't do this!
+There are lots of reasons not to use #cdi addedToStage #cdi for component initalization, some of them are not even related to 
+Parsley. For the full story, please read #ref view_lifecycle #ref and specifically the section titled 
+#str Be careful with Component Initialization Logic #str. #par
+
+#par As a very short excerpt of that section, a safe place to put some initialization logic 
+is a method marked with #cdi [Init] #cdi. This will only be invoked after all injections have been performed: #par
+
+#cdb
+[Inject]
+public var service1:SomeService;
+
+[Inject]
+public var service2:SomeOtherService;
+
+[Init]
+public function init () : void {
+    // here it is guaranteed that service1 and service2 have been set already
+}
+#cdb

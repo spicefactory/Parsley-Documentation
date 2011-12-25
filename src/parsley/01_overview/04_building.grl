@@ -1,0 +1,73 @@
+#sc2 overview_building Building the Framework from Source #sc2
+
+#par There are two common use cases where you might want to build the framework's SWC files yourself: either you want to apply a fix
+or enhancement to a local copy or you want to build snapshots from trunk to take advantage of fixes or enhancements before they
+make it into the next official release. In both cases it's recommended to check out the project from Subversion. This way you can easily
+follow the ongoing development. Building from source should be pretty straightforward, so this section just gives you a brief summary
+of the necessary steps. #par
+
+
+#sub Check out Parsley from Subversion #sub
+
+#par There is the plan to move to GitHub sometime in 2011,
+but for now all Parsley 2 releases are tagged in the Subversion repository. If you just want to add something to an official release,
+it's best to check out the corresponding tag. If you want to follow the ongoing development of the next version and build snapshots
+you should check out trunk. Most of the time trunk is fairly stable, only when the upcoming release is a milestone of a major update
+(e.g. version 2.3.M2) then there is a small risk of trunk becoming unstable temporarily. But for maintenance releases (e.g. version
+2.3.2) the risk is very low. You can find out the version of the upcoming release in the
+#url http://opensource.powerflasher.com/jira/browse/PSL?report=com.atlassian.jira.plugin.system.project:roadmap-panel Road Map in Jira #url. #par 
+
+#par The repository URL is #par
+
+#cdb
+http://opensource.powerflasher.com/spicefactory/svn/parsley
+#cdb
+
+#par Inside trunk or the tag folders you'll find three folders. #cdi manual #cdi contains the markup source for the manual, 
+#cdi samples #cdi the source code for the sample application (currently there is just one), while #cdi main #cdi contains
+the source for the framework itself. In most cases you'd want to check out #cdi main #cdi which is an Eclipse Project. #par
+
+
+#sub Edit the Properties File #sub
+
+#par Next you have to adapt the properties for your environment, the file is #cdi build.properties #cdi in the #cdi build #cdi directory. 
+You can safely ignore the #cdi samples.base.dir #cdi property which
+is only needed for building a release zip, not for building just the framework SWCs. So you only have to provide two paths for a
+Flex 3 and Flex 4 SDK and the name of the compc compiler (#cdi compc #cdi on the Mac and #cdi compc.exe #cdi on Windows). #par 
+
+
+#sub Run the Ant Targets for building the SWCs #sub
+
+#par Finally you just have to pick the Ant target corresponding to the environment you want to target (Flex 4, Flex 3, Flash).
+from the Ant build file #cdi build-swc-main.xml #cdi in the #cdi build #cdi directory.
+In all cases you have to make sure that you build the Spicelib SWC first as the Parsley SWC depends on it. These are the
+targets you need to run: #par
+
+#par Flex 4 #par
+
+#cdb
+spicelib-flex
+parsley-flex4
+#cdb
+
+#par Flex 3 #par
+
+#cdb
+spicelib-flex
+parsley-flex3
+#cdb
+
+#par Flash #par
+
+#cdb
+spicelib-flash
+parsley-flash
+#cdb
+
+#par The Spicelib SWCs are identical for Flex 4 and Flex 3 environments, so you can use the same target for both.
+When running the Spicelib targets you should not see any errors or warnings in the console. Unfortunately you get 
+a lot of deprecation warnings when running the Parsley targets currently, so in case of errors it's somewhat difficult
+to find them in the output. The deprecations will be kept for all remaining Parsley 2 releases for backwards-compatibility
+and will then get removed for Parsley 3 sometime in 2011. #par
+
+#par The SWCs are built into the directory #cdi release/parsley-<version>/release #cdi. #par

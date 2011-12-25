@@ -1,0 +1,50 @@
+#sc2 tagref_cinnamon Cinnamon Remoting #sc2
+
+
+#sc3 tagref_cinnamon_channel Channel #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML and XML Namespace  # #cdi http://www.spicefactory.org/parsley/cinnamon #cdi #tbr
+#tbr MXML Tag # <Channel/> #tbr
+#tbr XML Tag # #cdi <channel/> #cdi #tbr
+#tbr Required Initialization for XML # #cdi CinnamonXmlSupport.initialize() #cdi #tbr
+#tbr Detailed Explanation # #ref remoting_cinnamon #ref #tbr
+#tbl
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi id #cdi # optional # The id of the channel instance. #tbr
+#tbr #cdi url #cdi # required # The URL that the channel should connect to. #tbr
+#tbr #cdi type #cdi # optional # The type (class) of the channel, defaults to #cdi NetConnectionServiceChannel #cdi. #tbr
+#tbr #cdi timeout #cdi # optional # Specifies the request timeout in milliseconds. #tbr
+#tbl
+
+#sub Child Elements #sub
+
+#par None #par
+
+
+#sc3 tagref_cinnamon_service Service #sc3
+
+#tbl
+#tbr Metadata Tag # N/A #tbr
+#tbr MXML and XML Namespace  # #cdi http://www.spicefactory.org/parsley/cinnamon #cdi #tbr
+#tbr MXML Tag # <Service/> #tbr
+#tbr XML Tag # #cdi <service/> #cdi #tbr
+#tbr Required Initialization for XML # #cdi CinnamonXmlSupport.initialize() #cdi #tbr
+#tbr Detailed Explanation # #ref remoting_cinnamon #ref #tbr
+#tbl
+
+#sub Attributes #sub
+
+#tbl
+#tbr #cdi id #cdi # optional # The id that this service will be registered with in the Parsley IOC Container. #tbr
+#tbr #cdi name #cdi # required # The name of the service as registered on the server-side. #tbr
+#tbr #cdi type #cdi # required # The AS3 service implementation (usually generated with Pimentos Ant Task). #tbr
+#tbr #cdi channel #cdi # optional # Reference to the id of the #cdi ServiceChannel #cdi instance. Only required
+if you have more than one #cdi channel #cdi tag in your Context. If there is only one (like in most use cases)
+it will be automatically detected. #tbr
+#tbr #cdi timeout #cdi # optional # Specifies the request timeout in milliseconds. #tbr
+#tbl

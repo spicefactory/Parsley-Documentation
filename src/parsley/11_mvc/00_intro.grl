@@ -1,0 +1,16 @@
+#sc1 mvc_intro Building MVC Architectures #sc1
+
+#par Parsley is different from several other Flex or Flash MVC Frameworks in that it does not provide
+very much explicit support for the various pieces of an MVC architecture. This was a side effect of
+our primary goal being to allow to design a fully decoupled architecture. Decoupled in a sense that
+not only the parts of your application are decoupled from each other, but also decoupled from the
+framework itself. For example providing base classes for controllers or mediators in the framework 
+that application classes have to extend is a bad
+idea if you want to support such a decoupled architecture. #par
+
+#par For that reason the Messaging Framework in Parsley which we already described in #ref messaging_intro #ref
+is pretty generic. It does not assume a particular programming style or architectural pattern.
+Nevertheless Parsley still falls into the same category as many other MVC Frameworks since
+the Messaging Framework #str can #str easily be used in a way that helps building
+an application based on the MVC architectural pattern. In this chapter we will provide
+some examples on how to use the Messaging Framework in such a context. #par
