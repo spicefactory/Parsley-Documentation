@@ -1,2 +1,200 @@
 #sc2 overview_migrate_30 Migrating from Parsley 2 to Parsley 3 #sc2
 
+#par Note: if you have an existing production application based on Parsley 2,
+it is recommended to wait for the release of the second milestone of Parsley 3.0,
+as that milestone will introduce further API changes. The second milestone will
+come with the final API, so you'd avoid having multiple migration steps. #par
+
+#par If you just start building a new application it is recommended to start
+using the first milestone immediately, as this would lead to fewer migration
+steps once the second milestone is released (in January or February 2012) than
+when starting with Parsley 2.4 now. #par
+
+
+
+#sc3 overview_migrate_older Migrating from Versions older than 2.4 #sc3
+
+#par If your application still uses an older version of Parsley 2, it is recommended
+to first try to replace the SWCs in your classpath with the ones for the last Parsley 2
+release (2.4.1). That release contained a lot of deprecation warnings already. Trying
+to compile against that version might give you a list of deprecation warnings with
+concrete instructions on what to change. In Parsley 3 all deprecations have been removed,
+so you won't get any warnings when compiling against that version. 
+Once you have adjusted your code to remove the warnings and errors you get,
+you can more easily move to version 3.0. #par
+
+
+
+#sc3 overview_migrate_24 Migrating from Version 2.4 #sc3
+
+#par Some functional areas in Parsley 3 saw significant changes, while others remained
+almost untouched. This section tries to give a detailed overview over the most important
+changes. If you think that something essential is not covered here, please post on our
+forum. #par
+
+
+
+#sc3 overview_migrate_commands Redesigned Command Support #sc3
+
+#par The biggest area of change in Parsley 3 is the completely rewritten Command Support.
+The new implementation is not backwards-compatible, although in most cases migration
+is trivial and possible without touching the command implementation itself (only changes
+in configuration files and classes are required). #par
+
+#par If you have an existing application based on Parsley 2 that uses commands a lot,
+you basically have 2 options: #par
+
+#lst
+#lse #str Use the Parsley Legacy Commands Extension #str: This extension project has
+been created for providing backwards-compatibility for large Parsley 2 applications
+where full migration to the new command style is not feasible. This extension should
+provide 80% to 90% compatibility for existing DynamicCommands, only requiring migration
+steps if some of the less common options of DynamicCommands have been used. #lse
+
+#lse #str Migrate to the New Command Style #str: If your commands are pretty standard
+implementations only using the basic feature set (like returning an AsyncToken in the 
+execute method for example) or if you only have a handful of commands in your application
+anyway, it is recommended to prefer full migration over using the legacy commands extension.
+Full migration requires configuration changes for all commands (often merely a name change
+from #cdi <DynamicCommand> #cdi to #cdi <MapCommand> #cdi, but usually no changes in the
+command implementation. #lse
+#lst
+
+#par Once you've decided on the route you want to take, you can find detailed instructions
+for both approaches below. #par
+
+
+
+#sc3 overview_migrate_legacycommands The Legacy Commands Extension #sc3
+
+#par You can download this extension from the Parsley download page. Depending on what
+features you have used in your Parsley 2 application, an additional tag in your first
+ContextBuilder might be necessary: #par
+
+#lst
+#lse #cdi <DynamicCommand> #cdi MXML tag: Comes for free as soon as the extension is in your classpath. #lse
+#lse #cdi <dynamic-command> #cdi XML tag: Needs the #cdi <LegacyDynamicCommandXmlSupport/> #cdi tag inside the first 
+ContextBuilder tag. #lse   
+#lse #cdi [Command] #cdi metadata tag: Needs the #cdi <LegacyCommandMetadataSupport/> #cdi tag inside the first 
+ContextBuilder tag. #lse   
+#lst
+
+#par The full support for all features listed above would be restored with the following builder: #par
+
+#cdb
+<parsley:ContextBuilder config="{MyConfigClass}">
+    <parsley:LegacyCommandMetadataSupport/>
+    <parsley:LegacyDynamicCommandXmlSupport/>
+</parsley:ContextBuilder>
+#cdb
+
+#par Once the legacy command support is initialized most of your existing commands should run
+out of the box. The few exceptions where usage of some of the more exotic features would need
+some adjustments are listed below: #par
+
+#lst
+#lse The #cdi stateful #cdi attribute on the #cdi <DynamicCommand> #cdi tag is no longer supported.
+Commands in Parsley 3 are always short-lived. If you have set this attribute to true on one of your
+commands, you can change it into a regular #cdi <Object> #cdi tag and then add the old #cdi [Command] #cdi
+metadata tag on the execute method. This should retain the old behavior, as the Object tag creates
+a singleton which has the same effect as marking the command as stateful. #lse
+
+#lse The result or error handlers for a command can no longer accept instances of type #cdi ResultEvent #cdi
+or #cdi FaultEvent #cdi. They need to switch to the actual result or fault instances carried by these events. #lse
+
+#lse Parsley 2 allowed to pass an instance of #cdi MessageProcessor #cdi to the execute method of the command.
+This is no longer supported in Parsley 3, a command can no longer suspend or cancel the message that triggered 
+the command. This functionality would have been impractical in Parsley 3, as the new version also allows
+to conveniently declare sequences or flows of commands and then map them to messages. All individual commands
+in the sequence can then accept the trigger message as a parameter, but any influence on the actual message
+processor is not possible, as the message processing might have long been finished when the command is executed
+after other asynchronous commands in the sequence. #lse
+
+#lse When you added a method parameter of type #cdi CommandObserverProcessor #cdi to a result handler in your
+dynamic command to change the result, you have to adjust the call from #cdi processor.command.setResult(...) #cdi
+to #cdi processor.changeResult(...) #cdi. #lse
+#lst
+
+
+
+#sc3 overview_migrate_full Full Command Migration #sc3
+
+#par If you want to fully migrate your commands you do not have to include the SWC for the legacy command support.
+Instead you have to apply all the changes listed above (which are even necessary when using the
+legacy command support) plus several additional adjustments listed below. #par
+
+
+#sub Configuration Changes #sub
+
+#par The #cdi <DynamicCommand> #cdi tag does no longer exist in Parsley 3. The new version supports many ways
+to execute a command. Mapping it to a message that triggers command execution is just one of them. Therefore
+this feature comes with a new tag that explicitly states this intent, it's called #cdi <MapCommand> #cdi.
+In many cases this is just a name change: #par
+
+#par Before: #par
+
+#cdb
+<parsley:DynamicCommand type="{LoginCommand}"/>
+#cdb
+
+#par After: #par
+
+#cdb
+<parsley:MapCommand type="{LoginCommand}"/>
+#cdb
+
+#par But if you also added further configuration for the command with child tags, the syntax needs to change
+as they can no longer be immediate children of the #cdi MapCommand #cdi tag. This is because Parsley 3 also
+allows the definition of sequences or flows inside #cdi MapCommand #cdi, so that different child tags can
+be nested. If you want to configure a single command to be mapped to a message, the following change is
+necessary: #par
+
+#par Before: #par
+
+#cdb
+<parsley:DynamicCommand type="{LoginCommand}">
+    <parsley:Property name="mode" value="auto"/>
+</parsley:DynamicCommand>
+#cdb
+
+#par After: #par
+
+#cdb
+<parsley:MapCommand />
+    <parsley:Command type="{LoginCommand}">
+        <parsley:Property name="mode" value="auto"/>
+    </parsley:Command>
+</parsley:MapCommand>
+#cdb
+
+#par Finally the names of the execute, result and error method can no longer be changed. It is always the convention
+to name them #cdi execute #cdi, #cdi result #cdi and #cdi error #cdi respectively. #par
+
+
+#sub Implementation Changes #sub
+
+#par Like already mentioned the command implementations can stay the same in probably more than 90% of the cases.
+One option that had been changed is how you can overwrite a result in a result handler inside the command: #par
+
+#par Before: #par
+
+#cdb
+public function result (result: XML, processor: CommandObserverProcessor): void {
+    var user: User = parse(result);
+    processor.command.setResult(user);
+}
+#cdb
+
+#par After: #par 
+
+#cdb
+public function result (result: XML): User {
+    var user: User = parse(result);
+    return user;
+}
+#cdb
+
+
+
+
+
