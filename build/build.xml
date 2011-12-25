@@ -10,12 +10,12 @@
 	
 	<target name="generate_html" description="Parsley Manual - HTML Version">
 		<java 
-			jar="garlic-1.1.1.jar"
+			jar="garlic-1.1.2.jar"
 			fork="true"
 			failonerror="false"
 			dir="${manual.src.dir}"
 			>
-			<arg line=".htm template_html.txt toctemplate_html.txt"/>
+			<arg line=".htm template_html.txt toctemplate_html.txt /Users/jenshalm/Projects/Spicefactory3/Spicelib-Documentation/src"/>
 		</java>
 		<move todir="${manual.target.dir}">
 			<fileset dir="${manual.src.dir}" includes="*.htm"/>
