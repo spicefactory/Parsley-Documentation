@@ -1,7 +1,7 @@
 #sc2 overview_features Features List #sc2
 
 #par This section gives a quick overview over the available features linking to the other chapters of the manual
-where appropiate. There is also a #ref tutorial_intro #ref chapter containing a few sample use cases for the impatient. #par
+where appropriate. There is also a #ref tutorial_intro #ref chapter containing a few sample use cases for the impatient. #par
 
 
 #sub IOC Container #sub
@@ -14,7 +14,7 @@ large, complex and modular applications and numerous extension points. #par
 
 #sub Dependency Injection #sub
 
-#par The core feature of any IOC Container. Now with Parsley 2 dependencies can be conveniently declared using AS3 Metadata
+#par The core feature of any IOC Container. Dependencies can be conveniently declared using AS3 Metadata
 Tags (#cdi [Inject] #cdi) on properties, methods or constructors or alternatively with MXML or XML. 
 See #ref injection_intro #ref for details. #par
 
@@ -30,14 +30,23 @@ See #ref bindings_intro #ref for details. #par
 #sub Messaging #sub
 
 #par Parsley contains a Messaging Framework that allows for objects to send and receive messages in a fully decoupled way.
-You can declare events on sending objects with the #cdi [ManagedEvents] #cdi tags, so that they will be routed through
-Parsley to all registered handlers. The receiving objects can declare interest in particular message types with several
-metadata tags like #cdi [MessageHandler] #cdi. Message selection happens based on the type (class) of the message and
-optionally based on additional selectors like event type, instead of being purely String based like regular event handlers.
-This eases development of large applications where you don't have to care for event type constants being unique for the
-whole system. Furthermore messaging can happen in different scopes, globally or just in a particular region (like
-an AIR window for example).
+You can mark a function property with the #cdi [MessageDispatcher] #cdi tag, and invoke it whenever you want to pass
+a message instance to the system to be routed to registered receivers. The receiving objects can declare interest 
+in particular message types with several metadata tags like #cdi [MessageHandler] #cdi in a type-safe way. 
+This is because message selection happens based on the type (class) of the message, instead of being purely String based 
+like with regular AS3 event handlers. Furthermore messaging can happen in different scopes, globally or just in a particular region 
+(like an AIR window for example).
 See #ref messaging_intro #ref for details. #par
+
+
+#sub Managed Commands #sub
+
+#par Parsley supports commands based on the standalone Spicelib Commands framework. It allows to execute commands in
+a way that the container automatically adds them to the Context just for the time they execute. It comes with MXML
+and XML tags to declare commands or sequences of commands. It allows to map commands to messages so that each matching
+message causes a new command to be instantiated and executed. Alternatively command factories can get injected into
+managed objects for manual execution. 
+See #ref managedcommands_intro #ref for details. #par
 
 
 #sub Object Lifecycle #sub
@@ -55,7 +64,7 @@ of other objects until those configured to be asynchronous are ready. #par
 
 #par This module is particularly useful for Flex and solves the problem that you usually wouldn't want to declare
 Flex Components in IOC Container configuration files, but instead inside your MXML view hierarchy like always.
-Parsley 2 now allows to connect these components to the IOC Container on-the-fly when they are added to the stage.
+Parsley allows to connect these components to the IOC Container on-the-fly when they are added to the stage.
 Also solves the more complicated issues with wiring components in Flex Popups or Native AIR Windows.
 See #ref view_intro #ref for details. #par
 
@@ -63,7 +72,9 @@ See #ref view_intro #ref for details. #par
 #sub Support for Modular Applications #sub
 
 #par For modular applications it's essential that you can create configuration sub-contexts and dynamically load
-and undload them as needed. Seamlessly integrates with Flex Modules, but can also be used without.  
+and undload them as needed. Seamlessly integrates with Flex Modules, but can also be used without. The framework
+allows for a very fine-grained hierarchy of Contexts, making it convenient to create separate communication spaces
+for individual windows, popups or tabs in your application. 
 See #ref modules_intro #ref for details. #par
 
 
