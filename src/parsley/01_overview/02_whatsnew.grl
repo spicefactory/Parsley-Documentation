@@ -6,8 +6,8 @@
 #par #ref messaging_intro #ref #par
 
 #lst
-#lse #str Command Methods #ref (removed, replaced by the new command support in a new separate chapter) #lse
-#lse #ref DynamicCommand #ref (removed, replaced by the new command support in a new separate chapter) #lse
+#lse #str Command Methods #str (removed, replaced by the new command support in a new separate chapter) #lse
+#lse #str DynamicCommand #str (removed, replaced by the new command support in a new separate chapter) #lse
 #lst
 
 #par #ref managedcommands_intro #ref #par
@@ -19,7 +19,7 @@
 #par #ref extensions_intro #ref #par
  
 #lst
-#lse #str Command Factories #ref (removed, no longer needed with new command support) #lse
+#lse #str Command Factories #str (removed, no longer needed with new command support) #lse
 #lst 
 
 #par #ref commands_intro #ref #par
