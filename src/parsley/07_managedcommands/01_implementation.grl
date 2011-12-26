@@ -51,14 +51,14 @@ command (in a sequence or flow) or to decoupled result handlers. For details see
 #cdb
 public class GetUserListCommand {
 
-	[Inject("myService")]
-	public var service: RemoteObject;
+    [Inject("myService")]
+    public var service: RemoteObject;
 
-	public var callback: Function;
+    public var callback: Function;
 
     public function execute (): void {
     
-    	service.getUserList().addResponder(new Responder(result, error));
+        service.getUserList().addResponder(new Responder(result, error));
         
     }
     
@@ -85,12 +85,12 @@ to the callback function, the framework can distinguish between results and erro
 #cdb
 public class GetUserListCommand {
 
-	[Inject("myService")]
-	public var service: RemoteObject;
+    [Inject("myService")]
+    public var service: RemoteObject;
 
     public function execute (): AsyncToken {
     
-    	return service.getUserList();
+        return service.getUserList();
         
     }
     
@@ -112,12 +112,12 @@ Parsley, but you can create custom #ref commands_resultprocessors #ref for other
 #cdb
 public class GetUserListCommand {
 
-	[Inject("myService")]
-	public var service: RemoteObject;
+    [Inject("myService")]
+    public var service: RemoteObject;
 
     public function execute (): AsyncToken {
     
-    	return service.getUserList();
+        return service.getUserList();
         
     }
     
@@ -144,12 +144,12 @@ the remote call. #par
 public class GetUserProfileCommand {
 
 
-	[Inject("myService")]
-	public var service: RemoteObject;
+    [Inject("myService")]
+    public var service: RemoteObject;
 
     public function execute (msg: GetUserProfileMessage): AsyncToken {
     
-    	return service.getUserProfile(msg.userId);
+        return service.getUserProfile(msg.userId);
         
     }
     

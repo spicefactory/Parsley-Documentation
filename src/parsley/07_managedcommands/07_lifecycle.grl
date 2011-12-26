@@ -21,8 +21,8 @@ command with one injected collaborator: #par
 #cdb
 class MultiplyCommand {
 
-	[Inject]
-	public var multiplier: Multiplier;
+    [Inject]
+    public var multiplier: Multiplier;
 
     public function execute (msg: MultiplyMessage): int {
         
@@ -57,10 +57,10 @@ command and ask for a callback function to get injected, too: #par
 #cdb
 class MultiplyCommand {
 
-	[Inject]
-	public var multiplier: Multiplier;
-	
-	public var callback: Function;
+    [Inject]
+    public var multiplier: Multiplier;
+    
+    public var callback: Function;
 
     public function execute (msg: MultiplyMessage): int {
         
@@ -112,12 +112,12 @@ the mechanism is slightly different: #par
 #cdb
 public class GetUserListCommand {
 
-	[Inject("myService")]
-	public var service: RemoteObject;
+    [Inject("myService")]
+    public var service: RemoteObject;
 
     public function execute (): AsyncToken {
     
-    	return service.getUserList();
+        return service.getUserList();
         
     }
     

@@ -23,12 +23,12 @@ execute method, which can receive the trigger message as a method parameter: #pa
 #cdb
 public class GetUserProfileCommand {
 
-	[Inject("myService")]
-	public var service: RemoteObject;
+    [Inject("myService")]
+    public var service: RemoteObject;
 
     public function execute (#hlt msg: GetUserProfileMessage #hlt): AsyncToken {
     
-    	return service.getUserProfile(msg.userId);
+        return service.getUserProfile(msg.userId);
         
     }
     
