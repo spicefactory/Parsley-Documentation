@@ -49,6 +49,9 @@ the type will be deduced from the second method parameter (if available). #tbr
 See #ref messaging_selectors #ref. #tbr
 #tbr #cdi scope #cdi # optional # The scope from which the message should be received. The default is the global scope. #tbr
 #tbr #cdi order #cdi # optional # The order in which result handlers should be invoked. The default value is #cdi int.MAX_VALUE #cdi. #tbr
+#tbr #cdi immediate #cdi # optional # Indicates whether the result handler should get invoked immediately after the result is available 
+when the result is produced by a command in a sequence or flow. The default is false which means the result handler will get 
+invoked when the entire sequence completed. Has no effect on a single command. #tbr
 #tbr #cdi method #cdi # required for MXML/XML # The method the result should be passed to. 
 Will be automatically set when used as a Metadata Tag. #tbr
 #tbl
@@ -102,7 +105,6 @@ the type will be deduced from the second method parameter (if available). #tbr
 #tbr #cdi selector #cdi # optional # An selector value for filtering in addition to message selection by type.
 See #ref messaging_selectors #ref. #tbr
 #tbr #cdi scope #cdi # optional # The scope from which the message should be received. The default is the global scope. #tbr
-#tbr #cdi order #cdi # optional # The order in which error handlers should be invoked. The default value is #cdi int.MAX_VALUE #cdi. #tbr
 #tbr #cdi property #cdi # required for MXML/XML # The property which will act as a boolean flag for the matching command type. 
 Will be automatically set when used as a Metadata Tag. #tbr
 #tbl

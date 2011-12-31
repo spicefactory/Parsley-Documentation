@@ -3,6 +3,13 @@
 #par This section only lists the parts of the manual which are new or have been signifantly modified. #par
 
 
+#par #ref overview_intro #ref #par
+
+#lst
+#lse #ref overview_building #ref (rewritten for the new project structure) #lse
+#lse #ref overview_dependencies #ref (new section describing the new, more fine-grained set of artifacts) #lse
+#lst
+
 #par #ref messaging_intro #ref #par
 
 #lst
