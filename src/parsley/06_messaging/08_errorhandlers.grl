@@ -1,14 +1,14 @@
 #sc2 messaging_errorhandlers Error Handlers #sc2
 
-#par Since version 2.1 you can also configure a method to be invoked whenever a handler or interceptor for a 
+#par Parsley allows to configure a method to be invoked whenever a handler for a 
 matching message threw an Error: #par 
 
 #cdb
-[MessageError(type="com.bookstore.LoginEvent")]
-public function handleError (processor:MessageProcessor, error:IOError) : void;
+[MessageError]
+public function handleError (error:IOError, message:LoginMessage) : void;
 #cdb 
 
-#par In the example above the error handler would be invoked whenever any handler for a message of type LoginEvent 
+#par In the example above the error handler would be invoked whenever any handler for a message of type LoginMessage 
 throws an IOError. So you can chose the matching message type and the matching Error type and of course, like with
 all tags, specify an additional selector attribute. #par
 
@@ -16,16 +16,28 @@ all tags, specify an additional selector attribute. #par
 
 #cdb
 [MessageError]
-public function handleError (processor:MessageProcessor, error:Error) : void; 
+public function handleError (error:Error) : void; 
 #cdb
+
+#par As with all message handlers an error handler can also accept an argument of type #cdi MessageProcessor #cdi
+in case you want to cancel or suspend processing or send a message to the sender Context: #par
+
+#cdb
+[MessageError]
+public function handleError (error:Error, processor:MessageProcessor) : void; 
+#cdb
+
+#par Only the first parameter for the error is required. The ones for the message and the processor are both
+optional. #par
 
 #par Finally, since an error handler configured with the tag shown above always listens to a single
 scope, you may want to add an error handler that will be automatically attached to every scope created
 for an application. You can do that programmatically through the #cdi BootstrapDefaults #cdi: #par
 
 #cdb
-var provider:ObjectProvider = Provider.forInstance(this);
-var handler:MessageErrorHandler 
-                  = new DefaultMessageErrorHandler(provider, "handleError", Object);
+var handler:DefaultMessageErrorHandler = new DefaultMessageErrorHandler();
+var method:Method = ClassInfo.forInstance(this).getMethod("handleError");
+handler.init(Provider.forInstance(this), method);
+
 BootstrapDefaults.config.messageSettings.addErrorHandler(handler);
 #cdb
