@@ -72,7 +72,7 @@ files. #par
 #cdb
 public interface RootConfigurationElement {
     
-    function process (config:Configuration) : void;
+    function process (registry: ObjectDefinitionRegistry) : void;
     
 }
 #cdb
@@ -81,7 +81,7 @@ public interface RootConfigurationElement {
 for an object. Many of the builtin tags like #cdi <Object> #cdi behave like that. But it is not a requirement. The tag
 can alternatively register multiple object definitions or even none at all and instead do any other kind of processing. #par
 
-#par The #cdi Configuration #cdi instance passed to the #cdi process #cdi method gives access to the configuration DSL.
+#par The #cdi ObjectDefinitionRegistry #cdi instance passed to the #cdi process #cdi method gives access to the object definition builders.
 For instruction on how to use the DSL see #ref extensions_definitions #ref. #par
 
 
@@ -97,7 +97,7 @@ it is expected that each child tag represents an element of that Array. Therefor
 #cdb
 public interface NestedConfigurationElement {
     
-    function resolve (config:Configuration) : Object;
+    function resolve (registry: ObjectDefinitionRegistry) : Object;
     
 } 
 #cdb
@@ -148,27 +148,24 @@ public class MessageConfirmationTag implements RootConfigurationElement {
     
     public var selector:*;
     
-    public function process (config:Configuration) : void {
+    public function process (registry: ObjectDefinitionRegistry) : void {
         
         var builder:ObjectDefinitionBuilder 
-                = config.builders.forClass(MessageConfirmation);
+                = registry.builders.forClass(MessageConfirmation);
         
         builder
-            .constructorArgs()
-                .value(title)
-                .value(text);
+            .constructorArgs(title, text);
                 
-        builder
-            .method("showAlert")
-                .messageHandler()
-                    .type(type)
-                    .selector(selector)
-                    .scope(scope);
+        MessageHandler
+            .forMethod("showAlert")
+                .type(type)
+                .selector(selector)
+                .scope(scope)
+                    .apply(builder);
         
         builder
             .asSingleton()
                 .register();
-        
     }
     
 }

@@ -41,7 +41,7 @@ public class EnterScreenDecorator implements ObjectDefinitionDecorator {
     
     public function decorate (builder:ObjectDefinitionBuilder) : void {
     
-        var scope:Scope = builder.config.context.scopeManager.getScope(scope);
+        var scope:Scope = builder.registry.context.scopeManager.getScope(scope);
         
         var navigationManager:NavigationManager 
                 = scope.extensions.byType(NavigationManager) as NavigationManager;

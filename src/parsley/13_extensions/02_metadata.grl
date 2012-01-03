@@ -37,8 +37,8 @@ object definition it currently processes. #par
 #lst
 #lse Apply one or more of the existing framework features. The framework's configuration DSL accessible through 
 the #cdi ObjectDefinitionBuilder #cdi instance passed to the decorator gives convenient access to core features,
-like specifying injections to be performed or registering message receivers. See #ref extensions_definitions #ref
-for more details. #lse
+like specifying injections to be performed or registering some of the built-in object processors like for a 
+message handler. See #ref extensions_definitions #ref for more details. #lse
 
 #lse Add new functionality. Sometimes none of the existing features are sufficient for solving a problem. In this
 case you can apply a custom #cdi ObjectProcessor #cdi that configures each instance created from a definition.
@@ -86,12 +86,13 @@ public class NavigateTo implements ObjectDefinitionDecorator {
     public var scope:String = ScopeName.GLOBAL;    
 
     public function decorate (builder:ObjectDefinitionBuilder) : void {
-        builder
-            .method(method)
-                .messageHandler()
-                    .scope(scope)
-                    .type(NavigationEvent)
-                    .selector(target);
+        
+        MessageHandler
+            .forMethod(method)
+                .scope(scope)
+                .type(NavigationEvent)
+                .selector(target)
+                    .apply(builder);
     }
     
 }
@@ -108,7 +109,8 @@ explicitly specify the attribute name, so the example from above would read: #cd
 #par The
 #cdi scope #cdi property allows to define handlers only interested in navigation events for a particular scope. #par
 
-#par Finally we use these property values in registering a regular #cdi MessageHandler #cdi through the #cdi ObjectDefinitionBuilder #cdi.
+#par Finally we use these property values in building a regular #cdi MessageHandler #cdi and applying it to 
+the #cdi ObjectDefinitionBuilder #cdi.
 We are passing the scope value, using the global scope as the default in case the attribute is omitted. The name of the navigation 
 target is used as the selector for the handler, while the message type (#cdi NavigationEvent #cdi) is hard-coded in this case. #par
 
@@ -126,15 +128,16 @@ to be implemented: #par
 #cdb
 public interface ObjectProcessor {
     
-    function preInit () : void;
+    function init (target: ManagedObject) : void;
 
-    function postDestroy () : void;
+    function destroy (target: ManagedObject) : void;
     
 }
 #cdb
 
-#par Again, fairly simple. The #cdi preInit #cdi method will be invoked after the object was instantiated, but before its
-#cdi [Init] #cdi method will be invoked (in case it has one). Likewise the #cdi postDestroy #cdi method will be invoked
+#par Again, fairly simple. The #cdi init #cdi method will be invoked after the object was instantiated, but before its
+#cdi [Init] #cdi method will be invoked (this is the default order which can be changed in configuration). 
+Likewise the #cdi destroy #cdi method will be invoked
 when the object was removed from the Context. #par
 
 
@@ -142,108 +145,139 @@ when the object was removed from the Context. #par
 
 #par Understanding this concept is important before implementing your first #cdi ObjectProcessor #cdi. 
 There is a 1:N relationship between a decorator and a processor. When you implement
-the #cdi ObjectDefinitionDecorator #cdi tag like shown in preceding sections, it will be invoked once for a particular
+the #cdi ObjectDefinitionDecorator #cdi interface like shown in preceding sections, it will be invoked once for a particular
 definition in your Context. If it is a definition created by an #cdi <Object> #cdi tag or any other tag which represents a
 singleton, then the decorator will also map to only one processor. But for other types of objects, like those declared
 with #cdi <DynamicObject> #cdi or #cdi <Command> #cdi multiple instances may be created from a single definition.
-In this case one decorator maps to multiple processors, as a new processor gets created for each new instance. #par
+In this case one decorator can map to multiple processors, as a new processor might get created for each new instance. 
+Whether you need a new processor instance for each new target instance solely depends on whether you keep state inside
+your processor that only applies to one target. In this case you should implement the #cdi StatefulProcessor #cdi
+subinterface which adds a #cdi clone #cdi method to create new instances for each new target. #par
 
-#par This mechanism has the advantage that you can keep state that only
+#par With this mechanism you have the option to keep state that only
 applies to a single target instance inside the processor. This greatly simplifies a lot of common tasks performed by processors
-as most processors need to unregister some configuration artifact in the #cdi postDestroy #cdi method which they
-created and applied in the #cdi preInit #cdi method.
-This simplification is the major reason why version 2.3 introduced the distinction between decorators and processors
-and the 1:N relationship between them. Before that many custom tags that had been built were broken as they did not
-deal with the fact that one decorator may be applied to multiple instances, often ending up with patterns where
-the configuration of the second object overwrote the internal state kept for the first object, thus introducing bugs
-that were hard to track down by application developers. #par
+as most processors need to unregister some configuration artifact in the #cdi destroy #cdi method which they
+created and applied in the #cdi init #cdi method, like adding and removing a message handler which always points
+to one concrete target only. #par
 
 
 #sub Example: The ManagedEventsProcessor #sub
 
-#par Due to this 1:N relationship you also need a factory that creates a new processor for each new instance created for
-a particular definition. That sounds more complicated than it actually is, so let's look at an example, 
-the implementation for the builtin #cdi [ManagedEvents] #cdi
-tag, albeit somewhat simplified for the sake of brevity. #par
+#par All that may sound more complicated than it actually is, so let's look at an example for a fairly simple stateful processor, 
+the implementation for the builtin #cdi [MessageDispatcher] tag #cdi
+tag. #par
 
 #cdb
-public class ManagedEventsProcessor implements ObjectProcessor {
+public class MessageDispatcherProcessor implements PropertyProcessor, StatefulProcessor {
     
-    private var target:IEventDispatcher;
-    private var names:Array;
-    private var dispatcher:Function;
+    private var scope:String;
     
-    function ManagedEventsProcessor (target:ManagedObject, names:Array, dispatcher:Function) {
-        this.target = IEventDispatcher(target.instance);
-        this.names = names;
-        this.dispatcher = dispatcher;
+    private var property: Property;
+    
+    private var dispatcher:MessageDispatcher;
+    
+    
+    function MessageDispatcherProcessor (scope:String = null) {
+        this.scope = scope;
     }
     
-    public function preInit () : void {
-        for each (var name:String in names) {        
-            target.addEventListener(name, dispatcher);
-        }
+    
+    /* implementing PropertyProcessor */
+    
+    public function targetProperty (property: Property): void {
+        this.property = property;
     }
     
-    public function postDestroy () : void {
-        for each (var name:String in names) {        
-            target.removeEventListener(name, dispatcher);
-        }
+    
+    /* implementing ObjectProcessor */
+
+    public function init (target: ManagedObject) : void {
+        this.dispatcher = new MessageDispatcher(target.context.scopeManager, scope);
+        property.setValue(target.instance, dispatcher.dispatchMessage);
     }
     
-    public static function newFactory (names:Array, 
-                                       dispatcher:Function) : ObjectProcessorFactory {
-        var params:Array = [names, dispatcher];
-        return ObjectProcessorFactories.newFactory(ManagedEventsProcessor, params);
+    public function destroy (target: ManagedObject) : void {
+        dispatcher.disable();
+    }
+
+
+    /* implementing StatefulProcessor */
+    
+    public function clone () : StatefulProcessor {
+        return new MessageDispatcherProcessor(scope);
     }
     
 }
 #cdb
 
-#par The #cdi preInit #cdi and #cdi postDestroy #cdi methods simply loop through the event names and add the listeners
-when the object gets created and remove them once the object gets removed from the Context. #par
+#par The #cdi init #cdi methods simply creates the dispatcher function (using a utility class) and injects
+it into the target property. Later the dispatcher gets disabled once the object gets removed from the Context
+to prevent it from getting used after the target instance became unmanaged. Since this is tied to the lifecycle
+of one particular instance the processor is stateful. Therefore it implements #cdi StatefulProcessor #cdi in 
+addition to #cdi PropertyProcessor #cdi, both subinterfaces of #cdi ObjectProcessor #cdi. The #cdi clone #cdi
+method only passes the scope name to the constructor of the new processor instance, as that does not change
+from target to target. The dispatcher is not getting passed, like the property instance which will get passed
+into the new instance by the framework anyway. #par
 
-#par Then there is a static
-#cdi newFactory #cdi method that can be used to create a factory for this processor. This is a pattern that is not
-required, but recommended, as it is quite straightforward and all the builtin processors use this pattern, too. 
-If you use the #cdi ObjectProcessorFactories #cdi utility function like above (again not required but convenient),
-you need to know that it is based on a convention how the constructor of your processor has to look like.
-The utility function expects the class of the processor it should create and any number of parameters to pass
-to the constructor. But as you see the actual constructor has one additional parameter which is of type
-#cdi ManagedObject #cdi. The utility function will always pass the actual target instance as the first
-parameter, followed but the ones you specified. #par
-
-#par Finally, in the corresponding decorator, you need to add the processor to the definition: #par
+#par Finally, in the corresponding decorator, which represents the actual tag you can use in metadata,
+MXML and XML, you need to add the processor to the definition: #par
 
 #cdb
-[Metadata(types="class", multiple="true")]
-public class ManagedEvents implements ObjectDefinitionDecorator {
+[Metadata(name="MessageDispatcher", types="property")]
+[XmlMapping(elementName="message-dispatcher")]
+public class MessageDispatcherDecorator implements ObjectDefinitionDecorator {
 
-    [DefaultProperty]
-    public var names:Array;
+    [Target]
+    public var property:String;
     
     public var scope:String;
     
-    public function decorate (builder:ObjectDefinitionBuilder) : void {
     
-        var sm:ScopeManager = builder.config.context.scopeManager;
-        var dispatcher:Function = new MessageDispatcher(sm, scope).dispatchMessage;
-        
+    public function decorate (builder:ObjectDefinitionBuilder) : void {
         builder
-            .lifecycle()
-                #hlt .processorFactory(ManagedEventsProcessor.newFactory([event], dispatcher)); #hlt
+            .property(property)
+            .process(new MessageDispatcherProcessor(scope))
+            .mustWrite()
+            .expectType(Function);
     }
     
+#cdb
+
+#par Here we simply create a new instance of our processor and apply it to the #cdi ObjectDefinitionBuilder #cdi. 
+You can also see that it is convenient to implement #cdi PropertyProcessor #cdi. You could do the reflection yourself,
+but the syntax above is a handy shortcut for just passing the name of the property as a String, and then relying
+on the framework to check whether the property actually exists on the target class and whether the validation rules
+you specified are met by that property. In this case we know the property must be writable and of type #cdi Function #cdi.
+If everything is correct, the framework will then pass the #cdi Property #cdi instance (from Spicelib Reflect API)
+to the #cdi targetProperty #cdi method of your #cdi PropertyProcessor #cdi. #par
+
+#par Finally in rare cases you may also want to override the default phase the processor gets invoked in.
+By default all processor get invoked in the #cdi preInit #cdi phase except for the processor for the #cdi [Init] #cdi
+method itseld, which executes in the #cdi init #cdi phase. If you need your processor to be applied as a final step
+eben after the init method had been called you can specify a phase explicitly: #par
+
+#cdb
+public function decorate (builder:ObjectDefinitionBuilder) : void {
+    builder
+        .property(property)
+        .process(new MyCustomProcessor(comeParam))
+        .mustWrite()
+        .initIn(InitPhase.postInit());
 }
 #cdb
 
-#par Here we use the static factory method we added to the processor. The framework will take care of the rest
-and make sure you get a fresh instance of your processor for each target to be configured. #par
+#par If in very rare cases you even need ordering within a particular phase, you can pass an additional order
+attribute (the default is 0): #par
 
-#par Note that the example above differs from the real implementation of the decorator for managed events.
-The real tag simply uses the configuration DSL to specify the managed events, but that way we could not
-demonstrate how to directly connect a processor with a decorator. #par
-
+#cdb
+public function decorate (builder:ObjectDefinitionBuilder) : void {
+    builder
+        .property(property)
+        .process(new MyCustomProcessor(comeParam))
+        .mustWrite()
+        .initIn(InitPhase.postInit(#hlt 10 #hlt));
+}
+#cdb
 
 
 

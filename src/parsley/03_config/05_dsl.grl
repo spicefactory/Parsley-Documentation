@@ -91,17 +91,13 @@ var objectBuilder:ObjectDefinitionBuilder
 
 objectBuilder
     .property("dependency")
-        .injectByType();
+        .value(Inject.byType());
 
-objectBuilder
-    .property("dispatcher")
-         .messageDispatcher();
-         
-objectBuilder
-    .method("handleLogin")
-        .messageHandler()
-            .type(LoginMessage)
-            .scope("local");
+MessageHandler
+    .forMethod("handleLogin")
+        .type(LoginMessage)
+        .scope("local")
+            .apply(builder);
             
 objectBuilder
     .asDynamicObject()

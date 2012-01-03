@@ -12,12 +12,12 @@ details you may want to browse the ASDoc for the DSL. #par
 
 #par This is usually only required in MXML or XML tags as metadata tags is most often used to configure existing definitions.
 If you implement #cdi RootConfigurationElement #cdi or #cdi NestedConfigurationElement #cdi for a custom MXML or XML tag,
-then the provided #cdi Configuration #cdi instance can be used to obtain a new builder for an #cdi ObjectDefinition #cdi: #par
+then the provided #cdi ObjectDefinitionRegistry #cdi instance can be used to obtain a new builder for an #cdi ObjectDefinition #cdi: #par
 
 #cdb
-public function process (config:Configuration) : void {
+public function process (registry: ObjectDefinitionRegistry) : void {
 
-    var builder:ObjectDefinitionBuilder = config.builders.forClass(MessageConfirmation);
+    var builder:ObjectDefinitionBuilder = registry.builders.forClass(MessageConfirmation);
                 
     [...]
     
@@ -31,11 +31,6 @@ been created and will be passed to the decorator: #par
 #cdb
 public function decorate (builder:ObjectDefinitionBuilder) : void {
 #cdb
-
-#par In rare cases a metadata tag may also wish to create and register additional definitions.
-The #cdi Configuration #cdi instance for the builder is accessible through #cdi builder.config #cdi  
-and can be used like in the #cdi process #cdi method above. #par
-
 
 
 
@@ -58,7 +53,7 @@ builder
 #cdb
 builder
     .property("service")
-        .injectByType();
+        .value(Inject.byType());
 #cdb
 
 #par If the type cannot be determined through reflection, it can be specified explicitly: #par
@@ -66,7 +61,7 @@ builder
 #cdb
 builder
     .property("service")
-        .injectByType(LoginService);
+        .value(Inject.byType(LoginService));
 #cdb
 
 #sub Injection by Id #sub
@@ -74,7 +69,7 @@ builder
 #cdb
 builder
     .property("service")
-        .injectById("loginService");
+        .value(Inject.byId("loginService"));
 #cdb
 
 #par This is equivalent to using #cdi [Inject(id="loginService")] #cdi on the property declaration. #par
@@ -89,20 +84,16 @@ builder
 #sub Literal Values #sub
 
 #cdb
-builder
-    .constructorArgs()
-        .value("Alison")
-        .value("Goldfrapp");
+builder.constructorArgs("Alison", "Goldfrapp");
 #cdb
 
 #sub Injection by Type #sub
 
-#par If the type for all parameters can be deduced from reflecting on the parameters of the constructor: #par
+#par If the type for all parameters can be deduced from reflecting on the parameters of the constructor
+yo can simply omit all parameters: #par
 
 #cdb
-builder
-    .constructorArgs()
-        .injectAllByType();
+builder.constructorArgs();
 #cdb
 
 #par Note that there is a bug in current Flash Players that reports #cdi '*' #cdi as the type for constructor arguments
@@ -112,27 +103,27 @@ instead of the actual declared type if you reflect on a class before any instanc
 
 #cdb
 builder
-    .constructorArgs()
-        .injectByType(LoginService);
-        .injectByType(CartService);
-        .injectByType(ProductService);
+    .constructorArgs(
+        Inject.byType(LoginService),
+        Inject.byType(CartService),
+        Inject.byType(ProductService)
+    );
 #cdb
 
 #sub Injection by Id #sub
 
 #cdb
-builder
-    .constructorArgs()
-        .injectById("loginService");
+builder.constructorArgs(Inject.byId("loginService"));
 #cdb
 
-#par Of course any mechanisms can be mixed: #par
+#par Of course any mechanisms can be mixed, like an injection by type with a literal value: #par
 
 #cdb
 builder
-    .constructorArgs()
-        .injectById("loginService")
-        .value("http://www.someDomain.com/");
+    .constructorArgs(
+        Inject.byId("loginService")
+        "http://www.someDomain.com/"
+    );
 #cdb
 
 
@@ -141,26 +132,28 @@ builder
 #sc3 extensions_definitions_standard_messaging Standard Message Receivers #sc3
 
 #par If you want to apply one of the builtin message receivers like #cdi [MessageHandler] #cdi
-or #cdi [CommandResult] #cdi programmatically, they are all available through the DSL: #par
+or #cdi [CommandResult] #cdi programmatically, they are all available through their corresponding API: #par
 
 #cdb
-builder
-    .method("intercept")
-        .messageHandler()
-            .type(LoginMessage)
-            .scope("local");
+var builder: ObjectDefinitionBuilder = ...;
 
-builder
-    .method("result")
-        .commandResult()
-            .type(SaveUserMessage)
-            .scope("window");
+MessageHandler
+    .forMethod("intercept")
+        .type(LoginMessage)
+        .scope("local")
+            .apply(builder);
+
+CommandResult
+    .forMethod("result")
+        .type(SaveUserMessage)
+        .scope("window")
+            .apply(builder);
             
-builder
-    .property("status")
-        .commandStatus()
-            .type(LoadConfigMessage)
-            .selector("loadServices");       
+CommandStatus
+    .forProperty("status")
+        .type(LoadConfigMessage)
+        .selector("loadServices")       
+            .apply(builder);
 #cdb     
            
 
@@ -170,27 +163,19 @@ builder
 
 #par In cases where you created a custom message receiver by directly implementing one of the core
 receiver interfaces like #cdi MessageTarget #cdi or #cdi CommandObserver #cdi or extending one of the builtin
-receivers, you can create a custom factory for these receivers: #par
+receivers, you can pass a custom factory function for these receivers: #par
 
 #cdb
-builder
-    .lifecycle()
-        .messageReceiverFactory(new MyCustomFactory());
+var builder: ObjectDefinitionBuilder = ...;
+
+var factory:Function = function (): Object {
+    return new MyCustomMessageReceiver(someParam, anotherParam);
+};
+		
+builder.method("handleMessage").process(new MethodReceiverProcessor(factory, ScopeName.LOCAL));
 #cdb
 
-#par This is the interface such a custom factory must implement: #par
-
-#cdb
-public interface MessageReceiverFactory {
-    
-    function createReceiver (provider:ObjectProvider) : MessageReceiver;
-    
-}
-#cdb
-
-#par This factory will be invoked for each instance that gets created from the target definition.
-Most implementations will very likely be a one liner, taking the specified provider for the new
-instance and using it as an argument for the constructor of the returned receiver instance. #par
+#par The factory function will be invoked for each instance that gets created from the target definition. #par
 
 #par The framework will do the rest for you. Like registering that receiver when the object gets
 created and removing it again when the object gets removed from the Context. It also takes care
@@ -209,9 +194,9 @@ this instantiator who is responsible for creating the object then. This is how a
 can be specified: #par
 
 #cdb
-builder
-    .lifecycle()
-        .instantiator(new MyInstantiator());
+var builder: ObjectDefinitionBuilder = ...;
+
+builder.instantiate(new MyInstantiator());
 #cdb
 
 #par And this is the interface that must be implemented: #par
@@ -310,19 +295,18 @@ with the lifecycle of the dependency being tied to that of the host. #par
 #par If you want to do the same in code, this is how it works: #par
 
 #cdb
-var config:Configuration = ...;
+var registry: ObjectDefinitionRegistry = ...;
 
-var dependency:DynamicObjectDefinition = config.builders
+var dependency:DynamicObjectDefinition = registry.builders
     .forClass(SomeCollaborator)
         .asDynamicObject()
             .build();
             
-var builder:ObjectDefinitionBuilder = config.builders
+var builder:ObjectDefinitionBuilder = registry.builders
     .forClass(SomeService);
 
 builder
-    .constructorArgs()
-        #hlt .injectFromDefinition(dependency); #hlt
+    .constructorArgs(#hlt Inject.fromDefinition(dependency) #hlt);
             
 builder
     .asSingleton()
@@ -330,7 +314,7 @@ builder
 #cdb
 
 #par As you see, we do not call #cdi register #cdi for the first definition we create. We just call #cdi build #cdi instead, 
-which gives us a definition the container does not know about. We then pass it to #cdi injectFromDefinition #cdi for the 
+which gives us a definition the container does not know about. We then pass it to #cdi Inject.fromDefinition #cdi for the 
 constructor arguments of the other definition and only register the latter with the container. #par
 
 
@@ -349,8 +333,8 @@ var p:Property = builder.typeInfo.getProperty("service");
 that the Context your tag lives in belongs to: #par
 
 #cdb
-var config:Configuration = ...;
-var ci:ClassInfo = ClassInfo.forClass(SomeClass, #hlt config.domain #hlt);
+var registry: ObjectDefinitionRegistry = ...;
+var ci:ClassInfo = ClassInfo.forClass(SomeClass, #hlt registry.domain #hlt);
 #cdb
 
 #par Without passing the domain the tag may not work properly in modules loaded into child ApplicationDomains. #par

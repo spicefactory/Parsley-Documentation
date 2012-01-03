@@ -1,14 +1,26 @@
 #sc2 overview_migrate_30 Migrating from Parsley 2 to Parsley 3 #sc2
 
-#par Note: if you have an existing production application based on Parsley 2,
-it is recommended to wait for the release of the second milestone of Parsley 3.0,
-as that milestone will introduce further API changes. The second milestone will
-come with the final API, so you'd avoid having multiple migration steps. #par
+#par Migration steps are primarily necessary in 2 areas: Command Support and Extension APIs.
+Apart from that some APIs have been moved to new packages to improve the internal decoupling
+of the framework, but these changes only require a simple Organize Imports. Many other
+areas remained unchanged, like all configuration tags (MXML, XML and metadata) apart from
+those for Commands. #par
 
-#par If you just start building a new application it is recommended to start
-using the first milestone immediately, as this would lead to fewer migration
-steps once the second milestone is released (in January or February 2012) than
-when starting with Parsley 2.4 now. #par
+#par The API of Parsley 3 is intended to be a long-term stable API. If you followed the
+Parsley 2 releases you may have noticed that even second digit changes in version numbers
+often meant breaking API changes. This was because Parsley significantly evolved in its
+version 2 lifetime based on the growing adoption in large-scale enterprise projects.
+This fast evolution will come to an end with Parsley 3, where even a future releases
+of versions 3.1 or 3.2 are intended to be drop-in replacements for existing applications
+without any migration steps. Therefore it is strongly recommended to move to Parsley 3
+at some point, as it will allow you to benefit from future enhancements and fixes
+without further changes on your side. On the other hand Parsley 2 will not see any
+further enhancement or bugfix releases, so staying with that version would mean that
+you'd have to find workarounds yourself. #par
+
+#par Parsley 3 is also the cleanest release to date. With all deprecations being removed
+and other areas of the code base being streamlined, it is the best version so far for anyone
+with the intention to learn, enhance or modify the code base. #par
 
 
 
@@ -27,10 +39,58 @@ you can more easily move to version 3.0. #par
 
 #sc3 overview_migrate_24 Migrating from Version 2.4 #sc3
 
-#par Some functional areas in Parsley 3 saw significant changes, while others remained
-almost untouched. This section tries to give a detailed overview over the most important
+#par This section tries to give a detailed overview over the most important
 changes. If you think that something essential is not covered here, please post on our
 forum. #par
+
+
+#sc3 overview_migrate_repackaging Repackaged APIs #sc3
+
+#par Some of the core APIs have been repackaged, primarily the various configuration DSLs have
+been moved. The most likely candidates for frequent use in applications are the #cdi ContextBuilder #cdi,
+#cdi Configure #cdi and #cdi FastInject #cdi APIs. The corresponding MXML tags are not affected, only
+the APIs. Only an Organize Import is required to migrate here, with the only exception being some
+of the lower level options of the ContextBuilder API as covered in the next section. #par
+
+
+#sc3 overview_migrate_defbuilder Reduced ObjectDefinitionBuilder API #sc3
+
+#par If you used the #cdi ObjectDefinitionBuilder #cdi API, either to implement a custom tag or
+in setup code via #cdi ContextBuilder.objectDefinition().forClass(MyClass) #cdi then you'll notice
+that the options have been reduced. They are not gone, they are just no longer hard-coded into the
+ObjectDefinitionBuilder API to make it easier to build custom Parsley distributions with a reduced or different
+set of pre-installed configuration tags. You do not have to restructure anything, everything can be
+adjusted via in-place changes. An example for configuring a message handler via API is shown below: #par
+
+#par Before: #par
+
+#cdb
+var builder: ObjectDefinitionBuilder = ...;
+
+builder
+    .method("handleMessage")
+        .messageHandler()
+            .scope(ScopeName.GLOBAL)
+            .type(MyMessage)
+            .order(10);
+#cdb
+
+#par After: #par
+
+#cdb
+var builder: ObjectDefinitionBuilder = ...;
+
+#hlt MessageHandler
+    .forMethod("handleMessage") #hlt
+        .scope(ScopeName.GLOBAL)
+        .type(MyMessage)
+        .order(10)
+            #hlt .apply(builder); #hlt
+#cdb
+
+#par As you see the message handler is just no longer available through the builder API, 
+but instead comes with a static, standalone entry point. The class name for the API is 
+always the same as the name of the corresponding metadata or MXML tag. #par
 
 
 
@@ -195,6 +255,96 @@ public function result (result: XML): User {
 #cdb
 
 
+#sc3 overview_migrate_messageerror Signature Change for MessageError handlers #sc3
+
+#par If you declared a message error handler in Parsley 2, then you need to adjust the order
+of parameters: #par
+
+#par Before: #par
+
+#cdb
+[MessageError]
+public function handleError (processor: MessageProcessor, error: Error): void
+#cdb
+
+#par After: #par
+
+#cdb
+[MessageError]
+public function handleError (error: Error, processor: MessageProcessor): void
+#cdb
+
+#par This change has been made to align this tag with all other types of message handlers where the 
+(optional) processor parameter always comes last. You can also now additionally map the error handler
+by message type like with all other types of message receivers: #par
+
+#cdb
+[MessageError]
+public function handleError (error: Error, message: LoginMessage, processor: MessageProcessor): void
+#cdb 
 
 
+#sc3 overview_migrate_extension Changes in Extension APIs #sc3
+
+#par If you wrote custom configuration tags or other types of extensions, you may need to adjust
+them one final time. In particular the #cdi ObjectProcessor #cdi interface has been adjusted one
+more time. It took some time to get the balance between robustness, flexiblity and simplicity right.
+In Parsley 3 the interim #cdi ObjectProcessorFactory #cdi has gone, you can now directly add
+an #cdi ObjectProcessor #cdi to an #cdi ObjectDefinitionBuilder #cdi. This removes the need for
+cumbersome plumbing, in particular if the processor is stateless. For a stateful processor you
+now have to implement the optional #cdi StatefulProcessor #cdi interface, which adds a simple
+#cdi clone #cdi method in case the same processor needs to get applied for another target object. #par
+
+#par ObjectProcessor interface - before: #par
+
+#cdb
+function preInit (): void;
+
+function postDestroy (): void;
+#cdb
+
+#par ObjectProcessor interface - after (allowing for stateless implementations): #par
+
+#cdb
+function init (target: ManagedObject): void;
+
+function destroy (target: ManagedObject): void;
+#cdb
+
+#par New optional interface #cdi StatefulProcessor #cdi, extending #cdi ObjectProcessor #cdi: #par
+
+#cdb
+function clone (): StatefulProcessor;
+#cdb
+
+#par This method should create a clone of the processor without any state that you kept for a particular
+managed object #par
+
+#par Applying a processor - before: #par
+
+#cdb
+var builder: ObjectDefinitionBuilder = ...;
+
+builder
+    .lifecycle()
+        .processorFactory(MyProcessor.newFactory(someParam));
+#cdb
+
+#par Although not mandated it was a common pattern to add a static factory method to processors to create
+a factory for new instances. With the new optional clone method, a factory is now obsolete. #par
+
+#par Applying a processor - after: #par
+
+#cdb
+var builder: ObjectDefinitionBuilder = ...;
+
+builder
+    .process(new MyProcessor(someParam));
+#cdb
+
+#par There are also some new options, like using a dedicated #cdi PropertyProcessor #cdi or #cdi MethodProcessor #cdi
+subinterface when implementing processors that just deal with one member of the target instance (which is the case
+for the majority of processors), and convenient target property and method validation as well as the option to specify
+the exact phase the processor is applied to a target instance in case the order matters. The new options are explained
+in #ref extensions_metadata_processor #ref. #par 
 

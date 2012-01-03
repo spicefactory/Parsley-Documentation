@@ -22,8 +22,8 @@ mechanism provided by the framework: #par
 #cdb
 var type:Class = AddToCartAction;
 var id:String = "addToCartAction";
-Configurations
-    .forRegistry(registry)
+
+registry
     .builders
         .forClass(type)
             .asSingleton()
