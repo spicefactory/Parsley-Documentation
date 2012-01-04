@@ -161,7 +161,7 @@ created and applied in the #cdi init #cdi method, like adding and removing a mes
 to one concrete target only. #par
 
 
-#sub Example: The ManagedEventsProcessor #sub
+#sub Example: The MessageDispatcherProcessor #sub
 
 #par All that may sound more complicated than it actually is, so let's look at an example for a fairly simple stateful processor, 
 the implementation for the builtin #cdi [MessageDispatcher] tag #cdi
