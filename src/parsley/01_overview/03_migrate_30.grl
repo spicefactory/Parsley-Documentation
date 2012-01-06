@@ -255,6 +255,27 @@ public function result (result: XML): User {
 #cdb
 
 
+
+#sc3 overview_migrate_contextbuilder Building the first Context with the ContextBuilder API #sc3
+
+#par If you are using the #cdi <ContextBuilder> #cdi MXML tag to create the first
+Context of the application, all Flex support provided by Parsley is initialized 
+automatically, as the MXML tag is Flex-specific. On the other hand the 
+ContextBuilder API is now part of Parsley Core which does not
+depend on Flex. If you create the first Context of a Flex application with this
+API, you need to call the following initialization method once first: #par
+
+#cdb
+#hlt FlexSupport.initialize(); #hlt
+
+ContextBuilder.newBuilder() [...]
+#cdb
+
+#par Again, this is not required when you use the #cdi <ContextBuilder> #cdi MXML
+tag or use this API for creating subsequent Context instances. #par
+
+
+
 #sc3 overview_migrate_messageerror Signature Change for MessageError handlers #sc3
 
 #par If you declared a message error handler in Parsley 2, then you need to adjust the order
