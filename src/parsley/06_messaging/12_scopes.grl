@@ -4,6 +4,8 @@
 allowing to dispatch messages inside a particular area of the application
 (e.g. a window, popup or tab) instead of just globally. #par
 
+
+
 #sub Global and Local Scopes #sub
 
 #par In the default scope setup for Parsley there is a global scope that is created for each Context that does
@@ -13,9 +15,8 @@ local scope which will not be shared with its children. The following diagram sh
 
 #img doc_img scopes-default.jpg #img
 
-#par The local scope will always be the default scope for all configuration tags where no scope is 
-explicitly specified. (Note that in Parsley 2 the default was global scope, this is important
-to consider when migrating applications from version 2 to 3). #par
+#par The global scope will always be the default scope for all configuration tags where no scope is 
+explicitly specified. #par
 
 #cdb
 [MessageHandler(selector="save")]
@@ -34,7 +35,18 @@ public function save (event:ProductEvent) : void {
 for the various message receiver types accept a scope attribute, including #cdi MessageBinding #cdi
 and #cdi MessageErrorHandler #cdi. #par
 
-#par Since version 2.4 the default scope can now be switched: #par
+
+
+#sub Recommended Scope Defaults in Multi-Context Applications #sub
+
+#par The global scope is the recommended default for a single-Context application and for the root
+Context in a multi-Context application. In a multi-Context application objects in the root Context often
+represent global services that need to react to messages dispatched by objects from child Contexts. Therefore
+the global scope is a convenient default. For child Contexts (those created specifically for a particular
+area of the application like a popup, tab or module) it is recommended to switch to local as a default,
+so that objects in these children use a local, private communication space per default. #par
+
+#par This is how you can switch the default scope for an entire Context: #par
 
 #cdb
 <parsley:ContextBuilder config="...">
@@ -44,6 +56,10 @@ and #cdi MessageErrorHandler #cdi. #par
 
 #par Now the local scope is the default whenever no scope is specified explicitly in a configuration tag.
 The default is in effect for the Context and all its children unless overwritten again for a child Context. #par
+
+
+
+#sub Default Scopes for Dispatchers #sub
 
 #par For the sending side the default behaviour is different. For any #cdi [MessageDispatcher] #cdi or 
 #cdi [ManagedEvents] #cdi tag
@@ -56,6 +72,8 @@ for the #cdi [ManagedEvents] #cdi tag: #par
 #cdb
 [ManagedEvents("save,delete", scope="local")]
 #cdb
+
+
 
 #sub Custom Scopes #sub
   
