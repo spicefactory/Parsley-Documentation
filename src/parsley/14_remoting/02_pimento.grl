@@ -60,9 +60,9 @@ of course be injected into other objects, too. #par
     xmlns:pimento="http://www.spicefactory.org/parsley/pimento"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.spicefactory.org/parsley 
-      http://www.spicefactory.org/parsley/schema/2.3/parsley-core.xsd 
+      http://www.spicefactory.org/parsley/schema/3.0/parsley-core.xsd 
     http://www.spicefactory.org/parsley/pimento 
-      http://www.spicefactory.org/parsley/schema/2.3/parsley-pimento.xsd"
+      http://www.spicefactory.org/parsley/schema/3.0/parsley-pimento.xsd"
     >
     <pimento:config 
         url="http://localhost/test/service/"

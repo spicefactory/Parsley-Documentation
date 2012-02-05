@@ -18,9 +18,9 @@ that the framework should load when initializing the IOC Container: #par
     xmlns:res="http://www.spicefactory.org/parsley/flash/resources"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.spicefactory.org/parsley 
-      http://www.spicefactory.org/parsley/schema/2.3/parsley-core.xsd
+      http://www.spicefactory.org/parsley/schema/3.0/parsley-core.xsd
     http://www.spicefactory.org/parsley/flash/resources 
-      http://www.spicefactory.org/parsley/schema/2.3/parsley-resources-flash.xsd">
+      http://www.spicefactory.org/parsley/schema/3.0/parsley-resources-flash.xsd">
     
     <res:resource-manager id="resourceManager">
         <res:locale language="en" country="US"/>
@@ -71,7 +71,7 @@ FlashResourceXmlSupport.initialize();
     xmlns="http://www.spicefactory.org/parsley/flash/resource-bundle"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.spicefactory.org/parsley/flash/resource-bundle 
-        http://www.spicefactory.org/parsley/schema/2.3/parsley-resources-flash-bundle.xsd"
+        http://www.spicefactory.org/parsley/schema/3.0/parsley-resources-flash-bundle.xsd"
     >
     <resource key="tooltip.save">Saves the file</resource>
     <resource key="tooltip.open">Opens a new file</resource>

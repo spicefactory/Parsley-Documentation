@@ -86,9 +86,9 @@ existing Java service interfaces to AS3. #par
     xmlns:pimento="http://www.spicefactory.org/parsley/cinnamon"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.spicefactory.org/parsley 
-      http://www.spicefactory.org/parsley/schema/2.3/parsley-core.xsd 
+      http://www.spicefactory.org/parsley/schema/3.0/parsley-core.xsd 
     http://www.spicefactory.org/parsley/cinnamon 
-      http://www.spicefactory.org/parsley/schema/2.3/parsley-cinnamon.xsd"
+      http://www.spicefactory.org/parsley/schema/3.0/parsley-cinnamon.xsd"
     >
     <cinnamon:channel
         url="http://localhost:8080/test/service/"

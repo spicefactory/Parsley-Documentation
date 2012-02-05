@@ -73,7 +73,7 @@ into your application. #par
     xmlns="http://www.spicefactory.org/parsley"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.spicefactory.org/parsley 
-        http://www.spicefactory.org/parsley/schema/2.3/parsley-core.xsd"
+        http://www.spicefactory.org/parsley/schema/3.0/parsley-core.xsd"
     >
     
     <object type="com.bookstore.services.LoginServiceImpl">

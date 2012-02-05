@@ -10,9 +10,9 @@ you can use to configure loggers for that framework: #par
     xmlns:log="http://www.spicefactory.org/parsley/flash/logging"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.spicefactory.org/parsley 
-      http://www.spicefactory.org/parsley/schema/2.3/parsley-core.xsd 
+      http://www.spicefactory.org/parsley/schema/3.0/parsley-core.xsd 
     http://www.spicefactory.org/parsley/flash/logging 
-      http://www.spicefactory.org/parsley/schema/2.3/parsley-logging-flash.xsd"
+      http://www.spicefactory.org/parsley/schema/3.0/parsley-logging-flash.xsd"
     >
     
     <log:factory id="logFactory">
