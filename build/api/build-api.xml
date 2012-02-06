@@ -1,0 +1,32 @@
+<project name="Parsley Spicelib API"> 
+
+	<property file="build.properties" />
+	
+	<property name="build.dir" value="${basedir}"/>
+	<property name="project.dir" value="${basedir}/../.."/>
+	<property name="workspace.dir" value="${project.dir}/.."/>
+	<property name="output.dir" value="${workspace.dir}/../SpicefactoryProduction/Website/parsley/docs/3.0/api"/>
+
+	<target name="generate_api">
+		<delete dir="${output.dir}"/>
+		<mkdir dir="${output.dir}"/>
+		<exec executable="${flex4.sdk}/bin/${asdoc}" dir="${project.dir}">
+			<arg line="-load-config+=build/api/api-config.xml" />
+			<arg line="+workspace=${workspace.dir}" />
+			<arg line="+output=${output.dir}" />
+		</exec>
+		<xslt 
+			force="true"
+		    in="${build.dir}/packages.xml" 
+			out="${output.dir}/package-list.html" 
+			style="${build.dir}/stylesheets/package-list.xsl">
+		</xslt>
+		<xslt 
+			force="true"
+		    in="${build.dir}/packages.xml" 
+			out="${output.dir}/package-summary.html" 
+			style="${build.dir}/stylesheets/package-summary.xsl">
+		</xslt>
+	</target>
+		
+</project>

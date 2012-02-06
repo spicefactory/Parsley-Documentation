@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<flex-config>
+	<compiler>
+	
+		<source-path>
+			<path-element>${workspace}/Parsley-Core/src/core/kernel-api</path-element>
+			<path-element>${workspace}/Parsley-Core/src/core/toolbox</path-element>
+			<path-element>${workspace}/Parsley-Core/src/flex</path-element>
+			<path-element>${workspace}/Parsley-Core/src/xml</path-element>
+
+			<path-element>${workspace}/Spicelib-Commands/src/main</path-element>
+			<path-element>${workspace}/Spicelib-XML-Mapper/src/main</path-element>
+			<path-element>${workspace}/Spicelib-Reflect/src/main</path-element>
+			<path-element>${workspace}/Spicelib-Logging/src/main</path-element>
+			<path-element>${workspace}/Spicelib-Util/src/main</path-element>
+    	</source-path>
+    	
+		<library-path>
+			<path-element>${flexlib}/libs/player/10.1/playerglobal.swc</path-element>
+			<path-element>${flexlib}/libs/framework.swc</path-element>
+			<path-element>${flexlib}/libs/rpc.swc</path-element>
+		</library-path>
+		
+	    <verbose-stacktraces>true</verbose-stacktraces>
+	    <debug>true</debug>
+	    
+	</compiler>
+	
+	<doc-sources>
+		<path-element>${workspace}/Parsley-Core/src/core/kernel-api</path-element>
+		<path-element>${workspace}/Parsley-Core/src/core/toolbox</path-element>
+		<path-element>${workspace}/Parsley-Core/src/flex</path-element>
+		<path-element>${workspace}/Parsley-Core/src/xml</path-element>
+
+		<path-element>${workspace}/Spicelib-Commands/src/main</path-element>
+		<path-element>${workspace}/Spicelib-XML-Mapper/src/main</path-element>
+		<path-element>${workspace}/Spicelib-Reflect/src/main</path-element>
+		<path-element>${workspace}/Spicelib-Logging/src/main</path-element>
+		<path-element>${workspace}/Spicelib-Util/src/main</path-element>
+   	</doc-sources>
+	
+	<left-frameset-width>320</left-frameset-width>
+	
+	<main-title>Parsley + Spicelib API</main-title>
+	<window-title>Parsley + Spicelib API</window-title>
+  	
+  	<output>${output}</output>
+	    
+	    
+</flex-config>
